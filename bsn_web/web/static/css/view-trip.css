@@ -1,0 +1,26 @@
+#map {
+        height: 700px;
+        width: 100%;
+}
+ul.route-list:after {
+  clear: both;
+  display: block;
+  content: "";
+
+}
+ul.route-list{
+  margin-top: 0px;
+}
+
+.route-item {
+    float: left;
+    padding-right: 20px;
+    list-style-type: none;
+}
+.trip-plan-list{
+  margin-top: 0px;
+}
+.list-group-item{
+  padding-top: 5px;
+  padding-bottom: 5px;
+}

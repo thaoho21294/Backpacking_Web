@@ -1,0 +1,32 @@
+/* This file is for your main application css. */
+$icon-font-path: "/fonts/"; /* use fonts from priv/static/fonts/ */
+//@import "theme"; /* imports node_modules/bootstrap-sass/assets/stylesheets/_bootstrap.scss */
+body {
+  padding-top: 50px;
+  /*padding-bottom: 30px;*/
+}
+
+.theme-dropdown .dropdown-menu {
+  position: static;
+  display: block;
+  margin-bottom: 20px;
+}
+
+.theme-showcase > p > .btn {
+  margin: 5px 0;
+}
+
+.theme-showcase .navbar .container{
+  width: auto;
+}
+.container {
+  max-width: 1170px;
+}
+
+.navbar-form input[type=text]{
+  width: 400px !important;
+}
+#avar{
+  width: 30px;
+  height: 20px;
+}
