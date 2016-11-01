@@ -2,8 +2,9 @@
 $icon-font-path: "/fonts/"; /* use fonts from priv/static/fonts/ */
 //@import "theme"; /* imports node_modules/bootstrap-sass/assets/stylesheets/_bootstrap.scss */
 body {
-  padding-top: 50px;
+  //padding-top: 30px;
   /*padding-bottom: 30px;*/
+  font-family: sans-serif;
 }
 
 .theme-dropdown .dropdown-menu {

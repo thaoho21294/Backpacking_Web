@@ -13,13 +13,8 @@
 // to also remove its path from "config.paths.watched".
 import "phoenix_html";
 require('jquery');
-$("#my-button-1").click(function () {
-  alert("Good job!!!");
-});
-// require('jquery');
-// $("#my-button").click(function () {
-//   alert("Good job!!!");
-// });
+// require('gmaps')
+require('./view-trip.js')
 // Import local files
 //
 // Local files can be imported directly using relative

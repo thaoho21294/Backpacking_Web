@@ -57,6 +57,7 @@ exports.config = {
         },
         copycat: {
             "fonts": ["node_modules/bootstrap-sass/assets/fonts/bootstrap"] // copy node_modules/bootstrap-sass/assets/fonts/bootstrap/* to priv/static/fonts/
+			
         },
         sass: {
             option: {
@@ -79,10 +80,11 @@ exports.config = {
         //styles: {
         //    bootstrap: ['dist/css/bootstrap.min.css']
         //},
+		//static: [{gmaps: 'gmaps/gmaps.js'}],
         globals: { // bootstrap-sass' JavaScript requires both '$' and 'jQuery' in global scope
             $: 'jquery',
             jQuery: 'jquery',
-            bootstrap: 'bootstrap-sass' // require bootstrap-sass' JavaScript globally
+            bootstrap: 'bootstrap-sass', // require bootstrap-sass' JavaScript globally
         }
     }
 };

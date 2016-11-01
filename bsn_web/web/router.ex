@@ -17,15 +17,15 @@ defmodule BsnWeb.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
-    get "/routes", TripController, :get_routes
+    #get "/routes", TripController, :get_routes_json
   end
   # Other scopes may use custom stacks.
   scope "/api", BsnWeb do
      pipe_through :api
 
-     get "/routes", TripController, :get_routes
+     get "/stops", TripController, :get_all_stops
      get "/tripdetail", TripController, :get_trip_detail
-     get "/members", TripController, :get_members 
+     get "/members", TripController, :get_members
 
    end
 end

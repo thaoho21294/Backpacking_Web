@@ -76,8 +76,10 @@
       </main>
 
     </div> <!-- /container -->
+    
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
-	<script src="/js/view-trip.js" ></script>
+	<!--<script src="/js/view-trip.js" ></script>-->
+
 
   </body>
 </html>
