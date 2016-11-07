@@ -37,33 +37,55 @@
 }
 
 
-ul.route-list:after {
+ul.route-list:after, ul.content2-header:after{
     clear: both;
     display: block;
     content: "";
 }
 
-ul.route-list {
+ul.route-list , ul.content2-header{
     margin-top: 0px;
+    margin-left: 0px;
+    padding-left: 0px;
 }
 
-.route-item {
+.route-item, .content2-header-item{
     float: left;
     padding-right: 20px;
     list-style-type: none;
 
 }
 
-.list-group-item {
-    padding-top: 5px;
-    padding-bottom: 5px;
-    background-color: #d3d3d3;
-    cursor: pointer;
+.li-close-button{
+  float: right;
+  list-style-type: none;
+}
 
+.list-item  {
+    background-color: #d3d3d3;
+    list-style-type: none;
 }
-.stop-header{
+.content1{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    cursor: pointer;
+    
+}
+.content2-body{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: white;
+}
+.content2-header{
   background-color: grey;
+  padding-top: 5px;
+  padding-left: 5px;
+  /*padding-bottom: 5px;*/
 }
+
 input[name='stop-name']{
     font-size: 20px;
     width: 100%;
@@ -73,25 +95,25 @@ input[name='stop-address']{
     width: 100%;
 }
 
-.list-group-item input{
+.list-item input{
     border: 2px solid transparent;
     box-shadow: none;
     background: transparent;
     text-align: center; 
   }
-.list-group-item input:focus{
+.list-item input:focus{
 
     border-bottom: 2px solid blue;
 
 }
-.list-group-item input:hover{
+.list-item input:hover{
    border-bottom: 2px solid blue;
    cursor: text;
 }
 input[name='stop-arrive-date'], input[name='stop-departure-date']{
     width: 80px;
 }
-input[name='stop-arrive-time'],input[name='stop-departure-time'] {
+input[name='stop-arrive-time'],input[name='stop-departure-time'], input[name='route-distance'], input[name='route-duration-time'] {
     width: 60px;
     margin-left: 10px;
  }
@@ -99,20 +121,37 @@ input[name='stop-duration-time']{
   width: 40px
 }
 form.stop-detail{
-  margin-top: 10px;
+  margin-top: 0px;
   margin-bottom: 0px;
 }
 textarea.stop-description{
 
 }
 input.stop-name, input.stop-address, textarea.stop-description,
-input[name='route-name'], div.item-content2{
-  margin-bottom: 10px;
+input[name='route-name']{
   width: 100%;
 }
+div.item-content2{
+  padding-bottom: 10px;
+  }
 .stop-label{
   width: 150px;
 }
 .route-label{
   width: 100px;
+}
+.mode-icon{
+  width: 35px;
+  height: 25px;
+}
+.middle-div{
+  height: : 20px;
+  background-color: blue;
+}
+button.up, button.down{
+  background-color: transparent;
+  border: none;
+}
+button.up:hover, button.down:hover {
+   background-color: #d3d3d3;
 }

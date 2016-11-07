@@ -7,7 +7,7 @@ defmodule BsnWeb.TripController do
       MATCH (l:Location)<-[:LOCATE]-(s:Stop)<-[:INCLUDE]-(t:Trip)
       OPTIONAL MATCH (l:Location)<-[:LOCATE]-(s:Stop)-[:THROUGH]->(r:Route)-[:MODE]->(v:Vehicle), (s:Stop)<-[:INCLUDE]-(t:Trip)
       WHERE id(t)=#{tripid}
-      return s.name as name, l.lat as lat, l.long as lng, v.name as mode, s.order,
+      return s.name as name,s.description as description, l.lat as lat, l.long as lng, l.address as address, v.name as mode, s.order,
       s.arrive as arrive, s.departure as departure, r.name as route_name, r.duration as route_duration, r.distance as route_distance
       ORDER BY s.order
       """
