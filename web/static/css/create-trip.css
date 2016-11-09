@@ -1,0 +1,64 @@
+/* This file is for your main application css. */
+.create-trip{
+	margin-top: 70px;
+}
+.btn-circle {
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  padding: 6px 0;
+  font-size: 12px;
+  line-height: 1.428571429;
+  border-radius: 15px;
+  margin-left: 10px;
+}
+#myModal{
+  top: 15%;
+}
+#myModal .modal-dialog{
+    width: 30%;
+}
+.form-top h4{
+  border-bottom: 1px solid #E7EAEC;
+  padding-bottom: 10px;
+}
+.modal-header{
+  background-color: #545B63;
+  color: white;
+}
+.modal-body{
+  background-color: #E7EAEC;
+}
+.modal-footer{
+  background-color: #E7EAEC;
+}
+.new-trip-form fieldset{
+  background-color: white;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+ul.vehicle-list  {
+  margin: 0;
+  padding: 0;
+  margin-left: 20px;
+  list-style: none;
+}
+ul.vehicle-list li input {
+  margin-right: .25em;
+}
+
+ul.vehicle-list li {
+  border: 1px transparent solid;
+  display:inline-block;
+  width:12em;
+}
+.next-point-group{
+  margin-bottom: 10px;
+}
+.vehicle-list .radio{
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+.form-group-70  {
+  width: 70% !important;
+}

@@ -1,4 +1,4 @@
-
+  
 // A JSON Array containing some people/routes and the destinations/stops
 
 // var tripArray = {
@@ -52,7 +52,7 @@ $(document).ready(function() {
                 "lat": stops[0].lat,
                 "lng": stops[0].lng
             })
-            //initMap(routeArray);
+            initMap(routeArray);
         }
         function create_stops_distinct(){
             var i=1;
@@ -74,7 +74,7 @@ $(document).ready(function() {
             }
         }
         function send_data_plan(){
-         $("#plan-list").append("<li class='list-item' id='stop_0'><div class='content1'><img id='avar' src='images/flag2.png'>"+stops[0].name+"</div></li>");
+         $("#plan-list").append("<li class='list-item' id='stop_0'><div class='content1'><img id='avar' src='/images/flag2.png'>"+stops[0].name+"</div></li>");
           for(var i=1; i<stops.length; i++){
           // var departure= new Date(stops[i].departure)
           // var arrrive = new Date(stops[i].arrive)
@@ -109,7 +109,7 @@ $(document).ready(function() {
             </ul>\
             </div></li>\
             <li class='list-item' id='stop_"+i+"'>\
-            <div class='content1'><img id='avar' src='images/flag2.png'>"+stops[i].name+"</div>\
+            <div class='content1'><img id='avar' src='/images/flag2.png'>"+stops[i].name+"</div>\
             </li>");
              }
             }
@@ -174,7 +174,6 @@ function calulateStopDuration(startdate_ms, enddate_ms){
     //return days+hours+minutes
     return "SSS";
 }
-// $(".content2").hide()
 //event for plan-list
 $("#plan-list").on('mouseenter', '.content1', function(){
   $(this).css('background-color','white')
@@ -197,7 +196,7 @@ $("#plan-list").on('click', '.content1', function(){
     var string=""
     var stop_string ="<div class='content2'>\
         <ul class='content2-header'>\
-          <li class='content2-header-item'><img id='avar' src='images/flag2.png'> </li>\
+          <li class='content2-header-item'><img id='avar' src='/images/flag2.png'> </li>\
           <li class='content2-header-item'><button class='up'>Up <span class='glyphicon glyphicon-arrow-up'></span></button></button></li>\
           <li class='content2-header-item'><button class='down'>Down <span class='glyphicon glyphicon-arrow-down'></span></button></li>\
           <li class='li-close-button'><button class='close-button'>x</button></li>\
@@ -221,7 +220,7 @@ $("#plan-list").on('click', '.content1', function(){
       </div>";
       var route_string="<div class='content2'>\
         <ul class='content2-header'>\
-          <li class='content2-header-item'><button><img class='mode-icon' src='images/moto-icon.png'></button></li>\
+          <li class='content2-header-item'><button><img class='mode-icon' src='/images/moto-icon.png'></button></li>\
           <li class='li-close-button'><button class='close-button'>x</button></li>\
         </ul>\
         <div class ='content2-body'>\

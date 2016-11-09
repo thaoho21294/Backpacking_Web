@@ -17,7 +17,9 @@ defmodule BsnWeb.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
-    #get "/routes", TripController, :get_routes_json
+    get "/viewtrip", PageController, :view_trip
+    get "/createtrip", PageController, :create_trip
+    get "/map", MapController, :index
   end
   # Other scopes may use custom stacks.
   scope "/api", BsnWeb do
