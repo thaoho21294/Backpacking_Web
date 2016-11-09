@@ -1,0 +1,124 @@
+<div class="container create-trip">
+        <!-- Trigger the modal with a button -->
+        <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Tạo chuyến phượt</button>
+        <i class="fa fa-thermometer-empty fa-5x" aria-hidden="true"></i>
+        <!-- Modal -->
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Tạo mới chuyến phượt</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form role="form" action="" method="post" class="new-trip-form">
+                            <fieldset id="fieldset1">
+                                <div class="form-top">
+                                    <div class="form-top-left">
+                                        <h4>Đi đâu đây?</h4>
+
+                                    </div>
+                                </div>
+                                <div class="form-bottom">
+                                    <div class="form-group form-group-70">
+                                        <label class="sr-only" for="form-start-point">Điểm bắt đầu</label>
+                                        <input type="text" name="form-start-point" placeholder="Điểm bắt đầu...." class="form-start-point form-control" id="form-start-point">
+                                    </div>
+                                    <div class="form-group form-group-70">
+                                        <label class="sr-only" for="form-next-point">Điểm tiếp theo</label>
+                                        <div class="add-point-area">
+                                        <div class="input-group next-point-group">
+                                        <input type="text" name="form-next-point" placeholder="Điểm đến tiếp theo..." class="form-next-point form-control" id="form-next-point">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default next-point-remove" type="button"><i class="fa fa-times" aria-hidden="true"></i></button>
+                                        </span>
+                                      </div>
+                                      </div>
+                                      <!--Thêm một input-group ở đây-->
+                                      <a href="#" id="add-point">Thêm địa điểm</a>
+                                    </div>
+                                    <div class="form-group form-group-70">
+                                        <label class="" for="form-trip-name">Tên chuyến đi</label>
+                                        <input type="text" name="form-trip-name" placeholder="Tên chuyến đi..." class="form-trip-name form-control" id="form-trip-name">
+                                    </div>
+
+                                </div>
+                            </fieldset>
+                            <fieldset id="fieldset2">
+                                <div class="form-bottom">
+                                    <h4>Thời gian</h4>
+                                    <div class="form-group form-group-70">
+                                        <label class="sr-only" for="form-start-date">Ngày bắt đầu</label>
+                                        <div class="input-group date start-date">
+                                        <input type="text" name="form-start-date" placeholder="Ngày bắt đầu..." class="form-start-date form-control" id="form-start-date" readonly="true">
+                                        <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div class="form-group form-group-70">
+                                        <label class="sr-only" for="form-end-date">Ngày kết thúc</label>
+                                        <div class="input-group date end-date">
+                                        <input type="datetime" name="form-end-date" placeholder="Ngày kết thúc..." class="form-end-date form-control" id="form-end-date" readonly="true">
+                                        <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <legend>
+                                            <h4>Phương tiện</h4></legend>
+                                            <ul class="vehicle-list">
+                                        <li><div class="radio"><label><input type="radio" name="motorbike" value="motorbike"> Xem máy</label></div></li>
+                                        <li><div class="radio"> <label><input type="radio" name="bike" value="bike"> Xe đạp</label></div></li>
+                                        <li><div class="radio"> <label><input type="radio" name="walk" value="walk"> Đi bộ</label></div></li>
+                                        <li><div class="radio"> <label><input type="radio" name="car" value="car"> Ô tô</label></div></li>
+                                        <li><div class="radio"> <label><input type="radio" name="boat" value="boat">Tàu thuyền</label></div></li>
+                                        <li><div class="radio"> <label><input type="radio" name="plane" value="plane">Máy bay</label></div></li>
+                                        <li><div class="radio"><label><input type="radio" name="other" value="other"> Khác <input type="text" name="other-text" style="width:70%; height:80% float:right;"></label></div></li>
+                                      </ul>
+                                    </div>
+                                    <div class="form-group">
+                                        <h4>Chi phí dự tính:</h4>
+                                        <label>
+                                              <input type="number" id="id1" name="cost" placeholder="vd: 600" />
+                                                ngàn đồng/1 người
+                                        </label>
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                            <fieldset id="fieldset3">
+                                <div class="form-top">
+                                    <div class="form-top-left">
+                                        <h4>Thêm thành viên</h4>
+                                    </div>
+                                </div>
+                                <div class="form-bottom">
+                                    <div class="form-group">
+                                        <label class="" for="form-number-member">Số thành viên dự tính:
+                                        <input type="number" name="form-number-member" class="form-number-member" id="form-number-member">
+                                        </label>
+                                    </div>
+                                    <div class="form-group form-group-70">
+                                        <label class="sr-only" for="form-member">Thành viên</label>
+                                        <input type="text" name="form-member" placeholder="Tên thành viên..." class="form-member form-control" id="form-member">
+                                    </div>
+
+                                </div>
+                            </fieldset>
+                        </form>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="create-trip-back" class="btn btn-default">Quay lại</button>
+                        <button type="button" id="create-trip-next" class="btn btn-default">Tiếp tục</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>

@@ -1,0 +1,328 @@
+<div class="row">
+<div class="col-sm-8">
+<div id= map></div>
+</div>
+<div id="plan" class="col-sm-4">
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Kế hoạch chuyến phượt</h3>
+    <button type="button" id="my-button-1">click me 1</button>
+    <button type="button" id="my-button-2">click me 2</button>
+  </div>
+  <div class="panel-body" id="trip-description">
+    Panel content
+
+  </div>
+  <!-- List group -->
+  <ul class="list-group trip-plan-list">
+    <li class="list-group-item"><img id="avar" src="images/flag2.png"> Cây xăng comeco Hàng Xanh</li>
+    <li class="list-group-item">
+      <ul class= "route-list">
+          <li class="route-item">
+            xe máy
+          </li>
+          <li class="route-item">
+              2:00 am
+          </li>
+          <li class="route-item">
+              3h/190km
+          </li>
+          <li class="route-item">
+              5:00 am
+          </li>
+        </ul>
+    </li>
+    <li class="list-group-item"><img id="avar" src="images/flag2.png"> Khu du lịch Madagui</li>
+    <li class="list-group-item">
+      <ul class= "route-list">
+          <li class="route-item">
+            xe máy
+          </li>
+          <li class="route-item">
+              2:00 am
+          </li>
+          <li class="route-item">
+              3h/190km
+          </li>
+          <li class="route-item">
+              5:00 am
+          </li>
+        </ul>
+    </li>
+    <li class="list-group-item"><img id="avar" src="images/flag2.png"> Khách sạn Nice Dream</li>
+    <li class="list-group-item">
+      <ul class= "route-list">
+          <li class="route-item">
+            đi bộ
+          </li>
+          <li class="route-item">
+              2:00 am
+          </li>
+          <li class="route-item">
+              3h/190km
+          </li>
+          <li class="route-item">
+              5:00 am
+          </li>
+        </ul>
+    </li>
+    <li class="list-group-item"><img id="avar" src="images/flag2.png"> Chợ đêm Đà Lạt</li>
+    <li class="list-group-item">
+      <ul class= "route-list">
+          <li class="route-item">
+            xe máy
+          </li>
+          <li class="route-item">
+              2:00 am
+          </li>
+          <li class="route-item">
+              3h/190km
+          </li>
+          <li class="route-item">
+              5:00 am
+          </li>
+        </ul>
+    </li>
+    <li class="list-group-item"><img id="avar" src="images/flag2.png"> Khách sạn Nice Dream</li>
+    <li class="list-group-item">
+      <ul class= "route-list">
+          <li class="route-item">
+            xe máy
+          </li>
+          <li class="route-item">
+              2:00 am
+          </li>
+          <li class="route-item">
+              3h/190km
+          </li>
+          <li class="route-item">
+              5:00 am
+          </li>
+        </ul>
+    </li>
+    <li class="list-group-item"><img id="avar" src="images/flag2.png"> Trại mát Trần Hưng Đạo-Hùng Vương</li>
+    <li class="list-group-item">
+      <ul class= "route-list">
+          <li class="route-item">
+            xe máy
+          </li>
+          <li class="route-item">
+              2:00 am
+          </li>
+          <li class="route-item">
+              3h/190km
+          </li>
+          <li class="route-item">
+              5:00 am
+          </li>
+        </ul>
+    </li>
+    <li class="list-group-item"><img id="avar" src="images/flag2.png"> Đỉnh PinHatt</li>
+    <li class="list-group-item">
+      <ul class= "route-list">
+          <li class="route-item">
+            xe máy
+          </li>
+          <li class="route-item">
+              2:00 am
+          </li>
+          <li class="route-item">
+              3h/190km
+          </li>
+          <li class="route-item">
+              5:00 am
+          </li>
+        </ul>
+    </li>
+    <li class="list-group-item"><img id="avar" src="images/flag2.png"> Thác Dalanta</li>
+    <li class="list-group-item">
+      <ul class= "route-list">
+          <li class="route-item">
+            xe máy
+          </li>
+          <li class="route-item">
+              2:00 am
+          </li>
+          <li class="route-item">
+              3h/190km
+          </li>
+          <li class="route-item">
+              5:00 am
+          </li>
+        </ul>
+    </li>
+    <li class="list-group-item"><img id="avar" src="images/flag2.png"> Khách sạn nice dream</li>
+    <li class="list-group-item">
+      <ul class= "route-list">
+          <li class="route-item">
+            xe máy
+          </li>
+          <li class="route-item">
+              2:00 am
+          </li>
+          <li class="route-item">
+              3h/190km
+          </li>
+          <li class="route-item">
+              5:00 am
+          </li>
+        </ul>
+    </li>
+    <li class="list-group-item"><img id="avar" src="images/flag2.png"> Tam Châu</li>
+    <li class="list-group-item">
+      <ul class= "route-list">
+          <li class="route-item">
+            xe máy
+          </li>
+          <li class="route-item">
+              2:00 am
+          </li>
+          <li class="route-item">
+              3h/190km
+          </li>
+          <li class="route-item">
+              5:00 am
+          </li>
+        </ul>
+    </li>
+    <li class="list-group-item"><img id="avar" src="images/flag2.png"> Cây xăng Comeco Hàng Xanh</li>
+      </ul>
+</div>
+</div>
+</div>
+
+<script type="text/javascript">
+ // Initialise some variables
+var directionsService
+var num, map, data;
+var requestArray = [], renderArray = [];
+// A JSON Array containing some people/routes and the destinations/stops
+var cay_xang_comeco={lat:10.8009424, lng:106.7110362}
+var madagui={lat:11.419862, lng:107.5758401}
+var nice_hotel={lat:11.9422612, lng:108.4345293}
+var cho_da_lat = {lat: 11.9426508, lng: 108.4364638}
+var trai_mat={lat:11.9385217, lng:108.4503218};
+var dinh_pinhatt={lat:11.9062392, lng:108.4337865}//11.8892063, 108.4072567
+var thac_dalanta={lat:11.9009543, lng:108.4465586}
+var tam_chau={lat:11.6680011, lng:107.8481224}
+var jsonArray = {
+        "route 1": [cay_xang_comeco, madagui,nice_hotel,cho_da_lat],
+        "route 2": [nice_hotel,trai_mat, dinh_pinhatt, thac_dalanta],
+        "route 3": [nice_hotel, tam_chau, cay_xang_comeco]
+
+    }
+// 16 Standard Colours for navigation polylines
+var colourArray = ['navy', 'grey', 'fuchsia', 'black', 'white', 'lime', 'maroon', 'purple', 'aqua', 'red', 'green', 'silver', 'olive', 'blue', 'yellow', 'teal'];
+
+//we have a array route to draw
+// Let's make an array of requests which will become individual polylines on the map.
+function generateRequests(){
+  requestArray = [];
+  for (var route in jsonArray){
+    var waypts = [];
+    // 'start' and 'finish' will be the routes origin and destination
+    var start, finish
+    // lastpoint is used to ensure that duplicate waypoints are stripped
+    var lastpoint
+    data = jsonArray[route]
+    limit = data.length
+    for (var waypoint = 0; waypoint < limit; waypoint++) {
+           if (data[waypoint] === lastpoint){
+             // Duplicate of the last waypoint - don't bother
+                   continue;
+           }
+           // Prepare the lastpoint for the next loop
+           lastpoint = data[waypoint]
+           // Add this to waypoint to the array for making the request
+            waypts.push({
+              location: data[waypoint],
+              stopover: true
+            });
+      }
+        start = (waypts.shift()).location;
+        finish = waypts.pop();
+        if(finish === undefined){
+                // Unless there was no finish location for some reason?
+                finish = start;
+            } else {
+                finish = finish.location;
+            }
+        var request = {
+                  origin: start,
+                  destination: finish,
+                  waypoints: waypts,
+                  travelMode: google.maps.TravelMode.DRIVING
+        };
+        requestArray.push({"route": route, "request": request});
+         processRequests();
+
+  }
+}
+
+function processRequests(){
+  var i = 0;
+  function submitRequest(){
+      directionsService.route(requestArray[i].request, directionResults);
+  }
+  function directionResults(result, status) {
+    if (status == google.maps.DirectionsStatus.OK) {
+
+              // Create a unique DirectionsRenderer 'i'
+              renderArray[i] = new google.maps.DirectionsRenderer();
+              renderArray[i].setMap(map);
+
+              // Some unique options from the colorArray so we can see the routes
+              renderArray[i].setOptions({
+                  preserveViewport: true,
+                  suppressInfoWindows: true,
+                  polylineOptions: {
+                      strokeWeight: 4,
+                      strokeOpacity: 0.8,
+                      strokeColor: colourArray[i]
+                  },
+                  markerOptions:{
+                      icon: "images/flag2.png"
+                  }
+              });
+
+              // Use this new renderer with the result
+              renderArray[i].setDirections(result);
+              // and start the next request
+              nextRequest();
+  }
+}
+
+function nextRequest(){
+            // Increase the counter
+            i++;
+            // Make sure we are still waiting for a request
+            if(i >= requestArray.length){
+                // No more to do
+                return;
+            }
+            // Submit another request
+            submitRequest();
+        }
+        // This request is just to kick start the whole process
+        submitRequest();
+    }
+function initMap() {
+      var mapOption = {
+        zoom: 7,
+        mapTypeControl: false,
+        streetViewControl: false,
+        center: nice_hotel,
+        mapTypeId: 'roadmap'
+      };
+      directionsService = new google.maps.DirectionsService;
+      map = new google.maps.Map(document.getElementById('map'), mapOption);
+      generateRequests();
+        var marker1 = new google.maps.Marker({
+            position: dinh_pinhatt,
+            icon: "images/flag2.png",
+            map: map
+
+          });
+}
+
+</script>

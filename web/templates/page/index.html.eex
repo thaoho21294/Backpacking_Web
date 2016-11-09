@@ -1,19 +1,9 @@
 <div class="content">
-<div id= map></div>
-<div id="plan">
-  <ul id="day-number">
-    <li>Day 1</li>
-    <li>Day 2</li>
-  </ul>
-  <!-- <ul class="list-group" id="plan-list">
-  </ul> -->
-  <ul class="list-group" id="plan-list">
-    </ul>
-</div>
+
 </div>
 
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/gmaps.js/0.4.24/gmaps.js"></script> -->
-<script src="http://maps.google.com/maps/api/js?key=AIzaSyDnPCkQMDmfgneX6juLvQ6rjBF98lyG5T0"></script>
+<%# <script src="http://maps.google.com/maps/api/js?key=AIzaSyDnPCkQMDmfgneX6juLvQ6rjBF98lyG5T0"></script> %>
 <!-- <script async defer
   src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDnPCkQMDmfgneX6juLvQ6rjBF98lyG5T0&callback=initMap">
 </script> -->

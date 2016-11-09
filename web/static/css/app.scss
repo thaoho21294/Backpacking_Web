@@ -1,7 +1,7 @@
 /* This file is for your main application css. */
 $icon-font-path: "/fonts/"; /* use fonts from priv/static/fonts/ */
 //@import "theme";/* imports node_modules/bootstrap-sass/assets/stylesheets/_bootstrap.scss */
-/*@import "node_modules/font-awesome/scss/fontawesome.scss"*/
+
 
 body {
   //padding-top: 30px;
@@ -33,3 +33,4 @@ body {
   width: 30px;
   height: 20px;
 }
+@import "node_modules/font-awesome/scss/font-awesome.scss"
