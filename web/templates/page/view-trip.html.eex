@@ -8,6 +8,33 @@
   <!-- <ul class="list-group" id="plan-list">
   </ul> -->
   <ul class="list-group" id="plan-list">
+  <li class='new-stop'>
+<div class='content2'>
+                          <ul class='content2-header'>
+                            <li class='content2-header-item'><img id='avar' src='/images/flag2.png'> </li>
+                            <li class='content2-header-item'><button class='function-button' id="cancel-new-stop"><span class='glyphicon glyphicon-remove'></span>CANCEL </button></button></li>
+                            <li class='content2-header-item'><button class='function-button' type="submit" id= "save-new-stop"><span class='glyphicon glyphicon-ok'></span> SAVE </button></li>
+                            <li class='li-close-button'><button class='close-button'><span class='glyphicon glyphicon-remove'></button></li>
+                          </ul>
+                          <div class ='content2-body'>
+                              <form class='stop-detail'>
+                                <div class='item-content2'><input type='text' name='stop-name' placeholder="Tên địa điểm" value=''></div>
+                                <div class='item-content2'><input type='text' name='stop-address' value=''></div>
+<%#                                 <div class='item-content2'>
+                                 <label class='stop-label'>Thời gian đến</label><input type='text' name='stop-arrive-date' value='XXXXXXXXX'>
+                                 <input type='text' name='stop-arrive-time' value='XXXX'>
+                                </div> %>
+                                <div class='item-content2'><label class='stop-label'>Thời gian trải qua:</label><input type='text' name='stop-duration-time' value='1h'</div>
+<%#                                 <div class='item-content2'>
+                                <label class='stop-label'>Thời gian đi</label><input type='text' name='stop-departure-date' value='XXXXXXXXX'>
+                                <input type='text' name='stop-departure-time' value='XXXX'>
+                                </div> %>
+                                <div class='item-content2'><textarea class='stop-description' placeholder='Mô tả điểm dừng'></textarea></div>
+                                <input type="hidden" name="stop-lat">
+                                <input type="hidden" name="stop-lng">
+                          </div>
+                        </div>
+                        </li>
     </ul>
 </div>
 </div>
