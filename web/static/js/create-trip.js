@@ -45,13 +45,13 @@ $(".next-point-remove").click(function(){
 $(".add-point-area").on('click', '.next-point-remove',function(){
   $(this).parents('.input-group').empty();
 });
-$(".start-date,.end-date").datetimepicker({
-  format: "dd/mm/yyyy",
-  autoclose: true,
-  todayBtn: true,
-  pickerPosition: "bottom-left",
-  minView: 2 
-});
+// $(".start-date,.end-date").datetimepicker({
+//   format: "dd/mm/yyyy",
+//   autoclose: true,
+//   todayBtn: true,
+//   pickerPosition: "bottom-left",
+//   minView: 2 
+// });
 
   
 });

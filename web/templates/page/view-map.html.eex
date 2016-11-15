@@ -1,0 +1,41 @@
+<div id="map" style="height: 800px"></div>    
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDnPCkQMDmfgneX6juLvQ6rjBF98lyG5T0"
+    async defer></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.1.1.min.js"></script>
+    <script>
+
+      var map;
+      $(document).ready(function(){
+        initMap();
+      });
+
+      function initMap() {
+        var myLatLng = {lat: -25.363, lng: 131.044};
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: myLatLng,
+          zoom: 8
+        });
+        var marker = new google.maps.Marker({
+          position: myLatLng,
+          map: map,
+          title: 'Hello World!'
+        });
+
+
+       map.addListener('click', function(e) {
+          placeMarkerAndPanTo(e.latLng, map);
+        });
+      }
+
+      function placeMarkerAndPanTo(latLng, map) {
+        var marker = new google.maps.Marker({
+          position: latLng,
+          map: map
+        });
+        map.panTo(latLng);
+      }
+
+            
+      
+    </script>
+

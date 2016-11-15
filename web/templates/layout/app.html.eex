@@ -13,7 +13,7 @@
 
   <body>
     <nav id="mainNav" class="navbar navbar-fixed-top navbar-inverse">
-        <div class="container">
+        <div class="container-fluid">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header page-scroll">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
@@ -30,8 +30,11 @@
                     </div>
                 </form>
                 <ul class="nav navbar-nav navbar-right">
-                    <li class="hidden">
+<%#                     <li class="hidden">
                         <a href="#page-top"></a>
+                    </li> %>
+                    <li class='page-scroll' id="edit-trip">
+                        <a href="#addstop"><span class="glyphicon glyphicon-pencil" style="font-size:14pt"></span></a>
                     </li>
                     <li class="page-scroll">
                         <a href="#portfolio"><span class="glyphicon glyphicon-comment" style="font-size:14pt"></a>

@@ -19,6 +19,7 @@
     background-color: #A9A9A9;
     height:100%;
     display: flex;
+    overflow: scroll;
 
 }
 #day-number{
@@ -61,7 +62,7 @@ ul.route-list , ul.content2-header{
   list-style-type: none;
 }
 
-.list-item  {
+.list-item, .new-stop {
     background-color: #d3d3d3;
     list-style-type: none;
 }
@@ -95,18 +96,18 @@ input[name='stop-address']{
     width: 100%;
 }
 
-.list-item input{
+.list-item input, .new-stop input{
     border: 2px solid transparent;
     box-shadow: none;
     background: transparent;
     text-align: center; 
   }
-.list-item input:focus{
+.list-item input:focus, .new-stop input:focus{
 
     border-bottom: 2px solid blue;
 
 }
-.list-item input:hover{
+.list-item input:hover, .new-stop input:hover{
    border-bottom: 2px solid blue;
    cursor: text;
 }
@@ -148,10 +149,10 @@ div.item-content2{
   height: : 20px;
   background-color: blue;
 }
-button.up, button.down{
+button.function-button{
   background-color: transparent;
   border: none;
 }
-button.up:hover, button.down:hover {
+button.function-button:hover {
    background-color: #d3d3d3;
 }
