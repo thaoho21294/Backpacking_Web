@@ -29,6 +29,7 @@ defmodule BsnWeb.Router do
      get "/tripdetail", TripController, :get_trip_detail
      get "/members", TripController, :get_members
      post "/addstop", TripController, :add_stop
-
+     post "/add-stop-edit-route", TripController, :add_stop_edit_route
+     post "/add-stop-update-order", TripController, :add_stop_update_order
    end
 end
