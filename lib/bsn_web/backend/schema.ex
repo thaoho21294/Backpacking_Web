@@ -27,8 +27,10 @@ defmodule BsnWeb.Backend.Schema do
               description: "The id of the trip"
             }
           },
+          # `context` has fields [:field_name, :fragments, :root_value, :variable_values, :field_asts, :operation, :parent_type, :return_type, :schema]
           resolve: fn(source, args, context) ->
-            source
+            trip
+            =  source
             |> Map.merge(%{"query" => "Trips"})
             |> Backend.get(args, context)
           end
@@ -53,16 +55,16 @@ defmodule BsnWeb.Backend.Schema do
         %{stops: _stops} ->
           Backend.Schema.Trip.type
         _ ->
-          Backend.Schema.User.type
+          Backend.Schema.Stop.type
       end
     end)
   end
 
   def node_field do
     Node.define_field(node_interface, fn (_item, args, _ctx) ->
-      [type, id] = Node.from_global_id(args[:id])
+      [type, id] = Node.from_global_id(args["id"])
       case type do
-        "todo" ->
+        "trip" ->
           Todo.GraphQL.Schema.Todo.find(id)
         _ ->
           Todo.GraphQL.Schema.User.find(id)
