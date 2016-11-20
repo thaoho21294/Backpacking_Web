@@ -4,10 +4,11 @@ defmodule BsnWeb.Backend.SchemaTest do
 
   alias BsnWeb.Backend.Schema
 
-  test "getTrip" do
+  test "fetches the first stop of a trip" do
     query = "
       query GetTripQuery {
         getTrip(id: 195) {
+          name,
           stops(first: 1) {
             edges {
               node {
@@ -23,6 +24,9 @@ defmodule BsnWeb.Backend.SchemaTest do
     "
     expected = %{
       getTrip: %{
+        name: "Sài Gòn - Đà Lạt",
+        # Matching on description fails, probably due to Unicode.
+        # description: "Cung Sài Gòn - Đà Lạt 2 ngày 1 đêm (ngày 20 \\, 21 /8).\nLộ trình: sg - ql1 - dt768 - ql20 - Đà Lạt",
         stops: %{
           edges: [
             %{
