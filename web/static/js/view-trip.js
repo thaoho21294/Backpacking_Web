@@ -33,29 +33,29 @@ $(document).ready(function() {
    // URL
    'images/flag2.png',
    // (width,height)
-   new google.maps.Size( 44, 32 )
+   new google.maps.Size( 40, 45 )
   ),
   new_stop_marker: new google.maps.MarkerImage(
    // URL
    'images/flag-grey.png',
    // (width,height)
-   new google.maps.Size( 44, 32 ),
+   new google.maps.Size( 40, 45 ),
    null,
    // The origin point (x,y)
    // new google.maps.Point( 0, 0 ),
    // // The anchor point (x,y)
-   new google.maps.Point( 22, 32 )
+   new google.maps.Point( 20, 45 )
   ),
   new_stop_pointer: new google.maps.MarkerImage(
    // URL
    'images/flag-grey.png',
    // (width,height)
-   new google.maps.Size( 44, 32 ),
+   new google.maps.Size( 40, 45 ),
    null,
    // The origin point (x,y)
    // new google.maps.Point( 0, 0 ),
    // // The anchor point (x,y)
-   new google.maps.Point( 22, 32 )
+   new google.maps.Point( 20, 45 )
    )
 
  };
@@ -504,7 +504,7 @@ var geocoder;
 function initMap() {
 
     var mapOption = {
-        zoom: 9,
+        zoom: 8,
         mapTypeControl: false,
         streetViewControl: false,
         center: nice_hotel,
@@ -731,6 +731,7 @@ function addRoute(map, directionsService){
                               strokeColor: 'blue'
                      }     
                   });
+         console.log(neareast_stop.order+"=="+stops.length)
         if(neareast_stop.order==stops.length){
           var waypts=[]
           for(var i=1; i< removed_route.length; i++){
@@ -769,6 +770,9 @@ function addRoute(map, directionsService){
           var end_stop_route=routeArray["route"+remove_route_index][route_length-1]
           var end_latLng={lat:end_stop_route.lat, lng:end_stop_route.lng}
           //var near_stop_first;
+          console.log ("check list distance")
+          console.log(list_distance_stop)
+          console.log (neareast_stop.order)
           for(var ds in list_distance_stop){
                 if(list_distance_stop[ds].order==neareast_stop.order-1){
                   near_stop_first=list_distance_stop[ds];
@@ -781,8 +785,10 @@ function addRoute(map, directionsService){
             // console.log(near_stop_first)
             // console.log(near_stop_second)
             // var start;
-              
-            if(near_stop_first==undefined){
+              console.log ("check first, second distance")
+              // console.log (near_stop_first.distance)
+              // console.log (near_stop_second.distance)
+            if(near_stop_first==undefined){ 
               // start=neareast_stop;
 
               new_stop_order=neareast_stop.order+1
@@ -790,37 +796,46 @@ function addRoute(map, directionsService){
             }
             else if(near_stop_second==undefined){
               // start= near_stop_first
-              new_stop_order=neareast_stop.order-1
+              new_stop_order=neareast_stop.order
 
             }
             //new stop nghieng ve ben phai
             else if (near_stop_first.distance>near_stop_second.distance){
               // start=neareast_stop;
               new_stop_order=neareast_stop.order+1
-
             } 
             else{
               // start=near_stop_first;
-              new_stop_order=neareast_stop.order-1
+              new_stop_order=neareast_stop.order
 
             }
 
             // console.log(start)
             // console.log(end)
+          console.log("new order="+new_stop_order)
 
-          change_stop_order(tripid, new_stop_order)
           var waypts=[]
-             
-              for(var i=1; i<removed_route.length-1;i++){
+          var index_input_route
+          console.log("removed_route=")
+          console.log(removed_route)
+            if(removed_route.length==2){
+              waypts.push({
+              location:new_stop_latLng,
+              stopover:true})
+            }
+              for(var i=0; i<removed_route.length;i++){
+                console.log(i)
                 if(new_stop_order-1==i){
                    waypts.push({
                       location:new_stop_latLng,
                       stopover:true})
 
                 }
+                if(i>0 && i<removed_route.length-1){
                 waypts.push({
                  location: removed_route[i],
                   stopover: true})
+              }
               }
               //mot viec nua la cap nhat order cua cac stop sau nearest stop or new
 
@@ -839,7 +854,9 @@ function addRoute(map, directionsService){
                 var legs= result.routes[0].legs
                 var input_leg
                 var edit_leg
+                console.log(new_stop_latLng.lat)
                 for(var leg in legs){
+                  console.log(legs[leg].end_location.lat())
                   if(legs[leg].end_location.lat()==new_stop_latLng.lat){
                       input_leg=legs[leg]
                   }
@@ -849,6 +866,7 @@ function addRoute(map, directionsService){
                 }
 
                 send_new_stop_input(input_leg, input, new_stop_order)
+                change_stop_order(tripid, new_stop_order)
                 function edit_route(leg){
                     //get route name-----------------------------------
                     var input;
