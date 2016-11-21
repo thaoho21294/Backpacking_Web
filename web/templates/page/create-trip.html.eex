@@ -24,16 +24,17 @@
                                 <div class="form-bottom">
                                     <div class="form-group form-group-70">
                                         <label class="sr-only" for="form-start-point">Điểm bắt đầu</label>
-                                        <input type="text" name="form-start-point" placeholder="Điểm bắt đầu...." class="form-start-point form-control" id="form-start-point">
+                                        <input type="text" name="form-start-point" list='address-list-start' placeholder="Điểm bắt đầu...." class="address-input form-control" id="form-start-point">
+                                        <datalist class="address-list" id="address-list-start"></datalist>
                                     </div>
-                                    <div class="form-group form-group-70">
+                                    <div class="next-point form-group form-group-70">
                                         <label class="sr-only" for="form-next-point">Điểm tiếp theo</label>
-                                        <div class="add-point-area">
                                         <div class="input-group next-point-group">
-                                        <input type="text" name="form-next-point" placeholder="Điểm đến tiếp theo..." class="form-next-point form-control" id="form-next-point">
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-default next-point-remove" type="button"><i class="fa fa-times" aria-hidden="true"></i></button>
-                                        </span>
+                                            <input type="text" name="form-next-point" list='address-list-next-1' placeholder="Điểm đến tiếp theo..." class="address-input form-next-point form-control" id="form-next-point">
+                                            <datalist class="address-list" id="address-list-next-1"></datalist>
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-default next-point-remove" type="button"><i class="fa fa-times" aria-hidden="true"></i></button>
+                                            </span>
                                       </div>
                                       </div>
                                       <!--Thêm một input-group ở đây-->
