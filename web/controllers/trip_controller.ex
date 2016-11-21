@@ -2,7 +2,7 @@ defmodule BsnWeb.TripController do
   use BsnWeb.Web, :controller
   alias Neo4j.Sips, as: Neo4j
 
-    def get_all_stops(conn, %{"tripid"=>tripid}) do
+    def get_all_stops(conn, %{"id"=>tripid}) do
       cypher="""
       MATCH (l:Location)<-[:LOCATE]-(s:Stop)<-[:INCLUDE]-(t:Trip)
       WHERE id(t)=#{tripid}
@@ -15,7 +15,7 @@ defmodule BsnWeb.TripController do
       stops=Neo4j.query!(Neo4j.conn, cypher)
       render(conn, "get_all_stops.json", stops: stops)
     end
-    def get_trip_detail(conn, %{"tripid"=>tripid})do
+    def get_trip_detail(conn, %{"id"=>tripid})do
       cypher="""
       MATCH (t:Trip)-[:HAVE]->(s:Status) where id(t)=#{tripid} return t.name as name, t.off_time as off_time, t.note as note,
        t.startdate as startdate, t.enddate as enddate, t.estimated_number_of_members as estimated_number_of_members,
@@ -24,7 +24,7 @@ defmodule BsnWeb.TripController do
       tripdetail= Enum.at(Neo4j.query!(Neo4j.conn, cypher),0)
 	  render(conn, "get_trip_detail.json", tripdetail: tripdetail)
     end
-    def get_members(conn, %{"tripid"=>tripid}) do
+    def get_members(conn, %{"id"=>tripid}) do
       cypher="MATCH (p:Profile)<-[:HAVE]-(u:User)-[:MEMBER]->(t:Trip) where id(t)=#{tripid} return p.nick_name"
       members=Neo4j.query!(Neo4j.conn, cypher)
       render(conn, "get_members.json", members: members)

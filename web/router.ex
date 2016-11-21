@@ -20,16 +20,18 @@ defmodule BsnWeb.Router do
     get "/viewtrip/:tripid", PageController, :view_trip
     get "/createtrip", PageController, :create_trip
     get "/map", MapController, :index
+    #get "/auto/:input", MapController, :get_auto_complete_data
   end
   # Other scopes may use custom stacks.
   scope "/api", BsnWeb do
      pipe_through :api
 
-     get "/trips/:tripid/stops", TripController, :get_all_stops
-     get "/trips/:tripid/tripdetail", TripController, :get_trip_detail
-     get "/trips/:tripid/members", TripController, :get_members
+     get "/trips/:id/stops", TripController, :get_all_stops
+     get "/trips/:id/tripdetail", TripController, :get_trip_detail
+     get "/trips/:id/members", TripController, :get_members
      post "/addstop", TripController, :add_stop
      post "/add-stop-edit-route", TripController, :add_stop_edit_route
      post "/add-stop-update-order", TripController, :add_stop_update_order
+     get "/map/autocomplete/:input", MapController, :get_autocomplete_data
    end
 end
