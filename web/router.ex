@@ -17,7 +17,7 @@ defmodule BsnWeb.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
-    get "/viewtrip", PageController, :view_trip
+    get "/viewtrip/:tripid", PageController, :view_trip
     get "/createtrip", PageController, :create_trip
     get "/map", MapController, :index
   end
@@ -25,9 +25,9 @@ defmodule BsnWeb.Router do
   scope "/api", BsnWeb do
      pipe_through :api
 
-     get "/stops", TripController, :get_all_stops
-     get "/tripdetail", TripController, :get_trip_detail
-     get "/members", TripController, :get_members
+     get "/trips/:tripid/stops", TripController, :get_all_stops
+     get "/trips/:tripid/tripdetail", TripController, :get_trip_detail
+     get "/trips/:tripid/members", TripController, :get_members
      post "/addstop", TripController, :add_stop
      post "/add-stop-edit-route", TripController, :add_stop_edit_route
      post "/add-stop-update-order", TripController, :add_stop_update_order

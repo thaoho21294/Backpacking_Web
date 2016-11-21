@@ -11,21 +11,23 @@
 //         //   "route7": [nice_hotel, dinh_pinhatt, thac_dalanta]
 //         //  "route8": [nice_hotel, dinh_pinhatt, thac_dalanta]
 // };
+var tripid;
 var routeArray = {}
 var stops=[]
 var stops_title=[]
 var icons;
 var tripdetail={}
-$.urlParam = function(name){
-    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
-    if (results==null){
-       return null;
-    }
-    else{
-       return results[1] || 0;
-    }
-}
-var tripid=$.urlParam('tripid');
+// $.urlParam = function(name){
+//     var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+//     if (results==null){
+//        return null;
+//     }
+//     else{
+//        return results[1] || 0;
+//     }
+// }
+//var tripid=$.urlParam('tripid');
+
 $(document).ready(function() {
 
   icons={
@@ -59,10 +61,10 @@ $(document).ready(function() {
    )
 
  };
-
+    tripid=$("input[name='tripid']").val();
     initMap();
     $.ajax({
-      url: "/api/stops?tripid="+tripid,
+      url: "/api/trips/"+tripid+"/stops",
       async: false,
       dataType: 'json',
       success: function(data) {
@@ -95,7 +97,7 @@ $(document).ready(function() {
     });//end ajax
 
     $.ajax(
-      {url:"/api/tripdetail?tripid="+tripid,
+      {url:"/api/trips/"+tripid+"/tripdetail",
       async: false,
       dataType: 'json',
       success: function(data) {
@@ -445,6 +447,8 @@ function processRequests(requestArrayParam) {
 
             var legs= result.routes[0].legs;
             // get location of all stop
+             //console.log(icons.blueflag)
+            // console.log("stops_title="+stops_title)
             for(var l=0;l<legs.length; l++){
 
                makeMarker(legs[l].start_location, icons.blueflag, stops_title[l]);
@@ -484,13 +488,14 @@ function processRequests(requestArrayParam) {
 
 }
 function makeMarker( position, icon, title ) {
- var maker = new google.maps.Marker({
+ var marker = new google.maps.Marker({
   position: position,
   map: map,
   icon: icon,
   title: title
 
  });
+ //console.log(marker)
  //map.panTo(latLng);
 }
 
@@ -786,8 +791,8 @@ function addRoute(map, directionsService){
             // console.log(near_stop_second)
             // var start;
               console.log ("check first, second distance")
-              // console.log (near_stop_first.distance)
-              // console.log (near_stop_second.distance)
+              console.log (near_stop_first.distance)
+              console.log (near_stop_second.distance)
             if(near_stop_first==undefined){ 
               // start=neareast_stop;
 
@@ -938,11 +943,10 @@ function load_data_again(){
   setTimeout(function(){
 
     $.ajax({
-     url: "/api/stops?tripid="+tripid,
+     url: "/api/trips/"+tripid+"/stops",
      async: false,
      dataType: 'json',
      success: function(data){
-      
       stops=data.stops;
       console.log(stops)
     if(stops.length>1){

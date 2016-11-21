@@ -1,4 +1,5 @@
 <div class="content">
+<input type="hidden" name="tripid" value="<%= @tripid %>">
 <div id= map></div>
 <div id="plan">
   <ul id="day-number">
