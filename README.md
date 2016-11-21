@@ -1,11 +1,11 @@
 # Codename: BsnWeb
 A web page for backpacker organize trips, find trips, find friends, add member to their trips and more functions.
 
-![BSN screenshot as of 2016/11/20](docs/screenshots/BSN-map-addStop.JPG)
+![BSN screenshot as of 2016/11/20](docs/screenshot/BSN-map-addStop.JPG)
 
 ## Add stop demo
 
-![BSN video as of 2016/11/20](docs/screenshots/BSN-demo.avi)
+![BSN video as of 2016/11/20](docs/screenshot/BSN-demo.avi)
 
 To start your Phoenix app:
 
