@@ -60,7 +60,7 @@ $(document).ready(function() {
    new google.maps.Point( 20, 45 )
    )
 
- };
+ }; 
     tripid=$("input[name='tripid']").val();
     initMap();
     $.ajax({
