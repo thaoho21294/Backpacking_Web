@@ -60,7 +60,7 @@ $(document).ready(function() {
    new google.maps.Point( 20, 45 )
    )
 
- };
+ }; 
     tripid=$("input[name='tripid']").val();
     initMap();
     $.ajax({
@@ -527,7 +527,7 @@ function initMap() {
     addRoute_LoadAgain(map,directionsService);
 }
 var markers=[];
-var new_marker=new google.maps.Marker();
+var new_marker;
 function addStop(map){
   //click edit link event
   $("#edit-trip").click(function(e){
