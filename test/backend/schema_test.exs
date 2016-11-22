@@ -4,8 +4,16 @@ defmodule BsnWeb.Backend.SchemaTest do
 
   alias BsnWeb.Backend.Schema
 
+  @params %{
+    "trip" => %{
+      "clientMutationId" => "abcde",
+      "name" => "Journey to the West",
+      "description" => "Visiting all cities and towns on the West side of Vietnam"
+    }
+  }
+
   test "fetches the first stop of a trip" do
-    query = "
+    query = """
       query GetTripQuery {
         getTrip(id: 195) {
           name,
@@ -21,7 +29,7 @@ defmodule BsnWeb.Backend.SchemaTest do
           }
         }
       }
-    "
+    """
     expected = %{
       getTrip: %{
         name: "Sài Gòn - Đà Lạt",
@@ -42,5 +50,33 @@ defmodule BsnWeb.Backend.SchemaTest do
       }
     }
     assert_execute({query, Schema.root}, expected)
+  end
+
+  test "creates a trip" do
+    mutation = """
+      mutation CreateTrip($trip: CreateTripInput!) {
+        createTrip(input: $trip) {
+          trip {
+            name,
+            description
+          },
+          clientMutationId
+        }
+      }
+    """
+
+    trip_params = @params["trip"]
+
+    expected = %{
+      createTrip: %{
+        trip: %{
+          name: trip_params["name"],
+          description: trip_params["description"]
+        },
+        clientMutationId: trip_params["clientMutationId"]
+      }
+    }
+    assert_execute({mutation, Schema.root, @params, @params}, expected)
+
   end
 end

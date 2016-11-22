@@ -26,6 +26,10 @@ defmodule BsnWeb.Router do
   scope "/api", BsnWeb do
      pipe_through :api
 
+    # forward "/", Backend
+    get "/", Backend, []
+    post "/", Backend, []
+
      get "/trips/:id/stops", TripController, :get_all_stops
      get "/trips/:id/tripdetail", TripController, :get_trip_detail
      get "/trips/:id/members", TripController, :get_members
