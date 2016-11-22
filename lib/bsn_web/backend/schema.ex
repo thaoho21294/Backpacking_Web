@@ -3,8 +3,19 @@ defmodule BsnWeb.Backend.Schema do
   alias GraphQL.Relay.Node
 
   alias BsnWeb.Backend
-  alias Backend.Schema.{Trip}
+  alias Backend.Schema.{Viewer, Trip, Stop}
+  alias Backend.{Query, Mutation}
 
+  @doc """
+  The root GraphQL Schema with Relay.
+
+  A GraphQL Relay server must reserve certain types and type names to 
+  support the object identification model used by Relay. In particular,
+  this spec creates guidelines for the following types:
+
+  - An interface named Node.
+  - The node field on the root query type.
+  """
   def root do
     %Schema{
       query: query,
@@ -18,23 +29,20 @@ defmodule BsnWeb.Backend.Schema do
       description: "The query root of this schema. See available queries.",
       fields: %{
         node: node_field,
-        getTrip: %{
-          type: Trip.type,
-          description: "Get a trip details by its ID",
+        viewer: %{
+          type: Viewer.type,
+          description: "The current viewer",
           args: %{
-            id: %{
-              type: %Type.ID{},
-              description: "The id of the trip"
+            token: %{
+              type: %Type.String{},
+              description: "The optional token used to identify a user."
             }
           },
-          # `context` has fields [:field_name, :fragments, :root_value, :variable_values, :field_asts, :operation, :parent_type, :return_type, :schema]
-          resolve: fn(source, args, context) ->
-            trip
-            =  source
-            |> Map.merge(%{"query" => "Trips"})
-            |> Backend.get(args, context)
+          resolve: fn(_source, %{token: token}, _context) ->
+            Viewer.new(token)
           end
-        }
+        },
+        getTrip: Query.get_trip()
       }
     }
   end
@@ -44,30 +52,47 @@ defmodule BsnWeb.Backend.Schema do
       name: "Mutation",
       description: "Root object for performing data mutations",
       fields: %{
-        # updateTrip: Trip.update
+        createTrip: Mutation.create_trip()
       }
     }
   end
 
+  @doc """
+  The server must provide an interface called Node.
+
+  That interface must include exactly one field, called `id` that 
+  returns a non‐null ID.
+
+  This `id` should be a globally unique identifier for this object, 
+  and given just this `id`, the server should be able to refetch 
+  the object.
+  """
   def node_interface do
-    Node.define_interface(fn(obj) ->
+    resolver = fn(obj) ->
       case obj do
         %{stops: _stops} ->
-          Backend.Schema.Trip.type
+          Trip.type
         _ ->
-          Backend.Schema.Stop.type
+          Stop.type
       end
-    end)
+    end
+
+    Node.define_interface(resolver)
   end
 
+  @doc """
+  The server must provide a root field called node that returns
+  the Node interface. This root field must take exactly one 
+  argument, a non‐null ID named `id`.
+  """
   def node_field do
-    Node.define_field(node_interface, fn (_item, args, _ctx) ->
-      [type, id] = Node.from_global_id(args["id"])
+    Node.define_field(node_interface, fn (item, args, context) ->
+      [type, _id] = Node.from_global_id(args["id"])
       case type do
         "trip" ->
-          Todo.GraphQL.Schema.Todo.find(id)
+          Backend.retrieve(%{"query" => "Trip"}, args, context)
         _ ->
-          Todo.GraphQL.Schema.User.find(id)
+          Backend.retrieve(item, args, context)
       end
     end)
   end

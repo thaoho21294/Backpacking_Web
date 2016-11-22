@@ -4,6 +4,7 @@ ExUnit.start
 
 defmodule ExUnit.TestHelpers do
   import ExUnit.Assertions
+  require Logger
 
   alias GraphQL.Lang.Parser
 
@@ -35,6 +36,11 @@ defmodule ExUnit.TestHelpers do
   end
 
   def assert_execute({query, schema, data, variables, operation}, expected_output) do
+    Logger.debug """
+    Processed GraphQL query:
+
+    #{query}
+    """
     assert(GraphQL.execute(schema, query, data, variables, operation) ==
       {:ok, %{data: stringify_keys(expected_output)}})
   end

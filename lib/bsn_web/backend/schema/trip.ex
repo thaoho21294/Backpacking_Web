@@ -26,12 +26,23 @@ defmodule BsnWeb.Backend.Schema.Trip do
           description: "Stops during the trip",
           args: Connection.args,
           resolve: fn(trip, args, context) ->
-            stops = Backend.get(trip, args, context)
+            stops = Backend.retrieve(trip, args, context)
             Connection.List.resolve(stops, args)
           end
         }
       },
       interfaces: [Schema.node_interface]
     }
+  end
+
+  def connection do
+    %{
+      name: "Trip",
+      node_type: type,
+      edge_fields: %{},
+      connection_fields: %{},
+      resolve_node: nil,
+      resolve_cursor: nil
+    } |> Connection.new
   end
 end
