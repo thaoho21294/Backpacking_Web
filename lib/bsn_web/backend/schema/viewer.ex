@@ -18,35 +18,28 @@ defmodule BsnWeb.Backend.Schema.Viewer do
   @doc """
   The GraphQL type of the viewer
   """
-  def type do
+  def type(fields \\ %{}) do
     %Type.ObjectType{
-      name: "Viewer",
-      description: "The current viewer",
-      fields: %{
+      name: "GenBackendViewer",
+      description: """
+      Global Node used to query all objects and current user.
+
+      GenBackendViewer has a user field, which is currently logged-in user. 
+      If there is no logged-in user, this field will return null.
+
+      For each type, GenBackendViewer holds a field with a Connection to all 
+      objects of that type. Its name is allObjects, where Objects is a 
+      pluralized name of the type.
+      """,
+      fields: Map.merge(fields, %{
         user: %{
           type: %Type.String{},
-          description: "The logged in user if any."
-        },
-        allTrips: %{
-          type: Schema.Trip.connection[:connection_type],
-          description: """
-          All the trips the viewer can see, which can include own trips if the 
-          viewer is currently logged in.
-          """,
-          args: Map.merge(
-            %{
-              "location" => %{type: %Type.String{}},
-              "radius" => %{type: %Type.Float{}, defaultValue: 50},
-              "unit" => %{type: %Type.String{}, defaultValue: "km"} # Maybe enum?
-            },
-            Connection.args
-          ),
-          resolve: fn(viewer, args, context) ->
-            trips = Backend.retrieve(viewer, args, context)
-            Connection.List.resolve(trips, args)
+          description: "The logged in user if any.",
+          resolve: fn(_, _args, _context) ->
+            "Anonymous"
           end
         }
-      }
+      })
     }
   end
 

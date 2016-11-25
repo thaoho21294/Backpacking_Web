@@ -14,6 +14,9 @@ defmodule BsnWeb.Backend do
   alias Neo4j.Sips
   alias __MODULE__
 
+  @doc """
+  Callback for creating resource.
+  """
   def create(input, _context) do
     # @TODO: Create trip with a user as owner.
     query = """
@@ -25,7 +28,21 @@ defmodule BsnWeb.Backend do
     row["t"]
   end
 
-  def retrieve(%{"query" => "Trips"}, %{id: id}, _context) do
+  @doc """
+  Callback for retrieving resource.
+
+  The first argument is the parent of the resource in the query. For
+  example, querying for all the trips is done on the `viewer` object,
+  thus the first argument will be the viewer. This allows filtering
+  which trips the viewer can retrieve.
+
+  The second argument is a map of arguments for the query. It has a 
+  `:type` key to indicate the resource type.
+
+  The third argument is the GraphQL context in case we need to look at
+  the schema and operations.
+  """
+  def retrieve(_source, %{type: "Trip", id: id}, _context) do
     cypher="""
     MATCH (t:Trip)-[:HAVE]->(s:Status) where id(t)=#{id} return id(t) as id, t.name as name, t.off_time as off_time, t.note as note,
      t.startdate as startdate, t.enddate as enddate, t.estimated_number_of_members as estimated_number_of_members,
@@ -35,7 +52,19 @@ defmodule BsnWeb.Backend do
     Enum.at(Sips.query!(Sips.conn, cypher),0)
   end
 
-  def retrieve(%{"id" => trip_id} = _trip, _args, _context) do
+  def retrieve(viewer, %{type: "Trip"} = args, context) do
+    cypher="""
+    MATCH (t:Trip) 
+    RETURN id(t) as id, t.name as name, t.off_time as off_time, t.note as note,
+     t.startdate as startdate, t.enddate as enddate, t.estimated_number_of_members as estimated_number_of_members,
+     t.description as description, t.estimate_cost as estimate_cost, t.off_place as off_place, t.real_cost as real_cost
+    LIMIT 25
+    """
+
+    Sips.query!(Sips.conn, cypher)
+  end
+
+  def retrieve(%{"id" => trip_id} = _trip, %{type: "Stop"}, _context) do
     cypher="""
     MATCH (l:Location)<-[:LOCATE]-(s:Stop)<-[:INCLUDE]-(t:Trip)
     WHERE id(t)=#{trip_id}

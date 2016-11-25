@@ -25,21 +25,22 @@ defmodule BsnWeb.Backend.Schema do
 
   def query do
     %Type.ObjectType{
-      name: "Root",
+      name: "GenBackendQueryRoot",
       description: "The query root of this schema. See available queries.",
       fields: %{
         node: node_field,
         viewer: %{
-          type: Viewer.type,
-          description: "The current viewer",
+          type: Viewer.type(%{
+            allTrips: Query.all_trips
+          }),
           args: %{
             token: %{
               type: %Type.String{},
               description: "The optional token used to identify a user."
             }
           },
-          resolve: fn(_source, %{token: token}, _context) ->
-            Viewer.new(token)
+          resolve: fn(_source, args, _context) ->
+            Viewer.new()
           end
         },
         getTrip: Query.get_trip()
@@ -49,7 +50,7 @@ defmodule BsnWeb.Backend.Schema do
 
   def mutation do
     %Type.ObjectType{
-      name: "Mutation",
+      name: "GenBackendMutationRoot",
       description: "Root object for performing data mutations",
       fields: %{
         createTrip: Mutation.create_trip()
@@ -95,5 +96,23 @@ defmodule BsnWeb.Backend.Schema do
           Backend.retrieve(item, args, context)
       end
     end)
+  end
+
+  def connection_fields(type) do
+    %{
+      count: %{
+        type: %Type.Int{},
+        resolve: fn(connection, _args, _info) ->
+          Enum.count(connection.edges)
+        end
+      },
+      nodes: %{
+        type: %Type.List{ofType: type},
+        resolve: fn(connection, _args, _info) ->
+          connection.edges
+          |> Enum.map(fn(edge) -> edge.node end)
+        end
+      }
+    }
   end
 end
