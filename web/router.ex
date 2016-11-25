@@ -27,11 +27,13 @@ defmodule BsnWeb.Router do
      pipe_through :api
 
      get "/trips/:id/stops", TripController, :get_all_stops
-     get "/trips/:id/tripdetail", TripController, :get_trip_detail
+     get "/trips/:id/", TripController, :get_trip_detail
      get "/trips/:id/members", TripController, :get_members
-     post "/addstop", TripController, :add_stop
+     post "/stops", TripController, :add_stop
      post "/add-stop-edit-route", TripController, :add_stop_edit_route
      post "/add-stop-update-order", TripController, :add_stop_update_order
      get "/map/autocomplete/:input", MapController, :get_autocomplete_data
+     get "/map/location/:place_id", MapController, :get_location
+     post "/addtrip", TripController, :add_trip
    end
 end

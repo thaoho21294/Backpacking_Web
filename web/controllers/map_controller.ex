@@ -3,7 +3,7 @@ defmodule BsnWeb.MapController do
   use HTTPoison.Base
 
   def process_url(url) do
-  	"https://maps.googleapis.com/maps/api/#{url}&key=AIzaSyDnPCkQMDmfgneX6juLvQ6rjBF98lyG5T0&"
+  	"https://maps.googleapis.com/maps/api/#{url}&key=AIzaSyDnPCkQMDmfgneX6juLvQ6rjBF98lyG5T0"
   end
   def process_response_body(body) do
   	#body |> IO.inspect |> Poison.decode!
@@ -18,5 +18,10 @@ defmodule BsnWeb.MapController do
     response=get!("place/autocomplete/json?input=#{input}&components=country:vn")
     render(conn,"get_autocomplete_data.json", address: response.body)
     #json(conn,Map.get(response.body,"predictions"))
+  end
+  def get_location(conn, %{"place_id"=>place_id}) do
+    response=get!("place/details/json?placeid=#{place_id}")
+    render(conn,"get_location_data.json", location: response.body)
+    #json conn, response
   end
 end
