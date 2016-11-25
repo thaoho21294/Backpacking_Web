@@ -14,6 +14,7 @@
 }
 #myModal{
   top: 15%;
+  color: grey;
 }
 #myModal .modal-dialog{
     width: 30%;
@@ -21,6 +22,7 @@
 .form-top h4{
   border-bottom: 1px solid #E7EAEC;
   padding-bottom: 10px;
+  color: #696969;
 }
 .modal-header{
   background-color: #545B63;
@@ -52,13 +54,30 @@ ul.vehicle-list li {
   display:inline-block;
   width:12em;
 }
-.next-point-group{
-  margin-bottom: 10px;
-}
 .vehicle-list .radio{
   margin-top: 0px;
   margin-bottom: 0px;
 }
 .form-group-70  {
   width: 70% !important;
+}
+/*.modal-content{
+  position: static;
+  border: 0px 
+}*/
+.modal-body input{
+    border: 2px solid transparent;
+    border-bottom: 2px solid #E6E6FA;
+    box-shadow: none;
+    background: transparent;
+    padding: 5px 5px 5px 5px;
+    width: 100%
+  }
+.modal-body input:focus{
+    border-bottom: 2px solid blue;
+
+}
+form.new-trip-form{
+  margin-top: 0px;
+  margin-bottom: 0px;
 }
