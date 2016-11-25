@@ -51,7 +51,7 @@ defmodule BsnWeb.Backend.Schema.Stop do
       name: "Stop",
       node_type: type,
       edge_fields: %{},
-      connection_fields: %{},
+      connection_fields: Map.merge(Schema.connection_fields(type), %{}),
       resolve_node: nil,
       resolve_cursor: nil
     } |> Connection.new
