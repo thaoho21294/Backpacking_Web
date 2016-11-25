@@ -97,7 +97,7 @@ $(document).ready(function() {
     });//end ajax
 
     $.ajax(
-      {url:"/api/trips/"+tripid+"/tripdetail",
+      {url:"/api/trips/"+tripid,
       async: false,
       dataType: 'json',
       success: function(data) {
@@ -430,10 +430,7 @@ function processRequests(requestArrayParam) {
                       strokeWeight: 4,
                       strokeOpacity: 0.4,
                       strokeColor: 'blue'
-                  },
-                  markerOptions: {
-                      icon: "images/flag2.png"
-                      }
+                  }
               });
         }
     var i=0;
@@ -643,7 +640,7 @@ function addRoute(map, directionsService){
     $.ajax({
           type: 'POST',
           dataType: 'json',
-          url: '/api/addstop',
+          url: '/api/stops',
           contentType: 'application/json',
           data: JSON.stringify(input),
           success: function( data, textStatus, jQxhr ){
@@ -961,32 +958,10 @@ function load_data_again(){
   return dfrd.promise();
 }
 function send_new_stop_input(leg, input, new_stop_order){
-       //get route name-----------------------------------
-        var instructions
-        var part_route_name
-        var split1
-        var same_part_route_name
-        var route_name=""
-        for(var step in leg.steps){
-          instructions=leg.steps[step].instructions
-          //console.log(instructions)
-          split1=instructions.split("<b>")[2]
-          if(split1==undefined) split1=""
-          part_route_name=(split1).split("</b>")[0]
-          //console.log(part_route_name)
-          same_part_route_name=route_name.substring(route_name.length-part_route_name.length-3,route_name.length-3);
-          //console.log("same="+same_part_route_name)
-          if(part_route_name!="" && same_part_route_name!=part_route_name){
-            route_name+=part_route_name+" - "
-             //console.log()
-          }
 
-        }
-        route_name=route_name.substring(0,route_name.length-3)
-        //end get route name-------------------------------
         var route_duration=Math.round(leg.duration.value/60)
         var route_distance=Math.round(leg.distance.value)
-
+        var route_name= create_route_name(leg)
         //send data to controller
         input.route_name=route_name
         input.route_duration=route_duration
@@ -1000,7 +975,7 @@ function send_new_stop_input(leg, input, new_stop_order){
         $.ajax({
           type: 'POST',
           dataType: 'json',
-          url: '/api/addstop',
+          url: '/api/stops',
           contentType: 'application/json',
           data: JSON.stringify(input),
           success: function( data, textStatus, jQxhr ){
@@ -1026,7 +1001,31 @@ function change_stop_order(tripid, new_stop_order){
           //console.log(data );
           },
           error: function( jqXhr, textStatus, errorThrown ){
-          console.log(errorThrown );
+          console.log(errorThrown);
         }
         });
+}
+function create_route_name(leg){
+  var instructions
+  var part_route_name
+  var split1
+  var same_part_route_name
+  var route_name=""
+  for(var step in leg.steps){
+          instructions=leg.steps[step].instructions
+          //console.log(instructions)
+          split1=instructions.split("<b>")[2]
+          if(split1==undefined) split1=""
+          part_route_name=(split1).split("</b>")[0]
+          //console.log(part_route_name)
+          same_part_route_name=route_name.substring(route_name.length-part_route_name.length-3,route_name.length-3);
+          //console.log("same="+same_part_route_name)
+          if(part_route_name!="" && same_part_route_name!=part_route_name){
+            route_name+=part_route_name+" - "
+             //console.log()
+          }
+
+        }
+  route_name=route_name.substring(0,route_name.length-3)
+  return route_name
 }
