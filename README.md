@@ -20,8 +20,8 @@ Ready to run in production? Please [check our deployment guides](http://www.phoe
 
 ## Url
   * [`localhost:4000\createtrip`]: to create a trip.
-  * [`localhost:4000\viewtrip?tripid=195`]: to view a full trip in map (just view, should not edit).
-  *	[`localhost:4000\viewtrip?tripid=196`]: view a part trip in map, can add more stops.
+  * [`localhost:4000\viewtrip\195`]: to view a full trip in map (just view, should not edit).
+  *	[`localhost:4000\viewtrip\196`]: view a part trip in map, can add more stops.
 
 ## Database
   * To view all nodes in database:
