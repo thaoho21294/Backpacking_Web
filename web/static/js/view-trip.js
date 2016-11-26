@@ -30,16 +30,17 @@ var tripdetail={}
 
 $(document).ready(function() {
 
+  console.log(window.location)
   icons={
   blueflag: new google.maps.MarkerImage(
    // URL
-   'images/flag2.png',
+   '/images/flag2.png',
    // (width,height)
    new google.maps.Size( 40, 45 )
   ),
   new_stop_marker: new google.maps.MarkerImage(
    // URL
-   'images/flag-grey.png',
+   '/images/flag-grey.png',
    // (width,height)
    new google.maps.Size( 40, 45 ),
    null,
@@ -50,7 +51,7 @@ $(document).ready(function() {
   ),
   new_stop_pointer: new google.maps.MarkerImage(
    // URL
-   'images/flag-grey.png',
+   '/images/flag-grey.png',
    // (width,height)
    new google.maps.Size( 40, 45 ),
    null,
@@ -61,6 +62,7 @@ $(document).ready(function() {
    )
 
  }; 
+ console.log(icons)
     tripid=$("input[name='tripid']").val();
     initMap();
     $.ajax({
@@ -90,7 +92,7 @@ $(document).ready(function() {
         generateRequests(routeArray);
       }
       //send_data_plan(stops)
-      var center_stop= stops[Math.round(stops.length/2)]
+      var center_stop= stops[Math.floor(stops.length/2)]
       var center_latLng= {lat:center_stop.lat, lng:center_stop.lng}
       map.setCenter(center_latLng)
           }//end function(data)
@@ -531,7 +533,7 @@ function addStop(map){
         if(!edit){
         edit= true;
          e.stopPropagation();
-          map.setOptions({ draggableCursor: 'url(images/flag-grey.png) 22 32, auto' });
+          map.setOptions({ draggableCursor: 'url(/images/flag-grey.png) 20 45, auto' });
           }
           else{
             edit= false;
@@ -613,8 +615,9 @@ function addRoute(map, directionsService){
   // no need to create route.
   new_stop_order=1
   //cho nay sai
-  stop_arrive=tripdetail.startdate;
-  stop_departure=tripdetail.startdate+3600000
+  stop_arrive=tripdetail.start_date;
+  stop_departure=tripdetail.start_date+3600000
+  console.log(tripdetail)
        var input={
             'name':stop_name,
             'address': stop_address,
@@ -636,7 +639,7 @@ function addRoute(map, directionsService){
   var dfrd=$.Deferred();
   setTimeout(function(){
     if(stops.length==0){
-      console.log("TH 0");
+      console.log("TH0");
     $.ajax({
           type: 'POST',
           dataType: 'json',
@@ -691,16 +694,17 @@ function addRoute(map, directionsService){
         var list_distance_stop=[]
         var new_latLng= new google.maps.LatLng({lat: stop_lat, lng: stop_lng})
         var latLng;
-
+        var distance_term=0
         //strange bug: if not generateRequests(jsonArray), error: google.maps.geometry was not init
         //calculate distance
         for(var i=0; i<stops.length;i++){
            latLng= new google.maps.LatLng({lat: stops[i].lat, lng:stops[i].lng})
+           distance_term=google.maps.geometry.spherical.computeDistanceBetween(new_latLng, latLng).toFixed(2)
         var distance_stop= {
           'route_index':stops[i].route_index,
           'order': stops[i].order,
           'latLng': {lat: stops[i].lat, lng:stops[i].lng},
-          'distance': google.maps.geometry.spherical.computeDistanceBetween(new_latLng, latLng).toFixed(2)
+          'distance': parseFloat(distance_term)
         };
           list_distance_stop.push(distance_stop)
         }
@@ -788,28 +792,23 @@ function addRoute(map, directionsService){
             // console.log(near_stop_second)
             // var start;
               console.log ("check first, second distance")
-              console.log (near_stop_first.distance)
-              console.log (near_stop_second.distance)
+              console.log (near_stop_first)
+              console.log (near_stop_second)
             if(near_stop_first==undefined){ 
-              // start=neareast_stop;
-
               new_stop_order=neareast_stop.order+1
-
+              console.log("TH1: first undefined")
             }
             else if(near_stop_second==undefined){
-              // start= near_stop_first
               new_stop_order=neareast_stop.order
-
+              console.log("TH2: second undefined")
             }
-            //new stop nghieng ve ben phai
             else if (near_stop_first.distance>near_stop_second.distance){
-              // start=neareast_stop;
               new_stop_order=neareast_stop.order+1
+              console.log("TH3: first > second")
             } 
             else{
-              // start=near_stop_first;
               new_stop_order=neareast_stop.order
-
+              console.log("TH4: first < second")
             }
 
             // console.log(start)
