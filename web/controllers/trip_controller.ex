@@ -18,7 +18,7 @@ defmodule BsnWeb.TripController do
     def get_trip_detail(conn, %{"id"=>tripid})do
       cypher="""
       MATCH (t:Trip)-[:HAVE]->(s:Status) where id(t)=#{tripid} return t.name as name, t.off_time as off_time, t.note as note,
-       t.startdate as startdate, t.enddate as enddate, t.estimated_number_of_members as estimated_number_of_members,
+       t.start_date as start_date, t.end_date as end_date, t.estimated_number_of_members as estimated_number_of_members,
        t.description as description, t.estimate_cost as estimate_cost, t.off_place as off_place, t.real_cost as real_cost, s.name as status
       """
       tripdetail= Enum.at(Neo4j.query!(Neo4j.conn, cypher),0)
