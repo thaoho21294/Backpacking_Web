@@ -32,8 +32,8 @@ defmodule BsnWeb.Router do
      post "/stops", TripController, :add_stop
      post "/add-stop-edit-route", TripController, :add_stop_edit_route
      post "/add-stop-update-order", TripController, :add_stop_update_order
-     get "/map/autocomplete/:input", MapController, :get_autocomplete_data
-     get "/map/location/:place_id", MapController, :get_location
+     get "/locations/:input", MapController, :get_autocomplete_data
+     get "/locations/:place_id", MapController, :get_location
      post "/addtrip", TripController, :add_trip
    end
 end
