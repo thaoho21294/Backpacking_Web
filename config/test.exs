@@ -17,3 +17,10 @@ config :bsn_web, BsnWeb.Repo,
   database: "bsn_web_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+config :neo4j_sips, Neo4j,
+  url: "http://localhost:7474",
+  basic_auth: [username: "neo4j", password: "neo4j123"],
+  pool_size: 5,
+  max_overflow: 2,
+  timeout: 10

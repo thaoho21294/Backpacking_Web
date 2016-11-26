@@ -18,7 +18,7 @@ defmodule BsnWeb.Mixfile do
   def application do
     [mod: {BsnWeb, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html,:neo4j_sips,
-					:cowboy, :logger, :gettext, :httpoison]]
+					:cowboy, :logger, :gettext, :httpoison, :graphql]]
   end
 
   # Specifies which paths to compile per environment.
@@ -36,7 +36,10 @@ defmodule BsnWeb.Mixfile do
      {:gettext, "~> 0.11"},
 	   {:neo4j_sips, "~> 0.2.10"},
      {:cowboy, "~> 1.0"},
-     {:httpoison, "~> 0.10.0"}
+     {:httpoison, "~> 0.10.0"},
+     {:graphql, "~> 0.3"},
+     {:graphql_relay, "~> 0.5"},
+     {:plug_graphql, "~> 0.3.1"}
    ]
   end
 end

@@ -24,7 +24,11 @@ defmodule BsnWeb.Router do
   end
   # Other scopes may use custom stacks.
   scope "/api", BsnWeb do
-     pipe_through :api
+    pipe_through :api
+
+    # forward "/", Backend
+    get "/", Backend, []
+    post "/", Backend, []
 
      get "/trips/:id/stops", TripController, :get_all_stops
      get "/trips/:id/", TripController, :get_trip_detail

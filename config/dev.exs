@@ -13,6 +13,7 @@ config :bsn_web, BsnWeb.Endpoint,
   check_origin: false,
   watchers: [node: ["node_modules/brunch/bin/brunch", "watch", "--stdin",
                     cd: Path.expand("../", __DIR__)]]
+
 config :neo4j_sips, Neo4j,
   url: "http://localhost:7474",
   basic_auth: [username: "neo4j", password: "neo4j123"],
