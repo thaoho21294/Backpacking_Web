@@ -29,7 +29,6 @@ exports.config = {
         //      "main/js/app.js",
         //      'create-trip/js/create-trip.js',
         //      'view-trip/js/view-trip.js'
-
         //      ]
         //      // after: ["js/view_trip.js"]
         //     }
