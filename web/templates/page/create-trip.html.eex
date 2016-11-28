@@ -24,15 +24,15 @@
                                         <label class="sr-only" for="form-start-address">Điểm bắt đầu</label>
                                         <input type="text" name="form-start-address" list='address-list-start' class="address-input" placeholder="Điểm bắt đầu..." id="form-start-point">
                                         <datalist class="address-list" id="address-list-start"></datalist>
-                                        <input type="hidden" name="start-lat" id='start-lat'>
-                                        <input type="hidden" name="start-lng" id='start-lng'>
+                                        <input type="hidden" name="start-lat" value="11" id='start-lat'>
+                                        <input type="hidden" name="start-lng" value="11" id='start-lng'>
                                     </div>
                                     <div class="end-point form-group form-group-70">
                                         <label class="sr-only" for="form-end-address">Điểm kết thúc</label>
                                         <input type="text" name="form-end-address" list='address-list-end' class="address-input" placeholder="Điểm kết thúc" id="form-end-point">
                                         <datalist class="address-list" id="address-list-end"></datalist>
-                                        <input type="hidden" name="end-lat" id='end-lat'>
-                                        <input type="hidden" name="end-lng" id='end-lng'>
+                                        <input type="hidden" name="end-lat" value="" id='end-lat'>
+                                        <input type="hidden" name="end-lng" value="" id='end-lng'>
                                             <%# <span class="input-group-btn">
                                                 <button class="btn btn-default next-point-remove" type="button"><i class="fa fa-times" aria-hidden="true"></i></button>
                                             </span> %>

@@ -96,13 +96,26 @@ defmodule BsnWeb.TripController do
    #    #Add all members to trip need loop or recursion
 
    # end
-   def add_trip(conn, %{"form-start-address"=>start_address,"start-lat"=>start_lat, "start-lng"=>start_lng,"form-end-address"=>end_address,"end-lat"=>end_lat, "end-lng"=>end_lng, "form-trip-name"=>trip_name,"start-date-ms"=>start_date, "end-date-ms"=>end_date, "form-estimate-cost"=>estimate_cost, "form-estimate-members"=>estimate_members,"holder-id"=>holderid, "form-mode"=>mode,"route-name"=>route_name, "route-duration"=>route_duration, "route-distance"=>route_distance}) do
+   def add_trip(conn, %{"form-start-address"=>start_address,"start-lat"=>start_lat, "start-lng"=>start_lng,"form-end-address"=>end_address,"end-lat"=>end_lat, "end-lng"=>end_lng, "form-trip-name"=>trip_name,"start-date-ms"=>start_date, "end-date-ms"=>end_date, "form-estimate-cost"=>estimate_cost, "form-estimate-members"=>estimate_members,"holder-id"=>holder_id, "form-mode"=>mode,"route-name"=>route_name, "route-duration"=>route_duration, "route-distance"=>route_distance}) do
+        
+        start_lat=String.to_float(start_lat)
+        start_lng=String.to_float(start_lng)
+        end_lat=String.to_float(end_lat)
+        end_lng=String.to_float(end_lng)
+
         start_stop_name=String.split(start_address, ~r{,})
         start_stop_name=Enum.at(start_stop_name, Enum.count(start_stop_name)-2)
         end_stop_name=String.split(end_address, ~r{,})
         end_stop_name=Enum.at(end_stop_name, Enum.count(end_stop_name)-2)
 
-        start_arrive= start_date
+        end_date=String.to_integer(end_date)
+        estimate_members= String.to_integer(estimate_members)
+        estimate_cost=String.to_integer(estimate_cost)
+        holder_id=String.to_integer(holder_id)
+
+        start_arrive= String.to_integer(start_date)
+        route_duration=String.to_integer(route_duration)
+        route_distance=String.to_integer(route_distance)
         start_departure= start_arrive+3600000
         end_arrive=start_departure+route_duration*60000
         end_departure=end_arrive+3600000
@@ -110,15 +123,20 @@ defmodule BsnWeb.TripController do
         create_date=1470567600000
           
         cypher= """
-        MATCH (s:Status{name:'open'}),(u:User),(m:Vehicle{name=\"#{mode}\"}), (l1:Location{address: \"#{start_address}\", lat: #{start_lat}, long:#{start_lng}}),(l1:Location{address: \"#{end_address}\", lat: #{end_lat}, long:#{end_lng}}) 
-        WHERE id(u)=#{holderid}
-        CREATE (t:Trip{name:\"#{trip_name}\",start_date:#{start_date}, end_date:#{end_date}, estimate_cost: #{estimate_cost},estimated_number_of_members:#{estimate_members},create_date:#{create_date})
-        CREATE (s1:Stop{name:\"#{start_stop_name}\", arrive:#{start_arrive}, departure:#{start_departure}, order: 1)
-        CREATE (s2:Stop{name:\"#{end_stop_name}\", arrive:#{end_arrive}, departure:#{end_departure}, order: 2)
-        CREATE (r:Route{name:\"#{route_name}\", duration:#{route_duration},distance: #{route_distance}})
+        MATCH (s:Status{name:'open'}),(u:User),(m:Vehicle{name:\"#{mode}\"})
+        WHERE id(u)=#{holder_id} 
+        CREATE (l1:Location{address: \"#{start_address}\", lat: #{start_lat}, long:#{start_lng}}) 
+        CREATE (l2:Location{address: \"#{end_address}\", lat: #{end_lat}, long:#{end_lng}}) 
+        CREATE (t:Trip{name:\"#{trip_name}\",start_date:#{start_date}, end_date:#{end_date}, estimate_cost:#{estimate_cost}, estimated_number_of_members:#{estimate_members}, create_date:#{create_date}}) 
+        CREATE (s1:Stop{name:\"#{start_stop_name}\", arrive:#{start_arrive}, departure:#{start_departure}, order:1}) 
+        CREATE (s2:Stop{name:\"#{end_stop_name}\", arrive:#{end_arrive}, departure:#{end_departure}, order:2}) 
+        CREATE (r:Route{name:\"#{route_name}\", duration:#{route_duration}, distance:#{route_distance}}) 
         CREATE (u)-[:HOLDER]->(t)-[:HAVE]->(s), (l1)<-[:LOCATE]-(s1)<-[:INCLUDE]-(t)-[:INCLUDE]->(s2)-[:LOCATE]->(l2), (s2)-[:THROUGH]->(r)-[:MODE]->(m) 
+        return id(t) as tripid
        """
       response=Neo4j.query!(Neo4j.conn, cypher)
-      json conn, response
+      IO.inspect(response)
+      tripid=Map.get(Enum.at(response,0), "tripid")
+      redirect conn, to: "/trips/#{tripid}"
    end
 end

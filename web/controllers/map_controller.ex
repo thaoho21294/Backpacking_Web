@@ -24,4 +24,9 @@ defmodule BsnWeb.MapController do
     render(conn,"get_location_data.json", location: response.body)
     #json conn, response
   end
+  def get_direction(conn, %{"origin"=>origin, "destination"=>destination}) do
+    response=get!("directions/json?origin=place_id:#{origin}&destination=place_id:#{destination}")
+    render(conn, "get_direction.json", direction: response.body)
+  end
+
 end

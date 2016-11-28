@@ -17,7 +17,7 @@ defmodule BsnWeb.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
-    get "/viewtrip/:tripid", PageController, :view_trip
+    get "/trips/:tripid", PageController, :view_trip
     get "/createtrip", PageController, :create_trip
     get "/map", MapController, :index
     #get "/auto/:input", MapController, :get_auto_complete_data
@@ -36,9 +36,10 @@ defmodule BsnWeb.Router do
      post "/stops", TripController, :add_stop
      post "/add-stop-edit-route", TripController, :add_stop_edit_route
      post "/add-stop-update-order", TripController, :add_stop_update_order
-     get "/locations/:input", MapController, :get_autocomplete_data
+     get "/address/:input", MapController, :get_autocomplete_data
      get "/locations/:place_id", MapController, :get_location
-     #Add new trip
+     get "/direction/:origin/:destination", MapController, :get_direction
      post "/addtrip", TripController, :add_trip
+
    end
 end

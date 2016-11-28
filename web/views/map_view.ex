@@ -8,4 +8,7 @@ defmodule BsnWeb.MapView do
 		#.result.geometry.location
 		%{location: Map.get(Map.get(Map.get(location,"result"),"geometry"),"location")}
 	end
+	def render("get_direction.json", %{direction: direction}) do
+		%{direction: Map.get(direction, "routes")}
+	end
 end
