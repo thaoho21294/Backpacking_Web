@@ -17,7 +17,7 @@ defmodule BsnWeb.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
-    get "/trips/:tripid", PageController, :view_trip
+    get "/trips/:id", PageController, :view_trip
     get "/createtrip", PageController, :create_trip
     get "/map", MapController, :index
     #get "/auto/:input", MapController, :get_auto_complete_data
