@@ -40,6 +40,8 @@ defmodule BsnWeb.Router do
      get "/locations/:place_id", MapController, :get_location
      get "/direction/:origin/:destination", MapController, :get_direction
      post "/addtrip", TripController, :add_trip
+     get "/routes/:id", TripController, :get_all_routes
+
 
    end
 end
