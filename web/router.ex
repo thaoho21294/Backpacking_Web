@@ -30,18 +30,19 @@ defmodule BsnWeb.Router do
     get "/", Backend, []
     post "/", Backend, []
 
-     get "/trips/:id/stops", TripController, :get_all_stops
-     get "/trips/:id", TripController, :get_trip_detail
-     get "/trips/:id/members", TripController, :get_members
-     post "/stops", TripController, :add_stop
-     post "/add-stop-edit-route", TripController, :add_stop_edit_route
-     post "/add-stop-update-order", TripController, :add_stop_update_order
-     get "/address/:input", MapController, :get_autocomplete_data
-     get "/locations/:place_id", MapController, :get_location
-     get "/direction/:origin/:destination", MapController, :get_direction
-     post "/addtrip", TripController, :add_trip
-     get "/routes/:id", TripController, :get_all_routes
+    post "/stops", TripController, :add_stop
+    post "/add-stop-edit-route", TripController, :add_stop_edit_route
+    post "/add-stop-update-order", TripController, :add_stop_update_order
+    get "/address/:input", MapController, :get_autocomplete_data
+    get "/locations/:place_id", MapController, :get_location
+    get "/direction/:origin/:destination", MapController, :get_direction
 
-
-   end
+    scope "/trips" do
+      get "/:id", TripController, :get_trip_detail
+      get "/:id/stops", TripController, :get_all_stops
+      get "/:id/members", TripController, :get_members
+      get "/:id/routes", TripController, :get_all_routes
+      post "/trips", TripController, :add_trip
+    end
+  end
 end
