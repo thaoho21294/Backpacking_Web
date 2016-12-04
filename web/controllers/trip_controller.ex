@@ -15,6 +15,15 @@ defmodule BsnWeb.TripController do
       stops=Neo4j.query!(Neo4j.conn, cypher)
       render(conn, "get_all_stops.json", stops: stops)
     end
+    def get_all_route(conn, %{"id"=>tripid}) do
+      cypher="""
+          MATCH (t:Trip)-[:INCLUDE]->(s2:Stop)-[:THROUGH]->(r:Route), (t:Trip)-[:INCLUDE]->(s1:Stop)-[:LOCATE]->(l1:Location), (s2:Stop)-[:LOCATE]->(l2:Location)
+          WHERE id(t)=#{tripid} and s1.order=s2.order-1
+          RETURN r.polyline as polyline, l1.lat as start_lat, l1.long as start_lng, l2.lat as end_lat, l2.long as end_lng
+      """
+      routes=Neo4j.query!(Neo4j.conn, cypher)
+      render(conn, "get_all_routes.json", routes: routes)
+    end
     def get_trip_detail(conn, %{"id"=>tripid})do
       cypher="""
       MATCH (t:Trip)-[:HAVE]->(s:Status) where id(t)=#{tripid} return t.name as name, t.off_time as off_time, t.note as note,
