@@ -5,7 +5,7 @@ defmodule BsnWeb.Backend.Query do
   alias GraphQL.{Type, Relay}
   alias Relay.{Connection}
   alias BsnWeb.Backend
-  alias Backend.Schema.{Trip}
+  alias Backend.Schema.{Trip, Route}
 
   def all_trips() do
     %{
@@ -46,6 +46,24 @@ defmodule BsnWeb.Backend.Query do
       # `context` has fields [:field_name, :fragments, :root_value, :variable_values, :field_asts, :operation, :parent_type, :return_type, :schema]
       resolve: fn(source, args, context) ->
         args = Map.put(args, :type, "Trip")
+        Backend.retrieve(source, args, context)
+      end
+    }
+  end
+
+  @default_route_arg %{
+    origin: %{type: %Type.String{}}, # @TODO: Custom type
+    destination: %{type: %Type.String{}},
+    mode: %{type: %Type.String{}, defaultValue: "driving"} # Maybe enum?
+  }
+
+  def all_routes(args \\ @default_route_arg) do
+    %{
+      type: %Type.List{ofType: Route},
+      description: "Direction routes for the trip",
+      args: args || %{},
+      resolve: fn(source, args, context) ->
+        args = Map.put(args, :type, "Route")
         Backend.retrieve(source, args, context)
       end
     }
