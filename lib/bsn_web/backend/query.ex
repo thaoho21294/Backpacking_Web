@@ -57,6 +57,13 @@ defmodule BsnWeb.Backend.Query do
     mode: %{type: %Type.String{}, defaultValue: "driving"} # Maybe enum?
   }
 
+  @doc """
+  GraphQL query for retrieving a list of routes.
+
+  The returned list is either of routes surrounding a coordinate, or of
+  a single trip. The `source` argument in the `resolve` is either the
+  `viewer`, or a `trip`. 
+  """
   def all_routes(args \\ @default_route_arg) do
     %{
       type: %Type.List{ofType: Route},
