@@ -18,7 +18,7 @@ defmodule BsnWeb.Router do
 
     get "/", PageController, :index
     get "/trips/:id", PageController, :view_trip
-    get "/createtrip", PageController, :create_trip
+    get "/trips/new", PageController, :create_trip
     get "/map", MapController, :index
     #get "/auto/:input", MapController, :get_auto_complete_data
   end
@@ -38,11 +38,13 @@ defmodule BsnWeb.Router do
     get "/direction/:origin/:destination", MapController, :get_direction
 
     scope "/trips" do
-      get "/:id", TripController, :get_trip_detail
+      get "/:id", TripController, :show
       get "/:id/stops", TripController, :get_all_stops
+      post "/:id/stops", TripController, :add_stop
       get "/:id/members", TripController, :get_members
       get "/:id/routes", TripController, :get_all_routes
-      post "/trips", TripController, :add_trip
+      post "/", TripController, :create
+      delete "/:id", TripController, :delete
     end
   end
 end
