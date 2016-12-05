@@ -42,6 +42,8 @@ defmodule BsnWeb.Backend do
   The third argument is the GraphQL context in case we need to look at
   the schema and operations.
   """
+
+  # Gets a single trip.
   def retrieve(_source, %{type: "Trip", id: id}, _context) do
     cypher="""
     MATCH (t:Trip)-[:HAVE]->(s:Status) where id(t)=#{id} return id(t) as id, t.name as name, t.off_time as off_time, t.note as note,
@@ -52,6 +54,7 @@ defmodule BsnWeb.Backend do
     Enum.at(Sips.query!(Sips.conn, cypher),0)
   end
 
+  # Get list of trips
   def retrieve(viewer, %{type: "Trip"} = args, context) do
     cypher="""
     MATCH (t:Trip) 
@@ -64,6 +67,7 @@ defmodule BsnWeb.Backend do
     Sips.query!(Sips.conn, cypher)
   end
 
+  # Get a trip's stops.
   def retrieve(%{"id" => trip_id} = _trip, %{type: "Stop"}, _context) do
     cypher="""
     MATCH (l:Location)<-[:LOCATE]-(s:Stop)<-[:INCLUDE]-(t:Trip)
@@ -73,6 +77,18 @@ defmodule BsnWeb.Backend do
     return id(s) as id, s.name as name,s.description as description, l.lat as lat, l.long as lng, l.address as address, v.name as mode, s.order as order,
     s.arrive as arrive, s.departure as departure, r.name as route_name, r.duration as route_duration, r.distance as route_distance
     ORDER BY order
+    """
+
+    Sips.query!(Sips.conn, cypher)
+  end
+
+  def retrieve(%{"id" => trip_id} = _trip, %{type: "Route"}, _context) do
+    cypher = """
+    MATCH (trip:Trip)-[:INCLUDE]->(stop2:Stop)-[:THROUGH]->(r:Route), 
+          (trip:Trip)-[:INCLUDE]->(stop1:Stop)-[:LOCATE]->(origin:Location), 
+          (stop2:Stop)-[:LOCATE]->(destination:Location)
+    WHERE id(trip)=#{trip_id} and stop1.order=stop2.order-1
+    RETURN r.polyline as polyline, origin.lat as start_lat, origin.long as start_lng, destination.lat as end_lat, destination.long as end_lng
     """
 
     Sips.query!(Sips.conn, cypher)

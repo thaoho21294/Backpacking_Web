@@ -14,7 +14,7 @@ defmodule BsnWeb.Backend.Schema.Route do
         id: Node.global_id_field("route", fn(obj, _, _) -> obj["id"] end),
         polyline: %{
           type: %Type.String{},
-          resolve: fn(obj, _args, _info) -> obj["name"] end
+          resolve: fn(obj, _args, _info) -> obj["polyline"] end
         }
       },
       interfaces: [Schema.node_interface]
