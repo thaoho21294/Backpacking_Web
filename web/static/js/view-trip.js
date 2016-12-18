@@ -16,7 +16,8 @@ var routeArray = {}
 var stops=[]
 var stops_title=[]
 var icons;
-var tripdetail={}
+var tripdetail;
+var members=[]
 // $.urlParam = function(name){
 //     var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
 //     if (results==null){
@@ -30,8 +31,7 @@ var tripdetail={}
 
 $(document).ready(function() {
 
-  console.log(window.location)
-  icons={
+ icons={
   blueflag: new google.maps.MarkerImage(
    // URL
    '/images/flag2.png',
@@ -62,9 +62,8 @@ $(document).ready(function() {
    )
 
  }; 
- console.log(icons)
     tripid=$("input[name='tripid']").val();
-    initMap();
+    //initMap();
     $.ajax({
       url: "/api/trips/"+tripid+"/stops",
       async: false,
@@ -86,29 +85,42 @@ $(document).ready(function() {
       }
 
       if(stops.length>1){
-        send_route_map(stops)
+        //send_route_map(stops)
         create_stops_distinct()
         send_data_plan(stops)
         generateRequests(routeArray);
       }
-      //send_data_plan(stops)
       var center_stop= stops[Math.floor(stops.length/2)]
       var center_latLng= {lat:center_stop.lat, lng:center_stop.lng}
       map.setCenter(center_latLng)
-          }//end function(data)
+          }//end furnction(data)
     });//end ajax
 
-    $.ajax(
+     $.ajax(
       {url:"/api/trips/"+tripid,
       async: false,
       dataType: 'json',
       success: function(data) {
       if (!data.tripdetail) {return}
         tripdetail= data.tripdetail
-        //$(".panel-body").append(data.tripdetail.description)
+        create_tripdetail(tripdetail);
+        auto_height_textarea('#trip-desctiption');
+        auto_height_textarea('#trip-cost-detail');
+        auto_height_textarea('#trip-necessary-tool');
+        auto_height_textarea('#trip-note');
 
-    }//end ajax
-  });
+    }
+  });//end ajax
+    $.ajax(
+      {url:"/api/trips/"+tripid+"/members",
+      async: false,
+      dataType: 'json',
+      success: function(data) {
+      if (!data.members) {return}
+        members= data.members;
+
+    }
+  });//end ajax
 
 
 
@@ -119,7 +131,7 @@ $("#plan-list").on('mouseenter', '.content1', function(){
 });
 $("#plan-list").on('mouseleave', '.content1', function(){
 //  alert("leave");
-  $(this).css('background-color','#d3d3d3')
+  $(this).css('background-color','#f2f2f2')
 });
 
 $("#plan-list").on('click', '.content1', function(){
@@ -131,10 +143,8 @@ $("#plan-list").on('click', '.content1', function(){
   var stop_id= $(this).parents(".list-item").attr('id')
   var type=stop_id.split('_')[0];
   var id= stop_id.split('_')[1];
-  var stop_arrive=new Date(stops[id].arrive)
-  var stop_departure=new Date(stops[id].departure)
-  var route_start=new Date(stops[id].arrive-stops[id].route_duration*60000)
-  var route_finish=new Date(stops[id].arrive)
+  var route_start=stops[id].arrive-stops[id].route_duration*60000
+  var route_finish=stops[id].arrive
   var stop_duration= calulateStopDuration(stops[id].arrive, stops[id].departure)
     var string=""
     var stop_string ="<div class='content2'>\
@@ -149,15 +159,15 @@ $("#plan-list").on('click', '.content1', function(){
               <div class='item-content2'><input type='text' name='stop-name' value='"+stops[id].name+"'></div>\
               <div class='item-content2'><input type='text' name='stop-address' value='"+stops[id].address+"'></div>\
               <div class='item-content2'>\
-               <label class='stop-label'>Thời gian đến</label><input type='text' name='stop-arrive-date' value='"+formatDatetoDate(stop_arrive)+"'>\
-               <input type='text' name='stop-arrive-time' value='"+formatDatetoTime(stop_arrive)+"'>\
+               <label class='stop-label'>Thời gian đến</label><input type='text' disabled='true' name='stop-arrive-date' value='"+formatDatetoDate(stops[id].arrive)+"'>\
+               <input type='text' name='stop-arrive-time' disabled='true' value='"+formatDatetoTime(stops[id].arrive)+"'>\
               </div>\
               <div class='item-content2'><label class='stop-label'>Thời gian trải qua:</label><input type='text' name='stop-duration-time' value="+stop_duration+"></div>\
               <div class='item-content2'>\
-              <label class='stop-label'>Thời gian đi</label><input type='text' name='stop-departure-date' value='"+formatDatetoDate(stop_departure)+"'>\
-              <input type='text' name='stop-departure-time' value='"+formatDatetoTime(stop_departure)+"'>\
+              <label class='stop-label'>Thời gian đi</label><input type='text' disabled='true' name='stop-departure-date' value='"+formatDatetoDate(stops[id].departure)+"'>\
+              <input type='text' name='stop-departure-time' disabled='true' value='"+formatDatetoTime(stops[id].departure)+"'>\
               </div>\
-              <div class='item-content2'><textarea class='stop-description' placeholder='Mô tả điểm dừng'>"+stops[id].description+"</textarea></div>\
+              <div class='item-content2'><textarea class='stop-description' placeholder='Stop description...'>"+stops[id].description+"</textarea></div>\
                </form>\
         </div>\
       </div>";
@@ -170,15 +180,16 @@ $("#plan-list").on('click', '.content1', function(){
             <form class='stop-detail'>\
           <div class='item-content2'><input type='text' name='route-name' value='"+stops[id].route_name+"'></div>\
           <div class='item-content2'>\
-              <label class='route-label'>Xuất phát: </label><input type='text' name='route-start-time' value='"+formatDatetoTime(route_start)+"'>\
+              <label class='route-label'>Xuất phát: </label><input type='text' disabled='true' name='route-start-time' value='"+formatDatetoTime(route_start)+"'>\
           </div>\
               <div class='item-content2'>\
-               <b>Khoảng cách:</b> <input type='text' name='route-distance' value='"+formatDistance(stops[id].route_distance)+"'>\
+               <b>Khoảng cách:</b> <input type='text' name='route-distance' disabled='true' value='"+formatDistance(stops[id].route_distance)+"'>\
                <b>Thời gian:</b> <input type='text' name='route-duration-time' value='"+formatDuration(stops[id].route_duration)+"'>\
               </div>\
               <div class='item-content2'>\
-              <label class='route-label'>Kết thúc</label><input type='text' name='route-departure-time' value='"+formatDatetoTime(route_finish)+"'>\
+              <label class='route-label'>Kết thúc</label><input type='text' name='route-departure-time' disabled='true' value='"+formatDatetoTime(route_finish)+"'>\
               </div>\
+              <div class='item-content2'><textarea class='stop-description' placeholder='Route description...'>"+stops[id].route_description+"</textarea></div>\
         </form>\
         </div>\
         </div>";
@@ -203,9 +214,58 @@ $("#cancel-new-stop, .new-stop .close-button").click(function(){
   $(".new-stop").hide();
   $(".list-group .list-item").show();
 });
+//-----------------------------------
+//menu action
+//-----------------------------------
+//hover event on menu
+$("#plan-menu").mouseover(function(){
+  $(this).css("right", "-80px");
+});
+$("#plan-menu").mouseleave(function(){
+  $(this).css("right", "-105px");
+});
+$("#schedule-menu").mouseover(function(){
+  $(this).css("right", "-89px");
+});
+$("#schedule-menu").mouseleave(function(){
+  $(this).css("right", "-119px");
+});
+$("#trip-menu").mouseover(function(){
+  $(this).css("right", "-80px");
+});
+$("#trip-menu").mouseleave(function(){
+  $(this).css("right", "-110px");
+});
+$("#plan-menu").click(function(){
+  change_position("#plan");
+});
+$("#schedule-menu").click(function(){
+  change_position("#schedule");
+});
+$("#trip-menu").click(function(){
+change_position("#trip-detail");
+});
+function change_position(element){
+  $(".trip-content-right").css("right", "-500px");
+  var view=$(element).css("right");
+  if(view=="0px")
+  $(element).css("right", "-500px");
+else{
+  $(element).css("right", "0px");
+}
+}
+//-------------------------------------
+// load data schedule 
+//------------------------------------
+//$("#schedule").append("");
+
 
 //end document ready
 });
+  //-------------------------------------
+// START DEFINE FUNCTION
+//------------------------------------
+
 $(".new-stop").hide();
         function send_route_map(stops) {
             //create routes include many stop
@@ -269,9 +329,11 @@ $(".new-stop").hide();
             console.log(stops_title)
         }//end function
         function send_data_plan(stops){
-
-         $("#plan-list").append("<li class='list-item' id='stop_0'><div class='content1'><img id='avar' src='/images/flag2.png'>"+stops[0].name+"</div></li>");
+          var image="flag2.png";
+         $("#plan-list").append("<li class='list-item' id='stop_0'><div class='content1'><img id='avar' src='/images/start.png'>  "+stops[0].name+"</div></li>");
           for(var i=1; i<stops.length; i++){
+            if(i==stops.length-1)
+              image="end.png"
           // var departure= new Date(stops[i].departure)
           // var arrrive = new Date(stops[i].arrive)
 
@@ -281,9 +343,8 @@ $(".new-stop").hide();
           // start= formatDatetoTime(start)
           // end= formatDatetoTime(end)
           //date for stop
-          var route_start=new Date(stops[i].arrive-stops[i].route_duration*60000)
-          var route_finish=new Date(stops[i].arrive)
-
+          var route_start=stops[i].arrive-stops[i].route_duration*60000
+          var route_finish=stops[i].arrive
 
           $("#plan-list").append("\
             <li class='list-item' id='route_"+i+"'>\
@@ -304,11 +365,217 @@ $(".new-stop").hide();
             </ul>\
             </div></li>\
             <li class='list-item' id='stop_"+i+"'>\
-            <div class='content1'><img id='avar' src='/images/flag2.png'>"+stops[i].name+"</div>\
+            <div class='content1'><img id='avar' src='/images/"+image+"'>  "+stops[i].name+"</div>\
             </li>");
+             }//end for
+              var items=[]
+              var stop_description;
+              var route_description;
+              console.log(stops)
+              for(var i=0;i<stops.length-1;i++){
+              stop_description=stops[i].description;
+              route_description=stops[i+1].route_description
+              if(stop_description==""){
+                if(i==0){
+                stop_description="Tập trung tại "+stops[i].name;
+              }
+              else
+                stop_description="Tham quan "+stops[i].name;
+
+              } 
+              if(route_description==""){
+                if(stops[i+1].mode=="xe máy") route_description="Lên xe máy đi "+stops[i+1].name;
+                if(stops[i+1].mode=="đi bộ") route_description="Đi bộ đến "+ stops[i+1].name;
+              }
+
+              items.push({time:stops[i].arrive,description:stop_description})
+
+              items.push({time:stops[i].departure, description:route_description});
+              }
+              stop_description=stops[stops.length-1].description
+              if(stops[stops.length-1].description=="") stop_description="Kết thúc chuyến đi. Về lại "+stops[stops.length-1].name;
+
+              items.push({time:stops[stops.length-1].arrive,description:stop_description});
+              console.log(items)
+              var days=cal_number_days(stops)
+              var start_date=new Date(stops[0].departure)
+              var date=start_date; // date of daynumber
+              var height_item=32; // height of a item on plan list
+              var padding=0
+              var number_item_part=0
+              // console.log("days="+days)
+              var number_item=0;
+              var day_max=0;
+              var start_item_number=0;
+              var month;
+              var day_number_items=[];
+              var day_string=""
+             for(var i=1; i<days+1;i++){
+              month=date.getMonth()+1
+               $(".day-number").append("<li id='day"+i+"''>Day "+i+"<br>"+name_date(date.getDay())+"<br>"+date.getDate()+"/"+month+"</li>")
+               var day_max=new Date(date.getFullYear(),date.getMonth(),date.getDate(),23,59,0,0).getTime();
+               number_item=0;
+                // console.log(day_max)
+                for(var j=start_item_number; j<items.length; j++){
+                  if(day_max<items[j].time){
+                      number_item_part=(day_max-items[j-1].time)/(items[j].time-items[j-1].time);
+                      start_item_number--;
+                      number_item--;
+                      break;
+                  }
+                  number_item++;
+                  start_item_number++;
+                }
+                // console.log(start_item_number);
+                // console.log(number_item)
+                // console.log(number_item_part)
+                // console.log(number_item+number_item_part)
+                day_number_items.push(number_item);
+                // console.log(day_number_items)
+                padding=Math.round(height_item*(number_item+number_item_part))
+
+               $("li#day"+i).css("height", padding+"px");
+               date.setDate(date.getDate()+1);
              }
-            }  
-function formatDatetoDate(date) {
+             create_schedule(items,days,day_number_items)
+
+            }  //end send data map plan
+
+function create_tripdetail(tripdetail){
+  //console.log(tripdetail)
+  var start_date=new Date(tripdetail.start_date);
+  var trip_month_year=name_month(start_date.getMonth())+" "+start_date.getFullYear();
+  var neading_member= tripdetail.estimated_members-members.length;
+
+  var tripdetail_string="<div class='trip-detail-header' style=\"background-image: url('\/images\/trip3.jpg')\">\
+<div class='trip-detail-header-background'>\
+  <h2 class='trip-detail-name'>"+tripdetail.name+"</h2>\
+  <h3 class='trip-month'>"+trip_month_year+"</h3>\
+  <p class='needing-member'>Needing "+neading_member+" member</p>\
+  </div>\
+</div>\
+<div class='trip-detail-content'>\
+  <form>\
+  <div class='item-content2'>\
+      <label class='trip-detail-item'>Status: </label> <span>"+tripdetail.status+"</span>\
+    </div>\
+  <div class='item-content2'>\
+    <label class='trip-detail-item'>Time: </label><input type='text' name='trip-detail-time' id='start-time' value='"+formatDatetoDate(tripdetail.start_date)+"'> - \
+   <input type='text' name='trip-detail-time' id='end-time' value='"+formatDatetoDate(tripdetail.end_date)+"'>\
+    </div>\
+     <div class='item-content2'>\
+      <label class='trip-detail-item'>Description</label><textarea id='trip-desctiption'>"+tripdetail.description+"</textarea>\
+    </div>\
+    <div class='item-content2'>\
+      <label class='trip-detail-item'>Estimated Cost: </label><input type='text' id='estimated-cost' value='"+formatMoney(tripdetail.estimated_cost)+"/1person'>\
+    </div>\
+    <div class='item-content2'>\
+      <label class='trip-detail-item'>Cost Detail:</label>\
+      <textarea id='trip-cost-detail'>"+tripdetail.cost_detail+"</textarea>\
+    </div>\
+    <div class='item-content2'>\
+      <label class='trip-detail-item'>Off Time: </label><input type='text' id='trip-off-time' value='"+formatDatetoTime(tripdetail.off_time)+" "+formatDatetoDate(tripdetail.off_time)+"'>\
+    </div>\
+    <div class='item-content2'>\
+      <label class='trip-detail-item'>Off Place: </label><input type='text' id='trip-off-place' value=\""+tripdetail.off_place+"\">\
+    </div>\
+         <div class='item-content2'>\
+      <label class='trip-detail-item'>Necessary Tool: </label><textarea id='trip-necessary-tool'>"+tripdetail.necessary_tool+"</textarea>\
+    </div>\
+         <div class='item-content2'>\
+      <label class='trip-detail-item'>Note: </label><textarea id='trip-note'>"+tripdetail.note+"</textarea>\
+    </div>\
+  </form>\
+</div>";
+$("#trip-detail ").html(tripdetail_string);
+}
+function auto_height_textarea(textarea){
+  console.log(textarea)
+  var sum_line=0;
+  var height=0;
+  var one_line_height=20
+  var text = $(textarea).val()
+  var line_array=[];
+  line_array=text.split("\n")
+  var num_line=0
+  for(var i=0;i<line_array.length; i++){
+    num_line= Math.round(line_array[i].length/60);// a line have 60 character
+    if (((line_array[i].length/60)-num_line)>0)
+        num_line++;
+    console.log("num_line_last="+num_line);
+    sum_line+=num_line;
+  }
+  height=sum_line*one_line_height;
+
+  $(textarea).css('height',height+"px");
+}
+function create_schedule(items,days,day_number_items){
+  var number_item;
+  var it=0;
+  var day_string;
+  var stop_number=0;
+  var item_string=0;
+  var start_it=0
+  for(var i=1; i<days+1;i++){
+    if(i>1){
+        start_it=day_number_items[i-2];
+    }
+    $("#schedule-table").append("<tr><td rowspan="+day_number_items[i-1]+" style='background-color:white'>Day "+i+"</td>\
+    <td class='period'>"+formatDatetoTime(items[start_it].time)+"</td>\
+      <td class='item-description'>"+items[start_it].description+"</td>\
+      </tr>");
+      it++;
+    for(var j=1;j<day_number_items[i-1];j++){
+      $("#schedule-table").append("<tr><td class='period'>"+formatDatetoTime(items[it].time)+"</td>\
+      <td class='item-description'>"+items[it].description+"</td>\
+      </tr>");
+      it++;
+    }
+  }
+}
+function name_date(day){
+  var weekday = new Array(7);
+  weekday[0]=  "Sun";
+  weekday[1] = "Mon";
+  weekday[2] = "Tue";
+  weekday[3] = "Wed";
+  weekday[4] = "Thu";
+  weekday[5] = "Fri";
+  weekday[6] = "Sat";
+  return weekday[day];
+}
+function name_month(month){
+  var monthNames = ["January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+  ];
+  return monthNames[month];
+}
+function formatMoney(money){
+  var result=0;
+  if(money>999){
+        result=(money/1000)+"tr"
+  }
+  else
+    result= money+"k";
+  return result;
+}
+function cal_number_days(stops){
+  if(stops.length==0) return 0;
+  if(stops.length==1) return 1;
+
+  var startdate_ms=stops[0].departure;
+  var enddate_ms=stops[stops.length-1].arrive
+  // console.log(enddate_ms-startdate_ms);
+  var days = (enddate_ms-startdate_ms)/(24*3600*1000); // 1day =24h
+  var floor_day=Math.floor(days)
+  var decimal_day=days-floor_day;
+  // console.log(decimal_day)
+  if(decimal_day>=0) floor_day++;
+  return floor_day;
+}
+
+function formatDatetoDate(date_ms) {
+  var date=new Date(date_ms)
   var hours = date.getHours();
   var minutes = date.getMinutes();
   var ampm = hours >= 12 ? 'pm' : 'am';
@@ -319,7 +586,8 @@ function formatDatetoDate(date) {
   return date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear();
   //return strTime
 }
-function formatDatetoTime(date) {
+function formatDatetoTime(date_ms) {
+  var date=new Date(date_ms);
   var hours = date.getHours();
   var minutes = date.getMinutes();
   var ampm = hours >= 12 ? 'pm' : 'am';
@@ -341,7 +609,7 @@ function formatDistance(distance){
   if (distance<1000)
     return distance+"m"
   else {
-    return (distance/1000)+"km"
+    return Math.floor(distance/1000)+"km"
   }
 }
 function calulateStopDuration(startdate_ms, enddate_ms){
@@ -358,7 +626,19 @@ function calulateStopDuration(startdate_ms, enddate_ms){
     if(minutes==0) minutes="";
     return days+hours+minutes
 }
-
+function getDuration(duration){
+  var hours=0
+  var minutes=0
+  hours=duration.split(":")[0];
+  minutes=duration.split(":")[1]
+  // console.log("hours="+hours) 
+  // console.log("minute"+minutes)
+  if(hours=="") hours=0;
+  if(minutes=="") minutes=0;
+  hours=parseInt(hours)
+  minutes=parseInt(minutes)
+  return hours*3600000+minutes*60000
+}
 
 var map
 var directionsService
@@ -557,7 +837,7 @@ function addStop(map){
       //var latlng = new google.maps.LatLng(-34.397, 150.644);
       geocoder.geocode({latLng: e.latLng}, function(responses){
             if (responses && responses.length > 0) {
-                var address=responses[0].formatted_address;
+                var address=responses[0].formatted_address; 
                 var lat=responses[0].geometry.location.lat();
                 var lng=responses[0].geometry.location.lng();
                 $(".new-stop input[name='stop-address']").attr('value',address);
@@ -571,6 +851,7 @@ function addStop(map){
               //   //address="undefined";
               // }
       });
+
 
     }
 
@@ -595,7 +876,10 @@ function addRoute_LoadAgain(map, directionsService){
 $("#save-new-stop").click(function(){
         addRoute(map, directionsService)
         load_data_again();
+        map.setOptions({ draggableCursor: 'default' });
+        edit=false;
       });
+
 }
 function addRoute(map, directionsService){
   var stop_name=$(".new-stop input[name='stop-name']").val();
@@ -606,6 +890,8 @@ function addRoute(map, directionsService){
   var stop_lat=parseFloat($(".new-stop input[name='stop-lat']").val())
   var stop_lng=parseFloat($(".new-stop input[name='stop-lng']").val())
   var stop_description=$(".new-stop textarea").val()
+  var stop_duration=getDuration($(".new-stop input[name='stop-duration-time']").val())
+  console.log(stop_duration)
   var new_stop_order=0
   var new_stop_latLng={lat:stop_lat, lng:stop_lng}
   var route_duration=0
@@ -616,7 +902,7 @@ function addRoute(map, directionsService){
   new_stop_order=1
   //cho nay sai
   stop_arrive=tripdetail.start_date;
-  stop_departure=tripdetail.start_date+3600000
+  stop_departure=stop_arrive+stop_duration
   console.log(tripdetail)
        var input={
             'name':stop_name,
@@ -657,8 +943,8 @@ function addRoute(map, directionsService){
     }
 
     if(stops.length==1){
-      //new_stop_order=2;
-     new_stop_order=2
+     new_stop_order=2;
+
       var request={
         origin: {lat:stops[0].lat, lng:stops[0].lng},
         destination: new_stop_latLng,
@@ -683,13 +969,12 @@ function addRoute(map, directionsService){
           
           renderer.setDirections(result)
           var leg= result.routes[0].legs[0]
-          send_new_stop_input(leg,input, new_stop_order)
+          send_new_stop_input(leg,input, new_stop_order, stop_duration)
         }//end if
         //end directionService
       });
       renderArray.push(renderer)
     }
-    console.log(stops.length)
     if(stops.length>1){
         var list_distance_stop=[]
         var new_latLng= new google.maps.LatLng({lat: stop_lat, lng: stop_lng})
@@ -762,7 +1047,7 @@ function addRoute(map, directionsService){
                   var legs= result.routes[0].legs
                   var leg=legs[legs.length-1]
                   
-                  send_new_stop_input(leg, input, new_stop_order)
+                  send_new_stop_input(leg, input, new_stop_order, stop_duration)
                   
 
                 }//end if
@@ -865,8 +1150,8 @@ function addRoute(map, directionsService){
                     edit_leg=legs[leg]
                   }
                 }
-
-                send_new_stop_input(input_leg, input, new_stop_order)
+                console.log(input_leg)
+                send_new_stop_input(input_leg, input, new_stop_order, stop_duration)
                 change_stop_order(tripid, new_stop_order)
                 function edit_route(leg){
                     //get route name-----------------------------------
@@ -877,11 +1162,11 @@ function addRoute(map, directionsService){
                     var same_part_route_name
                     for(var step in leg.steps){
                       instructions=leg.steps[step].instructions
-                      //console.log(instructions)
+                      console.log(instructions)
                       split1=instructions.split("<b>")[2]
                       if(split1==undefined) split1=""
                       part_route_name=(split1).split("</b>")[0]
-                      //console.log(part_route_name)
+                      console.log(part_route_name)
                       same_part_route_name=route_name.substring(route_name.length-part_route_name.length-3,route_name.length-3);
                       //console.log("same="+same_part_route_name)
                       if(part_route_name!="" && same_part_route_name!=part_route_name){
@@ -956,7 +1241,7 @@ function load_data_again(){
   }, 2000);
   return dfrd.promise();
 }
-function send_new_stop_input(leg, input, new_stop_order){
+function send_new_stop_input(leg, input, new_stop_order, stop_duration){
 
         var route_duration=Math.round(leg.duration.value/60)
         var route_distance=Math.round(leg.distance.value)
@@ -967,7 +1252,7 @@ function send_new_stop_input(leg, input, new_stop_order){
         input.route_distance=route_distance
         input.order=new_stop_order
         input.arrive= stops[new_stop_order-2].departure+route_duration*60000
-        input.departure=input.arrive + 3600000
+        input.departure=input.arrive+stop_duration;
 
         console.log("input=")
         console.log(input)
@@ -1023,6 +1308,7 @@ function create_route_name(leg){
             route_name+=part_route_name+" - "
              //console.log()
           }
+          if(route_name.length>100) break;
 
         }
   route_name=route_name.substring(0,route_name.length-3)

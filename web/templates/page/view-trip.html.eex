@@ -1,16 +1,15 @@
-<div class="content">
+  <div class="content">
 <input type="hidden" name="tripid" value="<%= @tripid %>">
 <div id= map></div>
-<div id="plan">
-  <ul id="day-number">
-    <li>Day 1</li>
-    <li>Day 2</li>
+
+<div id="plan" class="trip-content-right">
+  <ul class="day-number">
   </ul>
   <!-- <ul class="list-group" id="plan-list">
   </ul> -->
   <ul class="list-group" id="plan-list">
-  <li class='new-stop'>
-<div class='content2'>
+    <li class='new-stop'>
+      <div class='content2'>
                           <ul class='content2-header'>
                             <li class='content2-header-item'><img id='avar' src='/images/flag2.png'> </li>
                             <li class='content2-header-item'><button class='function-button' id="cancel-new-stop"><span class='glyphicon glyphicon-remove'></span>CANCEL </button></button></li>
@@ -25,7 +24,7 @@
                                  <label class='stop-label'>Thời gian đến</label><input type='text' name='stop-arrive-date' value='XXXXXXXXX'>
                                  <input type='text' name='stop-arrive-time' value='XXXX'>
                                 </div> %>
-                                <div class='item-content2'><label class='stop-label'>Thời gian trải qua:</label><input type='text' name='stop-duration-time' value='1h'</div>
+                                <div class='item-content2'><label class='stop-label'>Thời gian trải qua:</label><input type='text' name='stop-duration-time' value='1:00'</div>
 <%#                                 <div class='item-content2'>
                                 <label class='stop-label'>Thời gian đi</label><input type='text' name='stop-departure-date' value='XXXXXXXXX'>
                                 <input type='text' name='stop-departure-time' value='XXXX'>
@@ -33,12 +32,23 @@
                                 <div class='item-content2'><textarea class='stop-description' placeholder='Mô tả điểm dừng'></textarea></div>
                                 <input type="hidden" name="stop-lat">
                                 <input type="hidden" name="stop-lng">
+                              </div>
                           </div>
-                        </div>
-                        </li>
-    </ul>
+    </li>
+  </ul>
 </div>
+<div id="schedule" class="trip-content-right">
+  <table id="schedule-table" class="table-bordered">
+  </table>
 </div>
+<div id=trip-detail class="trip-content-right">
+  
+</div>
+<div class="menu-right" id="trip-menu">TRIP</div>
+<div class="menu-right" id="plan-menu">PLAN</div>
+<div class="menu-right" id="schedule-menu">SCHEDULE</div>
+</div>
+
 
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/gmaps.js/0.4.24/gmaps.js"></script> -->
 
