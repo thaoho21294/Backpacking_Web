@@ -49,7 +49,7 @@ defmodule BsnWeb.Backend do
     MATCH (t:Trip)-[:HAVE]->(s:Status) where id(t)=#{id} return t.name as name, t.off_time as off_time, t.note as note,
        t.start_date as start_date, t.end_date as end_date, t.estimated_number_of_members as estimated_members,
        t.description as description, t.estimate_cost as estimated_cost, t.off_place as off_place, t.real_cost as real_cost, s.name as status,
-      t.necessary_tool as necessary_tool, t.cost_detail as cost_detail
+      t.necessary_tool as necessary_tool, t.cost_detail as cost_detail, t.background as background
     """
 
     Enum.at(Sips.query!(Sips.conn, cypher),0)
@@ -61,7 +61,7 @@ defmodule BsnWeb.Backend do
     MATCH (t:Trip) 
     RETURN id(t) as id, t.name as name, t.off_time as off_time, t.note as note,
      t.startdate as startdate, t.enddate as enddate, t.estimated_number_of_members as estimated_number_of_members,
-     t.description as description, t.estimate_cost as estimate_cost, t.off_place as off_place, t.real_cost as real_cost
+     t.description as description, t.estimate_cost as estimate_cost, t.off_place as off_place, t.real_cost as real_cost, t.background as background 
     LIMIT 25
     """
 

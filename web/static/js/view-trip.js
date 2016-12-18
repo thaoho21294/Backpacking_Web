@@ -453,11 +453,11 @@ $(".new-stop").hide();
 function view_members(members){
   console.log(members);
   for(var i=0; i<members.length;i++){
-    if(members[i].role=="holder"){
+    if(members[i].role=="leader"){
       $("#leaders-list").append("<li class='members-item'>\
-        <div class='member-avatar'><img src='/images/avatar.png'></div>\
+        <div class='member-avatar'><img src=\""+members[i].avatar+"\"></div>\
         <div class='member-info'>\
-          <div class='member-name'>"+members[i].name+"</div>\
+          <div class='member-name'>"+members[i].full_name+"</div>\
           <div class='member-hometown'>"+members[i].hometown+"</div>\
           <div class='member-joined-date'>joined <span>"+formatDatetoDate(members[i].joined_date)+"</span></div>\
         </div>\
@@ -465,9 +465,9 @@ function view_members(members){
     }
     else{
       $("#members-list").append("<li class='members-item'>\
-        <div class='member-avatar'><img src='/images/avatar.png'></div>\
+        <div class='member-avatar'><img src=\""+members[i].avatar+"\"></div>\
         <div class='member-info'>\
-          <div class='member-name'>"+members[i].name+"</div>\
+          <div class='member-name'>"+members[i].full_name+"</div>\
           <div class='member-hometown'>"+members[i].hometown+"</div>\
           <div class='member-joined-date'>joined <span>"+formatDatetoDate(members[i].joined_date)+"</span></div>\
         </div>\
@@ -481,7 +481,7 @@ function create_tripdetail(tripdetail){
   var trip_month_year=name_month(start_date.getMonth())+" "+start_date.getFullYear();
   var neading_member= tripdetail.estimated_members-members.length;
 
-  var tripdetail_string="<div class='trip-detail-header' style=\"background-image: url('\/images\/trip3.jpg')\">\
+  var tripdetail_string="<div class='trip-detail-header' style=\"background-image: url('"+tripdetail.background+"')\">\
 <div class='trip-detail-header-background'>\
   <h2 class='trip-detail-name'>"+tripdetail.name+"</h2>\
   <h3 class='trip-month'>"+trip_month_year+"</h3>\
