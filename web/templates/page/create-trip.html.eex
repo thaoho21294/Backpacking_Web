@@ -77,12 +77,13 @@
                                             <h4>Phương tiện</h4></legend>
                                             <ul class="vehicle-list">
                                         <li><div class="radio"><label><input type="radio" name="form-mode" value="xe máy"> Xe máy</label></div></li>
-                                        <li><div class="radio"> <label><input type="radio" name="form-mode" value="xe đạp"> Xe đạp</label></div></li>
                                         <li><div class="radio"> <label><input type="radio" name="form-mode" value="đi bộ"> Đi bộ</label></div></li>
+                                        <li><div class="radio"> <label><input type="radio" name="form-mode" value="xe khách"> Xe khách</label></div></li> 
+                                        <li><div class="radio"> <label><input type="radio" name="form-mode" value="tàu"> Tàu</label></div></li>
+                                        <li><div class="radio"> <label><input type="radio" name="form-mode" value="máy bay"> Máy bay</label></div></li>
                                         <li><div class="radio"> <label><input type="radio" name="form-mode" value="ô tô"> Ô tô</label></div></li>
-                                        <li><div class="radio"> <label><input type="radio" name="form-mode" value="thuyền">Thuyền</label></div></li>
-                                        <li><div class="radio"> <label><input type="radio" name="form-mode" value="máy bay">Máy bay</label></div></li>
-                                        <li><div class="radio"><label><input type="radio" name="form-mode" value="other"> Khác <input type="text" name="other-text" style="width:70%; height:80% float:right;"></label></div></li>
+                                        <li><div class="radio"> <label><input type="radio" name="form-mode" value="xe đạp"> Xe đạp</label></div></li>
+                                        <li><div class="radio"><label>Khác <input type="text" name="other-text" style="width:70%; height:80% float:right;"></label></div></li>
                                       </ul>
                                     </div>
 
