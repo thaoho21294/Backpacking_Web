@@ -94,8 +94,25 @@ defmodule BsnWeb.Backend do
 
     Sips.query!(Sips.conn, cypher)
   end
+  #get trip's member
+  def retrieve(%{id: trip_id}, %{type: "Member"}, _context) do
+    cypher="""
+    MATCH (p:Profile)<-[:HAVE]-(u:User)-[m:MEMBER]->(t:Trip) 
+    where id(t)=#{trip_id} 
+    return p.first_name +" "+ p.last_name as name, p.hometown as hometown, m.joined_date as joined_date, m.lat as lat, m.lng as lng, m.role as role
+    """
+     Sips.query!(Sips.conn, cypher)
+  end
+  #update members Location
+  def retrieve(%{id: trip_id}, %{type: "MemberLocation", user_id: user_id, lat: lat, lng: lng}, _context) do
+    cypher="""
+    MATCH (u:User)-[m:MEMBER]->(t:Trip) 
+    WHERE id(t)=#{trip_id} and id(u)=#{user_id}
+    SET m.lat=#{lat}, m.lng=#{lng}
+    """
+  end
   #Add a stop to trip
-  def retrieve(%{"id" => trip_id} = _trip, %{type: "AddStop", name: name, address: address, arrive: arrive, departure: departure, order: order, lat: lat, lng: lng, description: description, route_name: route_name, route_duration: route_duration, route_distance: route_distance, route_mode: route_mode}, _context) do
+  def retrieve(%{id: trip_id} = _trip, %{type: "AddStop", name: name, address: address, arrive: arrive, departure: departure, order: order, lat: lat, lng: lng, description: description, route_name: route_name, route_duration: route_duration, route_distance: route_distance, route_mode: route_mode}, _context) do
     locations= retrieve(%{type: "locations", address: address})
      cypher=
     case route_name do
@@ -149,8 +166,8 @@ defmodule BsnWeb.Backend do
     """
     Sips.query!(Sips.conn, cypher)
   end
-    def retrieve(%{tripid: tripid}, %{new_stop_order: new_stop_order}) do
-    cypher="MATCH (t:Trip)-[INCLUDE]->(s:Stop) WHERE id(t)=#{tripid} and s.order>=#{new_stop_order} SET s.order=s.order+1"
+    def retrieve(%{id: trip_id}, %{new_stop_order: new_stop_order}) do
+    cypher="MATCH (t:Trip)-[INCLUDE]->(s:Stop) WHERE id(t)=#{trip_id} and s.order>=#{new_stop_order} SET s.order=s.order+1"
     Sips.query!(Sips.conn, cypher)
   end
   def retrieve(%{holder_id: holder_id}, %{start_address: start_address,start_lat: start_lat, start_lng: start_lng, end_address: end_address,end_lat: end_lat, end_lng: end_lng, trip_name: trip_name, start_date: start_date, end_date: end_date, estimated_cost: estimated_cost, estimated_members: estimated_members, mode: mode, route_name: route_name, route_duration: route_duration, route_distance: route_distance}) do
@@ -177,18 +194,18 @@ defmodule BsnWeb.Backend do
       end_arrive=start_departure+route_duration*60000
       end_departure=end_arrive+3600000
 
-      create_date=1470567600000
+      created_date=1470567600000
         
       cypher= """
       MATCH (s:Status{name:'open'}),(u:User),(m:Vehicle{name:\"#{mode}\"})
       WHERE id(u)=#{holder_id} 
       CREATE (l1:Location{address: \"#{start_address}\", lat: #{start_lat}, long:#{start_lng}}) 
       CREATE (l2:Location{address: \"#{end_address}\", lat: #{end_lat}, long:#{end_lng}}) 
-      CREATE (t:Trip{name:\"#{trip_name}\",start_date:#{start_date}, end_date:#{end_date}, estimated_cost:#{estimated_cost}, estimated_number_of_members:#{estimated_members}, create_date:#{create_date}}) 
+      CREATE (t:Trip{name:\"#{trip_name}\",start_date:#{start_date}, end_date:#{end_date}, estimated_cost:#{estimated_cost}, estimated_number_of_members:#{estimated_members}, created_date:#{created_date}}) 
       CREATE (s1:Stop{name:\"#{start_stop_name}\", arrive:#{start_arrive}, departure:#{start_departure}, order:1}) 
       CREATE (s2:Stop{name:\"#{end_stop_name}\", arrive:#{end_arrive}, departure:#{end_departure}, order:2}) 
       CREATE (r:Route{name:\"#{route_name}\", duration:#{route_duration}, distance:#{route_distance}}) 
-      CREATE (u)-[:HOLDER]->(t)-[:HAVE]->(s), (l1)<-[:LOCATE]-(s1)<-[:INCLUDE]-(t)-[:INCLUDE]->(s2)-[:LOCATE]->(l2), (s2)-[:THROUGH]->(r)-[:MODE]->(m) 
+      CREATE (u)-[:MEMBER {role:"holder",joined_date:#{created_date}}]->(t)-[:HAVE]->(s), (l1)<-[:LOCATE]-(s1)<-[:INCLUDE]-(t)-[:INCLUDE]->(s2)-[:LOCATE]->(l2), (s2)-[:THROUGH]->(r)-[:MODE]->(m) 
       return id(t) as trip_id
      """
     Sips.query!(Sips.conn, cypher)
