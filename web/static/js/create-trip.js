@@ -108,7 +108,7 @@ $("#form-end-point").on('input', function(){
   //   pickerPosition: "bottom-left",
   //   minView: 2 
   // });
-  var autocomplete_string="";
+
 
   $('.form-location').on('keyup','.address-input',function(){
     var input=$(this).val()
@@ -119,6 +119,7 @@ $("#form-end-point").on('input', function(){
         url: "/api/address/"+input,
         dataType: 'json',
         success: function(data){
+          var autocomplete_string="";
           console.log(data)
           if(!data) return false;
           for(var ob in data.address){
@@ -127,10 +128,11 @@ $("#form-end-point").on('input', function(){
             autocomplete_string+="<option data-value='"+data.address[ob].place_id+"' value=\""+data.address[ob].description+"\"></option>"
           }
           //$("#"+datalist_id).remove();
-          $("#"+datalist_id).html(autocomplete_string);
+        $("#"+datalist_id).html(autocomplete_string);
       }
-    });
-      
+
+    });//end ajax
+
   });
   $("#new-trip-form").on('submit.ajax', function(event){
     event.preventDefault();
