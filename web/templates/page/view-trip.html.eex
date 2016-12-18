@@ -41,12 +41,23 @@
   <table id="schedule-table" class="table-bordered">
   </table>
 </div>
-<div id=trip-detail class="trip-content-right">
-  
+<div id="trip-detail" class="trip-content-right"></div>
+<div id='members' class="trip-content-right">
+<div id='leaders-part'> 
+<div class='members-title'>Leaders</div>
+  <ul id="leaders-list">
+  </ul>
+  </div>
+<div id='members-part'> 
+<div class='members-title'>Members</div>
+  <ul id="members-list">
+  </ul>
+  </div>
 </div>
 <div class="menu-right" id="trip-menu">TRIP</div>
 <div class="menu-right" id="plan-menu">PLAN</div>
 <div class="menu-right" id="schedule-menu">SCHEDULE</div>
+<div class="menu-right" id="members-menu">MEMBER</div>
 </div>
 
 
