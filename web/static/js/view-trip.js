@@ -11,7 +11,7 @@
 //         //   "route7": [nice_hotel, dinh_pinhatt, thac_dalanta]
 //         //  "route8": [nice_hotel, dinh_pinhatt, thac_dalanta]
 // };
-var tripid;
+var tripid=0;
 var routeArray = {}
 var stops=[]
 var stops_title=[]
@@ -64,67 +64,65 @@ $(document).ready(function() {
  }; 
     tripid=$("input[name='tripid']").val();
     //initMap();
-    $.ajax({
-      url: "/api/trips/"+tripid+"/stops",
-      async: false,
-      dataType: 'json',
-      success: function(data) {
-      if (data.stops.length==0) {
-        //alert("no data!"); 
-        return
-      }
-        //alert("data here!")
-      stops = data.stops
-    if(stops.length==1){
-        var marker = new google.maps.Marker({
-            position: {lat: stops[0].lat, lng: stops[0].lng},
-            map: map,
-            icon: icons.blueflag
-        });
-        send_data_plan(stops)
-      }
+    if(tripid!=undefined){
+      $.ajax({
+        url: "/api/trips/"+tripid+"/stops",
+        async: false,
+        dataType: 'json',
+        success: function(data) {
+        if (data.stops.length==0) {
+          //alert("no data!"); 
+          return
+        }
+          //alert("data here!")
+        stops = data.stops
+      if(stops.length==1){
+          var marker = new google.maps.Marker({
+              position: {lat: stops[0].lat, lng: stops[0].lng},
+              map: map,
+              icon: icons.blueflag
+          });
+          send_data_plan(stops)
+        }
 
-      if(stops.length>1){
-        //send_route_map(stops)
-        create_stops_distinct()
-        send_data_plan(stops)
-        generateRequests(routeArray);
+        if(stops.length>1){
+          //send_route_map(stops)
+          create_stops_distinct()
+          send_data_plan(stops)
+          generateRequests(routeArray);
+        }
+        var center_stop= stops[Math.floor(stops.length/2)]
+        var center_latLng= {lat:center_stop.lat, lng:center_stop.lng}
+        map.setCenter(center_latLng)
+            }//end furnction(data)
+      });//end ajax
+
+       $.ajax(
+        {url:"/api/trips/"+tripid,
+        async: false,
+        dataType: 'json',
+        success: function(data) {
+        if (!data.tripdetail) {return}
+          tripdetail= data.tripdetail
+          create_tripdetail(tripdetail);
+          auto_height_textarea('#trip-desctiption');
+          auto_height_textarea('#trip-cost-detail');
+          auto_height_textarea('#trip-necessary-tool');
+          auto_height_textarea('#trip-note');
+
       }
-      var center_stop= stops[Math.floor(stops.length/2)]
-      var center_latLng= {lat:center_stop.lat, lng:center_stop.lng}
-      map.setCenter(center_latLng)
-          }//end furnction(data)
     });//end ajax
+      $.ajax(
+        {url:"/api/trips/"+tripid+"/members",
+        async: false,
+        dataType: 'json',
+        success: function(data) {
+        if (!data.members) {return}
+          members= data.members;
 
-     $.ajax(
-      {url:"/api/trips/"+tripid,
-      async: false,
-      dataType: 'json',
-      success: function(data) {
-      if (!data.tripdetail) {return}
-        tripdetail= data.tripdetail
-        create_tripdetail(tripdetail);
-        auto_height_textarea('#trip-desctiption');
-        auto_height_textarea('#trip-cost-detail');
-        auto_height_textarea('#trip-necessary-tool');
-        auto_height_textarea('#trip-note');
-
-    }
-  });//end ajax
-    $.ajax(
-      {url:"/api/trips/"+tripid+"/members",
-      async: false,
-      dataType: 'json',
-      success: function(data) {
-      if (!data.members) {return}
-        members= data.members;
-
-    }
-  });//end ajax
-
-
-
-
+      }
+    });//end ajax
+  }
 //event for plan-list
 $("#plan-list").on('mouseenter', '.content1', function(){
   $(this).css('background-color','white')

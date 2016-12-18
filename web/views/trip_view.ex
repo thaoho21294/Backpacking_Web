@@ -3,7 +3,7 @@ defmodule BsnWeb.TripView do
   def render("get_all_stops.json", %{stops: stops}) do
   %{stops: stops}
  end
- def render("get_trip_detail.json", %{tripdetail: tripdetail}) do
+ def render("show.json", %{tripdetail: tripdetail}) do
    %{tripdetail: tripdetail}
  end
  def render("get_members.json", %{members: members}) do

@@ -30,7 +30,8 @@ defmodule BsnWeb.Backend.Schema.Trip do
             stops = Backend.retrieve(trip, args, context)
             Connection.List.resolve(stops, args)
           end
-        }
+        },
+        routes: Backend.Query.all_routes(nil)
       },
       interfaces: [Schema.node_interface]
     }
