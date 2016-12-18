@@ -6,7 +6,7 @@ defmodule BsnWeb.TripView do
  def render("get_trip_detail.json", %{tripdetail: tripdetail}) do
    %{tripdetail: tripdetail}
  end
- def render("get_member.json", %{members: members}) do
+ def render("get_members.json", %{members: members}) do
    %{members: members}
  end
  def render("get_all_routes.json", %{polylines: routes}) do 

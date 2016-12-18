@@ -9,7 +9,7 @@ defmodule BsnWeb.TripController do
       OPTIONAL MATCH (l:Location)<-[:LOCATE]-(s:Stop)-[:THROUGH]->(r:Route)-[:MODE]->(v:Vehicle), (s:Stop)<-[:INCLUDE]-(t:Trip)
       WHERE id(t)=#{tripid}
       return s.name as name,s.description as description, l.lat as lat, l.long as lng, l.address as address, v.name as mode, s.order as order,
-      s.arrive as arrive, s.departure as departure, r.name as route_name, r.duration as route_duration, r.distance as route_distance
+      s.arrive as arrive, s.departure as departure, r.name as route_name, r.duration as route_duration, r.distance as route_distance, r.description as route_description 
       ORDER BY order
       """
       stops=Neo4j.query!(Neo4j.conn, cypher)
@@ -27,8 +27,9 @@ defmodule BsnWeb.TripController do
     def get_trip_detail(conn, %{"id"=>tripid})do
       cypher="""
       MATCH (t:Trip)-[:HAVE]->(s:Status) where id(t)=#{tripid} return t.name as name, t.off_time as off_time, t.note as note,
-       t.start_date as start_date, t.end_date as end_date, t.estimated_number_of_members as estimated_number_of_members,
-       t.description as description, t.estimate_cost as estimate_cost, t.off_place as off_place, t.real_cost as real_cost, s.name as status
+       t.start_date as start_date, t.end_date as end_date, t.estimated_number_of_members as estimated_members,
+       t.description as description, t.estimate_cost as estimated_cost, t.off_place as off_place, t.real_cost as real_cost, s.name as status,
+      t.necessary_tool as necessary_tool, t.cost_detail as cost_detail 
       """
       tripdetail= Enum.at(Neo4j.query!(Neo4j.conn, cypher),0)
 	  render(conn, "get_trip_detail.json", tripdetail: tripdetail)
