@@ -63,8 +63,9 @@ $(document).ready(function() {
 
  }; 
     tripid=$("input[name='tripid']").val();
-    //initMap();
+    
     if(tripid!=undefined){
+      //initMap();
       $.ajax({
         url: "/api/trips/"+tripid+"/stops",
         async: false,
@@ -119,7 +120,8 @@ $(document).ready(function() {
         success: function(data) {
         if (!data.members) {return}
           members= data.members;
-
+        console.log("call function members");
+          view_members(members);
       }
     });//end ajax
   }
@@ -234,14 +236,24 @@ $("#trip-menu").mouseover(function(){
 $("#trip-menu").mouseleave(function(){
   $(this).css("right", "-110px");
 });
+
+$("#members-menu").mouseover(function(){
+  $(this).css("right", "-89px");
+});
+$("#members-menu").mouseleave(function(){
+  $(this).css("right", "-105px");
+});
+$("#trip-menu").click(function(){
+change_position("#trip-detail");
+});
 $("#plan-menu").click(function(){
   change_position("#plan");
 });
 $("#schedule-menu").click(function(){
   change_position("#schedule");
 });
-$("#trip-menu").click(function(){
-change_position("#trip-detail");
+$("#members-menu").click(function(){
+  change_position("#members");
 });
 function change_position(element){
   $(".trip-content-right").css("right", "-500px");
@@ -438,7 +450,31 @@ $(".new-stop").hide();
              create_schedule(items,days,day_number_items)
 
             }  //end send data map plan
-
+function view_members(members){
+  console.log(members);
+  for(var i=0; i<members.length;i++){
+    if(members[i].role=="holder"){
+      $("#leaders-list").append("<li class='members-item'>\
+        <div class='member-avatar'><img src='/images/avatar.png'></div>\
+        <div class='member-info'>\
+          <div class='member-name'>"+members[i].name+"</div>\
+          <div class='member-hometown'>"+members[i].hometown+"</div>\
+          <div class='member-joined-date'>joined <span>"+formatDatetoDate(members[i].joined_date)+"</span></div>\
+        </div>\
+      </li>");
+    }
+    else{
+      $("#members-list").append("<li class='members-item'>\
+        <div class='member-avatar'><img src='/images/avatar.png'></div>\
+        <div class='member-info'>\
+          <div class='member-name'>"+members[i].name+"</div>\
+          <div class='member-hometown'>"+members[i].hometown+"</div>\
+          <div class='member-joined-date'>joined <span>"+formatDatetoDate(members[i].joined_date)+"</span></div>\
+        </div>\
+      </li>");
+    }
+  }
+}
 function create_tripdetail(tripdetail){
   //console.log(tripdetail)
   var start_date=new Date(tripdetail.start_date);

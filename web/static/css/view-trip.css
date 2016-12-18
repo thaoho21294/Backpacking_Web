@@ -208,7 +208,7 @@ button.function-button:hover {
 #schedule-menu{
   top: 340px;
   right:-119px;
-  padding: 10px 10px 10px 10px;
+  padding: 10px;
 }
 /*trip detail css*/
 #trip-menu{
@@ -265,4 +265,48 @@ input[name='trip-detail-time']{
 }
 #trip-off-place{
   width: 300px;
+}
+/*members css*/
+#members{
+  width: 450px;
+  right: -500px;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+#members-menu{
+  top: 440px;
+  right:-105px;
+  padding: 10px;
+}
+ul.members-list{
+    list-style-type: none;
+}
+li.members-item{
+  border: 1px solid #C0C0C0;
+  background-color: white;
+  padding: 10px;
+  display: flex;
+  flex-direction: row;
+  width: 300px;
+  margin-top:20px ;
+}
+.member-avatar img{
+  width: 70px;
+  height: 70px;
+}
+.member-name{
+  font-size: medium;
+  padding-top: 5px;
+  font-weight: bold;
+  padding-left: 20px;
+}
+.member-hometown, .member-joined-date{
+  font-size: small;
+  color: grey;
+  padding-left: 20px;
+}
+div.members-title{
+  border-bottom: 1px solid #C0C0C0;
+
 }
