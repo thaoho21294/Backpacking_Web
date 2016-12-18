@@ -99,15 +99,15 @@ defmodule BsnWeb.Backend do
     cypher="""
     MATCH (p:Profile)<-[:HAVE]-(u:User)-[m:MEMBER]->(t:Trip) 
     where id(t)=#{trip_id} 
-    return p.first_name +" "+ p.last_name as name, p.hometown as hometown, m.joined_date as joined_date, m.lat as lat, m.lng as lng, m.role as role
+    return id(m) as id, p.first_name +" "+ p.last_name as full_name, p.hometown as hometown, m.joined_date as joined_date, m.lat as lat, m.lng as lng, m.role as role, p.avatar as avatar 
     """
      Sips.query!(Sips.conn, cypher)
   end
   #update members Location
-  def retrieve(%{id: trip_id}, %{type: "MemberLocation", user_id: user_id, lat: lat, lng: lng}, _context) do
+  def retrieve(%{type: "MemberLocation", member_id: member_id, lat: lat, lng: lng}, _context) do
     cypher="""
     MATCH (u:User)-[m:MEMBER]->(t:Trip) 
-    WHERE id(t)=#{trip_id} and id(u)=#{user_id}
+    WHERE id(m)=#{member_id}
     SET m.lat=#{lat}, m.lng=#{lng}
     """
   end
