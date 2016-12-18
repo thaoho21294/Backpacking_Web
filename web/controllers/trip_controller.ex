@@ -18,13 +18,14 @@ defmodule BsnWeb.TripController do
     render(conn, "show.json", tripdetail: trip)
   end
 
-  def get_members(conn, %{"id"=>tripid}) do
-    # @TODO: move query logic to Backend module.
-    cypher="MATCH (p:Profile)<-[:HAVE]-(u:User)-[:MEMBER]->(t:Trip) where id(t)=#{tripid} return p.nick_name"
-    members=Neo4j.query!(Neo4j.conn, cypher)
+  def get_members(conn, %{"id"=>trip_id}) do
+    members=Backend.retrieve(%{id: trip_id}, %{type: "Member"}, nil)
     render(conn, "get_members.json", members: members)
   end
-
+  def update_member_location(conn, %{"id"=>trip_id, "user_id"=>user_id, "lat"=>lat, "lng"=>lng}) do
+    response=Backend.retrieve(%{id: trip_id}, %{type: "MemberLocation", user_id: user_id, lat: lat, lng: lng}, nil)
+    json conn, response
+  end
   def add_stop(conn, %{"name"=>name, "address"=>address, "arrive"=>arrive,"departure"=>departure, "order"=>order,"lat"=>lat, "lng"=>lng, "description"=>description, "tripid"=>trip_id,"route_name"=>route_name, "route_duration"=>route_duration, "route_distance"=>route_distance, "route_mode"=>route_mode}) do
     response=Backend.retrieve(%{id: trip_id}, %{type: "AddStop", name: name, address: address, arrive: arrive, departure: departure, order: order, lat: lat, lng: lng, description: description, route_name: route_name, route_duration: route_duration, route_distance: route_distance, route_mode: route_mode}, nil)
     json conn, response

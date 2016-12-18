@@ -45,6 +45,7 @@ defmodule BsnWeb.Router do
       get "/:id/routes", TripController, :get_all_routes
       post "/", TripController, :create
       delete "/:id", TripController, :delete
+      post "/:id/members-location", TripController,  :update_member_location
     end
   end
 end
