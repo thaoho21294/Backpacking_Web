@@ -12,7 +12,7 @@
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                         <h4 class="modal-title">Tạo mới chuyến phượt</h4>
                     </div>
-                    <form role="form" action="api/addtrip" method="post" class="new-trip-form" id="new-trip-form">
+                    <form role="form" action="api/trips" method="post" class="new-trip-form" id="new-trip-form">
                     <div class="modal-body">
                             <fieldset id="fieldset1">
                                 <div class="form-top">
