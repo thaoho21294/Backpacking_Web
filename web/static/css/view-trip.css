@@ -1,8 +1,6 @@
 .content {
     width: 100vw;
     height: 100vh;
-
-
 }
 
 #map {
@@ -10,19 +8,41 @@
     width: 100%;
     background-color: #FFF8DC;
 }
-
-#plan {
-    float: right;
-    position: absolute;
-    top: 60px;
-    right: 0px;
-    background-color: #A9A9A9;
-    height:100%;
-    display: flex;
-    overflow: scroll;
+.menu-right{
+  transform: rotate(90deg);
+  transform-origin: left top 0;
+  background-color: orange;
+  color: white;
+  position: fixed;
+  font-weight: bold;
+  font-size: small;
+  transition: 0.3s
 
 }
-#day-number{
+#plan-menu{
+    top: 250px;
+    right: -105px;
+    padding: 10px 20px 10px 20px;
+}
+.menu-right:hover{
+  cursor: pointer;
+}
+
+.trip-content-right {
+    float: right;
+    position: fixed;
+    top: 60px;
+    right: -500px;
+    background-color: #f2f2f2;
+    height:690px;
+    display: flex;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    transition: 0.5s;
+
+}
+
+.day-number{
   list-style-type: none;
   clear: both;
   flex: 1;
@@ -30,11 +50,20 @@
   padding-left: 5px;
   padding-right: 5px;
 }
-
+.day-number li{
+  border-top: 3px solid #00FA9A;
+/*  padding-bottom: 60px;*/
+  background-color: white;
+}
 #plan-list{
   width: 400px;
   margin: 0 0 0 0px;
-  background-color: #f5f5f5;
+  background-color: #f2f2f2;
+}
+#schedule-list{
+  width: 400px;
+  margin: 0 0 0 0px;
+  background-color: #f2f2f2;
 }
 
 
@@ -63,13 +92,13 @@ ul.route-list , ul.content2-header{
 }
 
 .list-item, .new-stop {
-    background-color: #d3d3d3;
+    background-color: #f2f2f2;
     list-style-type: none;
 }
 .content1{
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-left: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
     cursor: pointer;
     
 }
@@ -81,7 +110,7 @@ ul.route-list , ul.content2-header{
     background-color: white;
 }
 .content2-header{
-  background-color: grey;
+  background-color: #615f5c;
   padding-top: 5px;
   padding-left: 5px;
   /*padding-bottom: 5px;*/
@@ -96,18 +125,18 @@ input[name='stop-address']{
     width: 100%;
 }
 
-.list-item input, .new-stop input{
+.list-item input, .new-stop input, .trip-detail-content input{
     border: 2px solid transparent;
     box-shadow: none;
     background: transparent;
     text-align: center; 
   }
-.list-item input:focus, .new-stop input:focus{
+.list-item input:focus, .new-stop input:focus, .trip-detail-content input:focus{
 
     border-bottom: 2px solid blue;
 
 }
-.list-item input:hover, .new-stop input:hover{
+.list-item input:hover, .new-stop input:hover, .trip-detail-content input:hover{
    border-bottom: 2px solid blue;
    cursor: text;
 }
@@ -115,7 +144,7 @@ input[name='stop-arrive-date'], input[name='stop-departure-date']{
     width: 80px;
 }
 input[name='stop-arrive-time'],input[name='stop-departure-time'], input[name='route-distance'], input[name='route-duration-time'] {
-    width: 60px;
+    width: 80px;
     margin-left: 10px;
  }
 input[name='stop-duration-time']{
@@ -155,4 +184,85 @@ button.function-button{
 }
 button.function-button:hover {
    background-color: #d3d3d3;
+}
+
+/*schedule css*/
+#schedule{
+  width: 450px;
+  right: -500px;
+}
+#schedule-table{
+  margin-top: 0px;
+}
+#schedule-table td {
+  padding: 5px 10px 20px 10px;
+  border: 1px solid #ddd;
+}
+#schedule-table td.item-description{
+  width: 300px;
+}
+#schedule-table td.period{
+  width: 70px;
+  padding: 5px 5px 20px 5px;
+}
+#schedule-menu{
+  top: 340px;
+  right:-119px;
+  padding: 10px 10px 10px 10px;
+}
+/*trip detail css*/
+#trip-menu{
+  top: 160px;
+  right:-110px;
+  padding: 10px 25px 10px 25px;
+}
+#trip-detail{
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+}
+.trip-detail-header{
+  background-size: 450px 300px;
+  width: 450px;
+  height: auto;
+}
+.trip-detail-header-background{
+  background: rgba(0, 0, 0, 0.4);
+  background-size: 450px 300px;
+}
+.trip-detail-header h2, .trip-detail-header h3{
+  text-align: center;
+
+}
+.trip-detail-header h2{
+  font-weight: bold;
+  margin-top: 0px;
+  padding-top: 20px;
+}
+.trip-detail-header h3{
+  color: #BDC1C7;
+  }
+.trip-detail-header{
+  color: white;
+}
+.trip-detail-header p{
+  margin-bottom: 0px
+}
+.trip-detail-content{
+  padding: 20px 20px 40px 20px;
+}
+.trip-detail-content input{
+}
+.trip-detail-content textarea{
+  width: 100%;
+  border: none;
+  resize: none;
+  overflow: hidden;
+}
+input[name='trip-detail-time']{
+  width: 80px;  
+
+}
+#trip-off-place{
+  width: 300px;
 }
