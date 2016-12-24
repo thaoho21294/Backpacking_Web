@@ -40,7 +40,8 @@ defmodule BsnWeb.Backend.Query do
       args: %{
         id: %{
           type: %Type.ID{},
-          description: "The id of the trip"
+          description: "The id of the trip",
+          defaultValue: "current"
         }
       },
       # `context` has fields [:field_name, :fragments, :root_value, :variable_values, :field_asts, :operation, :parent_type, :return_type, :schema]

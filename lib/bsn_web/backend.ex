@@ -43,6 +43,18 @@ defmodule BsnWeb.Backend do
   the schema and operations.
   """
 
+  # Get the current trip of the authenticated viewer, if any.
+  def retrieve(_source, %{type: "Trip", id: "current"}, %{root_value: %{user: _user}}) do
+    # @FIXME: Returns the actual current trip.
+    cypher = """
+    MATCH (t:Trip)-[:HAVE]->(s:Status) where id(t)=195 return id(t) as id, t.name as name, t.off_time as off_time, t.note as note,
+     t.start_date as start_date, t.end_date as end_date, t.estimated_number_of_members as estimated_number_of_members,
+     t.description as description, t.estimate_cost as estimate_cost, t.off_place as off_place, t.real_cost as real_cost, s.name as status
+    """
+
+    Enum.at(Sips.query!(Sips.conn, cypher),0)
+  end
+
   # Gets a single trip.
   def retrieve(_source, %{type: "Trip", id: id}, _context) do
     cypher = """
@@ -94,6 +106,7 @@ defmodule BsnWeb.Backend do
 
     Sips.query!(Sips.conn, cypher)
   end
+
   #get trip's member
   def retrieve(%{id: trip_id}, %{type: "Member"}, _context) do
     cypher="""
@@ -205,6 +218,16 @@ defmodule BsnWeb.Backend do
     """
     # IO.inspect(cypher);
     Sips.query!(Sips.conn, cypher)
+
+  def retrieve(viewer, %{type: "Route"}, _context) do
+    cypher = """
+    MATCH (stop1:Stop)-[:THROUGH]->(r:Route), 
+          (stop1:Stop)-[:LOCATE]->(origin:Location {address: "Khu du lịch Madagui, Lâm Đồng, Việt Nam"}), 
+          (stop2:Stop)-[:LOCATE]->(destination:Location {address: "Nice Dream Hotel, Dalat, Lâm Đồng, Vietnam"})
+    RETURN r
+    """
+
+    routes = Sips.query!(Sips.conn, cypher)
   end
   def retrieve(%{id: stop_id}, %{type: "UpdateRoute", route_duration: route_duration, route_description: route_description}, _context) do
     cypher="""
@@ -317,11 +340,19 @@ defmodule BsnWeb.Backend do
   # Callbacks for being a Plug used in Router.
   @behaviour Plug
   def init(opts) do
-    Keyword.merge([schema: {Backend.Schema, :root}], opts)
+    [schema: {Backend.Schema, :root}, root_value: {Backend, :root_value}]
+    |> Keyword.merge(opts)
     |> GraphQL.Plug.init()
   end
 
   def call(conn, opts) do
     GraphQL.Plug.call(conn, opts)
+  end
+
+  def root_value(conn) do
+    # The map we return here will be made available to our resolve/3 functions.
+    # We can include any data we want, however right now we're only interested in
+    # the currently logged in user.
+    %{user: conn.assigns[:user]}
   end
 end

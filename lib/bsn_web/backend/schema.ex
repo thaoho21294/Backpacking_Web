@@ -31,6 +31,9 @@ defmodule BsnWeb.Backend.Schema do
         node: node_field,
         viewer: %{
           type: Viewer.type(%{
+            # The active trip of the viewer, if any.
+            trip: Query.get_trip(),
+            # All the trips the viewer can see.
             allTrips: Query.all_trips
           }),
           args: %{
