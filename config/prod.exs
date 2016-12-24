@@ -60,7 +60,11 @@ config :logger, level: :info
 
 config :neo4j_sips, Neo4j,
   url: System.get_env("DATABASE_URL"),
+  basic_auth: [username: System.get_env("DATABASE_USER"), password: System.get_env("DATABASE_PASS")],
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
   max_overflow: 2,
   timeout: 10,
-  ssl: true
+  ssl: true,
+  # Need to set the `bolt` atom here, since Graphene check returns "bolt" and
+  # Neo4j_Sips tries to convert it to existing atom.
+  bolt: false
