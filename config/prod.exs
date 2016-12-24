@@ -13,7 +13,9 @@ use Mix.Config
 # which you typically run after static files are built.
 config :bsn_web, BsnWeb.Endpoint,
   http: [port: {:system, "PORT"}],
-  url: [host: "example.com", port: 80],
+  url: [scheme: "https", host: "bsn.herokuapp.com", port: 443],
+  force_ssl: [rewrite_on: [:x_forwarded_proto]],
+  secret_key_base: System.get_env("SECRET_KEY_BASE"),
   cache_static_manifest: "priv/static/manifest.json"
 
 # Do not print debug messages in production
@@ -56,6 +58,9 @@ config :logger, level: :info
 #     config :bsn_web, BsnWeb.Endpoint, server: true
 #
 
-# Finally import the config/prod.secret.exs
-# which should be versioned separately.
-import_config "prod.secret.exs"
+config :neo4j_sips, Neo4j,
+  url: System.get_env("DATABASE_URL"),
+  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+  max_overflow: 2,
+  timeout: 10,
+  ssl: true
