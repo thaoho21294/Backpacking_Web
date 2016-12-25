@@ -129,7 +129,6 @@ $("#plan-list").on('mouseleave', '.content1', function(){
 //  alert("leave");
   $(this).css('background-color','#f2f2f2')
 });
-
 $("#plan-list").on('click', '.content1', function(){
 
   $("#plan-list").find(".list-item .content2").remove();
@@ -153,18 +152,23 @@ $("#plan-list").on('click', '.content1', function(){
         </ul>\
         <div class ='content2-body'>\
             <form class='stop-detail'>\
-              <div class='item-content2'><input type='text' name='stop-name' value='"+stops[id].name+"'></div>\
-              <div class='item-content2'><input type='text' name='stop-address' value='"+stops[id].address+"'></div>\
+              <div class='item-content2'><input type='text' name='stop-name' id='stop-name-show' value='"+stops[id].name+"'></div>\
               <div class='item-content2'>\
-               <label class='stop-label'>Thời gian đến</label><input type='text' disabled='true' name='stop-arrive-date' value='"+formatDatetoDate(stops[id].arrive)+"'>\
-               <input type='text' name='stop-arrive-time' disabled='true' value='"+formatDatetoTime(stops[id].arrive)+"'>\
+              <input type='text' name='stop-address' class='address-input' list='address-list-show' id='stop-address-show' value='"+stops[id].address+"'>\
+              <datalist   class='address-list' id='address-list-show'> </datalist>\
+               <input type='hidden' id='show-lat' class='show-lat' value='' >\
+               <input type='hidden' id='show-lng' class='show-lng' value='' >\
               </div>\
-              <div class='item-content2'><label class='stop-label'>Thời gian trải qua:</label><input type='text' name='stop-duration-time' value="+stop_duration+"></div>\
               <div class='item-content2'>\
-              <label class='stop-label'>Thời gian đi</label><input type='text' disabled='true' name='stop-departure-date' value='"+formatDatetoDate(stops[id].departure)+"'>\
-              <input type='text' name='stop-departure-time' disabled='true' value='"+formatDatetoTime(stops[id].departure)+"'>\
+               <label class='stop-label'>Thời gian đến</label><input type='text' disabled='true' name='stop-arrive-date' id='stop-arrive-date-show' value='"+formatDatetoDate(stops[id].arrive)+"'>\
+               <input type='text' name='stop-arrive-time' id='stop-arrive-time-show' disabled='true' value='"+formatDatetoTime(stops[id].arrive)+"'>\
               </div>\
-              <div class='item-content2'><textarea class='stop-description' placeholder='Stop description...'>"+stops[id].description+"</textarea></div>\
+              <div class='item-content2'><label class='stop-label'>Thời gian trải qua:</label><input type='text' name='stop-duration-time' id='stop-duration-show' value="+stop_duration+"></div>\
+              <div class='item-content2'>\
+              <label class='stop-label'>Thời gian đi</label><input type='text' disabled='true' name='stop-departure-date' id='stop-departure-date-show' value='"+formatDatetoDate(stops[id].departure)+"'>\
+              <input type='text' name='stop-departure-time' id='stop-departure-time-show' disabled='true' value='"+formatDatetoTime(stops[id].departure)+"'>\
+              </div>\
+              <div class='item-content2'><textarea class='stop-description' id='stop-description-show' placeholder='Stop description...'>"+stops[id].description+"</textarea></div>\
                </form>\
         </div>\
       </div>";
@@ -186,7 +190,7 @@ $("#plan-list").on('click', '.content1', function(){
               <div class='item-content2'>\
               <label class='route-label'>Kết thúc</label><input type='text' name='route-departure-time' disabled='true' value='"+formatDatetoTime(route_finish)+"'>\
               </div>\
-              <div class='item-content2'><textarea class='stop-description' placeholder='Route description...'>"+stops[id].route_description+"</textarea></div>\
+              <div class='item-content2'><textarea class='stop-description' id='route-description-show' placeholder='Route description...'>"+stops[id].route_description+"</textarea></div>\
         </form>\
         </div>\
         </div>";
@@ -198,13 +202,74 @@ $("#plan-list").on('click', '.content1', function(){
       $(this).parents('.list-item').append(string);
 
 });
+$('.trip-content-right').on('keyup','.address-input',function(){
+    var input=$(this).val()
+    var datalist_id=$(this).attr('list')
+    input= input.replace(' ', '+')
+     $.ajax({
+        url: "/api/address/"+input,
+        dataType: 'json',
+        success: function(data){
+          var autocomplete_string="";
+          if(!data) return false;
+            for(var ob in data.address){
+              autocomplete_string+="<option class='address-item' data-value='"+data.address[ob].place_id+"' value=\""+data.address[ob].description+"\">"+data.address[ob].description+"</option>"
+          }
+        $("#"+datalist_id).html(autocomplete_string);
+      }
 
+    });//end aj
+  });
+$('#plan-list').on('input','#stop-address-show',function(){
+  var val= this.value
+  var place_id=$('#address-list-show').find("option[value=\""+val+"\"]").attr("data-value")
+  if(place_id!=undefined){
+    //alert(data_value)
+    $.ajax({
+    url:"/api/locations/"+place_id,
+    async: false,
+    dataType: 'json',
+    success: function(data){
+      console.log(data.location)
+        $("#show-lat").val(data.location.lat)
+        $("#show-lng").val(data.location.lat)
+    }
+    });
+    var array=val.split(',');
+    $('#stop-name-show').val(array[array.length-2]);
+  }
+
+});
+
+$('#plan-list').on('click', '#save-edit-stop', function(){
+  var stop_id= $(this).parents(".list-item").attr('id');
+  var stop_order= parseInt(stop_id.split("_")[stop_id.split("_").length-1])
+  var stop_id_neo4j=stops[stop_order-1];
+  var arrive_string=$('#stop-arrive-time-show').val()+" "+$('#stop-arrive-date-show').val()
+  var stop_duration=UnFormatDuration($('#stop-duration-show').val())*60000
+  var stop_arrive=UnFormatOffTime(arrive_string)
+  var stop_departure=stop_arrive + stop_duration;
+  var id=stop_order-1;
+  stops[id].name=$("#stop-name-show").val();
+  stops[id].arrive= stop_arrive;
+  stops[id].departure=stop_departure
+  stops[id].address=$("#stop-address-show").val();
+  stops[id].description= $("#stop-description-show").val();
+  stops[id].lat= $("#show-lat").val();
+  stops[id].lng= $("#show-lng").val();
+  //UpdateStop(stop_id_neo4j, stop[id].name, stops[id].arrive, stops[id].departure, stops[id].description,stops[id].address, stops[id].lat,stops[id].lng);
+  //update info other stops
+  for (var i=stop_order; i<stops.length; i++){
+    stops[i].arrive=stops[i-1].departure+stops[i].route_duration;
+    stops[i].departure=stops[i].arrive+stops[i].duration;
+    //UpdateArriveDepartureStop(stops[i].id, stops[i].arrive, stops[i].departure);
+  }
+  send_data_plan(stops);
+});
 $("#plan-list").on('click', '.close-button', function(e){
      e.stopPropagation()
     $(this).parents(".list-item").children(".content1").show();
      $(this).parents(".content2").remove();
-
-
 
  });
 $("#cancel-new-stop, .new-stop .close-button").click(function(){
@@ -276,11 +341,139 @@ $("#plan-list").on('click', '#cancel-edit-stop', function(){
           <li class='content2-header-item'><button class='function-button' id='delete-stop'>Xóa <span class='glyphicon glyphicon-remove'></span></button></li>\
           <li class='li-close-button'><button class='close-button' id='close-stop'><span class='glyphicon glyphicon-remove'></span></button></li>");
 });
+editTripDetail();
 //end document ready
 });
   //-------------------------------------
 // START DEFINE FUNCTION
 //------------------------------------
+function UpdateStop(stop_id, stop_name, stop_arrive, stop_departure, stop_description, stop_address, stop_lat, stop_lng ){
+    var input={
+    id: stop_id,
+    stop_name: stop_name,
+    stop_arrive: stop_arrive,
+    stop_departure: stop_departure,
+    stop_description: stop_description,
+    stop_address: stop_address,
+    stop_lat: stop_lat,
+    stop_lng: stop_lng
+  }
+  console.log(input);
+  $.ajax({
+    url: "/api/stops/"+stop_id+"/edit",
+    type: 'POST',
+    dataType: 'json',
+    contentType: 'application/json',
+    data: JSON.stringify(input),
+    success: function( data, textStatus, jQxhr ){
+        //console.log(data );
+        },
+    error: function( jqXhr, textStatus, errorThrown ){
+        console.log(errorThrown );
+
+    }
+  });
+  
+}
+function UpdateArriveDepartureStop(stop_id, stop_arrive, stop_departure){
+  var input={
+    stop_id: stop_id,
+    stop_arrive: stop_id,
+    stop_departure: stop_departure
+  }
+    $.ajax({
+    url: "/api/stops/"+stop_id+"/edit_arrive_departure",
+    type: 'POST',
+    dataType: 'json',
+    contentType: 'application/json',
+    data: JSON.stringify(input),
+    success: function( data, textStatus, jQxhr ){
+        //console.log(data );
+        },
+    error: function( jqXhr, textStatus, errorThrown ){
+        console.log(errorThrown );
+
+    }
+  });
+  
+
+}
+var editTrip=false
+function editTripDetail(){
+  $("#trip-detail").on('click', '#enable-edit-trip', function(e){
+        // if(!editTrip){
+        // editTrip= true;
+        //  e.stopPropagation();
+
+          $("#trip-detail-title").html("<li class='content2-header-item'><button class='function-button' id='cancel-edit-trip'><span class='glyphicon glyphicon-remove'></span>CANCEL </button></li>\
+            <li class='content2-header-item'><button class='function-button' type='submit' id= 'save-edit-trip'><span class='glyphicon glyphicon-ok'></span> SAVE </button></li>\
+              <li class='li-close-button'><button class='close-button' id='close-button-edit-trip'><span class='glyphicon glyphicon-remove'></button></li>");
+          $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name").prop('disabled', false);
+          $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name" ).css('border', '1px solid #ddd')
+          // $(".trip-detail-content select").css({'-moz-appearance':'button-arrow-down', '-webkit-appearance': 'button-arrow-down'});
+          // }
+          // else{
+          //   editTrip= false;
+          //     // $("#trip-detail-title").hide();
+          //     $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name").prop('disabled', true);
+          //     $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name").css('border', '1px solid transparent')
+          //     // $(".trip-detail-content select").css({'-moz-appearance':'none', '-webkit-appearance': 'none'});
+          // }
+        
+    });
+  $("#trip-detail").on('click', '#save-edit-trip', function(){
+      editTrip=false;
+     var input={
+        trip_id: tripid,
+        trip_name: $("#trip-name").val(),
+        start_date: DateToMs($("#start-date").val()),
+        end_date: DateToMs($("#end-date").val()),
+        description: $("#trip-description").val(),
+        estimated_cost: UnFormatMoney($("#estimated-cost").val()),
+        estimated_members: parseInt($("#estimated-members").val()),
+        cost_detail: $("#cost-detail").val(),
+        off_time: UnFormatOffTime($("#off-time").val()),
+        off_place: $("#off-place").val(),
+        necessary_tool: $("#necessary-tool").val(),
+        note: $("#note").val()
+      }
+      $.ajax({
+        type: 'POST',
+        dataType: 'json',
+        url: '/api/trips/'+tripid+"/edit",
+        contentType: 'application/json',
+        data: JSON.stringify(input),
+        success: function( data, textStatus, jQxhr ){
+        //console.log(data );
+        },
+        error: function( jqXhr, textStatus, errorThrown ){
+        console.log(errorThrown );
+       }
+      });//end ajax
+      $("#trip-detail-title").html("<li class='content2-header-item'><button class='function-button' id='enable-edit-trip'><span class='glyphicon glyphicon-pencil'></span>EDIT </button></li>\
+      <li class='content2-header-item'><button class='function-button' id='reset-edit-trip'><span class='glyphicon glyphicon-remove'></span>EXPORT</button></li>\
+      <li class='li-close-button'><button class='close-button' id='close-button-edit-trip'><span class='glyphicon glyphicon-remove'></button></li>");
+      $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name").prop('disabled', true);
+      $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name").css('border', '1px solid transparent')
+
+      });//end submit
+      // $("#trip-detail").on('click', '', function(){
+      //   $("#trip-detail-title").hide();
+      //   create_tripdetail(tripdetail)
+      // });
+      $("#trip-detail").on('click', '#close-button-edit-trip, #cancel-edit-trip, #reset-edit-trip',function(){
+        editTrip=false;
+        $("#trip-detail-title").html("<li class='content2-header-item'><button class='function-button' id='enable-edit-trip'><span class='glyphicon glyphicon-pencil'></span>EDIT </button></li>\
+      <li class='content2-header-item'><button class='function-button' id='reset-edit-trip'><span class='glyphicon glyphicon-remove'></span>EXPORT </button></li>\
+      <li class='li-close-button'><button class='close-button' id='close-button-edit-trip'><span class='glyphicon glyphicon-remove'></button></li>");
+        create_tripdetail(tripdetail)
+        $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name").prop('disabled', true);
+        $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name").css('border', '1px solid transparent')
+      });
+      $("#trip-detail").on('keyup', 'textarea', function(){
+          auto_height_textarea("#"+$(this).attr('id'), 20)
+      } );
+}
         function send_route_map(stops) {
             //create routes include many stop
             var mode = stops[1].mode
@@ -497,10 +690,10 @@ function create_tripdetail(tripdetail){
   if(tripdetail.necessary_tool=="null") tripdetail.necessary_tool="";
   if(tripdetail.note=='null') tripdetail.note="";
 
-  var tripdetail_string="<ul class='content2-header' id='trip-detail-title' style='display:none;'>\
-    <li class='content2-header-item'><button class='function-button' id='cancel-edit-trip'><span class='glyphicon glyphicon-remove'></span>CANCEL </button></li>\
-    <li class='content2-header-item'><button class='function-button' type='submit' id= 'save-edit-trip'><span class='glyphicon glyphicon-ok'></span> SAVE </button></li>\
-    <li class='li-close-button'><button class='close-button' id='close-button-edit-trip'><span class='glyphicon glyphicon-remove'></button></li>\
+  var tripdetail_string="<ul class='content2-header' id='trip-detail-title'>\
+  <li class='content2-header-item'><button class='function-button' id='enable-edit-trip'><span class='glyphicon glyphicon-pencil'></span>EDIT </button></li>\
+  <li class='content2-header-item'><button class='function-button' id='reset-edit-trip'><span class='glyphicon glyphicon-remove'></span>EXPORT </button></li>\
+  <li class='li-close-button'><button class='close-button' id='close-button-edit-trip'><span class='glyphicon glyphicon-remove'></button></li>\
    </ul>\
   <div class='trip-detail-header' style=\"background-image: url('"+tripdetail.background+"')\">\
 <div class='trip-detail-header-background'>\
@@ -620,7 +813,7 @@ function UnFormatOffTime(datetime){
   var hours=time.split(":")[0]
   var minutes=time.split(":")[1].split(" ")[0]
   hours=parseInt(hours);
-  if(last_word='p'){ 
+  if(last_word=='p'){ 
     hours+=12;
   }
   var date=datetime.split("m ")[1];
@@ -630,9 +823,20 @@ function UnFormatOffTime(datetime){
   var month=array[1];
   var year=array[2];
   var str_date=year+"-"+month+"-"+day+"T"+hours+":"+minutes+":00";
-  console.log(str_date);
   var right_date=new Date(str_date);
   return right_date.getTime();
+}
+function UnFormatDuration(duration){
+  var result=0;
+  var last_word=duration[duration.length-1]
+  if(last_word=='p')
+   result= parseInt(duration.substring(0, duration.length-1))
+  if(last_word=='h')
+    result=parseInt(duration.substring(0, duration.length-1))*60
+  else{
+    result=parseInt(duration.split("h")[0])*60+parseInt(duration.split("h")[1])
+  }
+  return result;
 }
 function name_date(day){
   var weekday = new Array(7);
@@ -902,7 +1106,7 @@ var nice_hotel = {
     lat: 11.9422612,
     lng: 108.4345293
 }
-var edit=false;
+var add_stop=false;
 var geocoder;
 // var directionsDisplay;
 function initMap() {
@@ -922,83 +1126,27 @@ function initMap() {
     map = new google.maps.Map(document.getElementById('map'), mapOption);
    //directionsDisplay.setMap(map)
 
-    editTrip(map)
+    addStop(map)
     addRoute_LoadAgain(map,directionsService);
 }
 var markers=[];
 var new_marker;
-function editTrip(map){
+function addStop(map){
   //click edit link event
   $("#edit-trip").click(function(e){
-        if(!edit){
-        edit= true;
+        if(!add_stop){
+        add_stop= true;
          e.stopPropagation();
-
-          $("#trip-detail-title").show();
-          $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name").prop('disabled', false);
-          $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name" ).css('border', '1px solid #ddd')
-          // $(".trip-detail-content select").css({'-moz-appearance':'button-arrow-down', '-webkit-appearance': 'button-arrow-down'});
           map.setOptions({ draggableCursor: 'url(/images/flag-grey.png) 20 45, auto' });
           }
           else{
-            edit= false;
-              $("#trip-detail-title").hide();
-              $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name").prop('disabled', true);
-              $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name").css('border', '1px solid transparent')
-              // $(".trip-detail-content select").css({'-moz-appearance':'none', '-webkit-appearance': 'none'});
+            add_stop= false;
           map.setOptions({ draggableCursor: 'default' });
 
           }
         
     });
-    $("#trip-detail").on('click', '#save-edit-trip', function(){
-      edit=false;
-     var input={
-        trip_id: tripid,
-        trip_name: $("#trip-name").val(),
-        start_date: DateToMs($("#start-date").val()),
-        end_date: DateToMs($("#end-date").val()),
-        description: $("#trip-description").val(),
-        estimated_cost: UnFormatMoney($("#estimated-cost").val()),
-        estimated_members: parseInt($("#estimated-members").val()),
-        cost_detail: $("#cost-detail").val(),
-        off_time: UnFormatOffTime($("#off-time").val()),
-        off_place: $("#off-place").val(),
-        necessary_tool: $("#necessary-tool").val(),
-        note: $("#note").val()
-      }
-      $.ajax({
-        type: 'POST',
-        dataType: 'json',
-        url: '/api/trips/'+tripid+"/edit",
-        contentType: 'application/json',
-        data: JSON.stringify(input),
-        success: function( data, textStatus, jQxhr ){
-        //console.log(data );
-        },
-        error: function( jqXhr, textStatus, errorThrown ){
-        console.log(errorThrown );
-       }
-      });//end ajax
-      $("#trip-detail-title").hide();
-      $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name").prop('disabled', true);
-      $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name").css('border', '1px solid transparent')
-
-      });//end submit
-      // $("#trip-detail").on('click', '', function(){
-      //   $("#trip-detail-title").hide();
-      //   create_tripdetail(tripdetail)
-      // });
-      $("#trip-detail").on('click', '#close-button-edit-trip, #cancel-edit-trip',function(){
-        edit=false;
-        $("#trip-detail-title").hide();
-        create_tripdetail(tripdetail)
-        $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name").prop('disabled', true);
-        $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name").css('border', '1px solid transparent')
-      });
-      $("#trip-detail").on('keyup', 'textarea', function(){
-          auto_height_textarea("#"+$(this).attr('id'), 20)
-      } );
+  
     if(map==undefined) return;
       //click event on map 
     map.addListener("click", function(e){
@@ -1057,7 +1205,7 @@ $("#save-new-stop").click(function(){
         addRoute(map, directionsService)
         load_data_again();
         map.setOptions({ draggableCursor: 'default' });
-        edit=false;
+        add_stop=false;
       });
 
 }

@@ -75,7 +75,7 @@ defmodule BsnWeb.Backend do
       WHERE id(t)=#{trip_id}
       OPTIONAL MATCH (l:Location)<-[:LOCATE]-(s:Stop)-[:THROUGH]->(r:Route)-[:MODE]->(v:Vehicle), (s:Stop)<-[:INCLUDE]-(t:Trip)
       WHERE id(t)=#{trip_id}
-      return s.name as name,s.description as description, l.lat as lat, l.long as lng, l.address as address, v.name as mode, s.order as order,
+      return id(s) as id, s.name as name,s.description as description, l.lat as lat, l.long as lng, l.address as address, v.name as mode, s.order as order,
       s.arrive as arrive, s.departure as departure, r.name as route_name, r.duration as route_duration, r.distance as route_distance, r.description as route_description 
       ORDER BY order
     """
@@ -209,7 +209,7 @@ defmodule BsnWeb.Backend do
       CREATE (s1:Stop{name:\"#{start_stop_name}\", arrive:#{start_arrive}, departure:#{start_departure}, order:1}) 
       CREATE (s2:Stop{name:\"#{end_stop_name}\", arrive:#{end_arrive}, departure:#{end_departure}, order:2}) 
       CREATE (r:Route{name:\"#{route_name}\", duration:#{route_duration}, distance:#{route_distance}}) 
-      CREATE (u)-[:MEMBER {role:"holder",joined_date:#{created_date}}]->(t)-[:HAVE]->(s), (l1)<-[:LOCATE]-(s1)<-[:INCLUDE]-(t)-[:INCLUDE]->(s2)-[:LOCATE]->(l2), (s2)-[:THROUGH]->(r)-[:MODE]->(m) 
+      CREATE (u)-[:MEMBER {role:"leader",joined_date:#{created_date}}]->(t)-[:HAVE]->(s), (l1)<-[:LOCATE]-(s1)<-[:INCLUDE]-(t)-[:INCLUDE]->(s2)-[:LOCATE]->(l2), (s2)-[:THROUGH]->(r)-[:MODE]->(m) 
       return id(t) as trip_id
      """
     Sips.query!(Sips.conn, cypher)
@@ -225,7 +225,53 @@ defmodule BsnWeb.Backend do
     # IO.inspect(cypher);
     Sips.query!(Sips.conn, cypher)
   end
-
+  def retrieve(%{id: stop_id},%{type: "UpdateStop", name: name, arrive: arrive, departure: departure, description: description, address: address, lat: lat, lng: lng}, _context) do
+    stop_address=retrieve(%{type: "location_stop", id: stop_id}) 
+    remove_relationship_stop_location="""
+    MATCH (s:Stop)-[l:LOCATE]->(l:Location)
+    WHERE id(s)=stop_id
+    DELETE l
+    """
+    create_location="CREATE (l:Location{address: \"#{address}\", lat: #{lat}, long:#{lng}})"
+    create_relationship_stop_location="""
+    MATCH (s:Stop), (l:Location{address:\"{address}\"})
+    WHERE id(s)=#{stop_id}
+    CREATE (s)-[:LOCATE]->(l)
+    """
+    if stop_address!=address do
+      #remove relationship
+      Sips.query!(Sips.conn, remove_relationship_stop_location)
+      #check location if exited
+      locations= retrieve(%{type: "locations", address: address})
+      if(Enum.empty?(locations)) do
+        Sips.query!(Sips.conn, create_location)
+      else
+        Sips.query!(Sips.conn, create_relationship_stop_location)
+      end
+    end
+    cypher="""
+    MATCH (s:Stop)
+    WHERE id(stop)=#{stop_id}
+    SET s.name=#{name}, s.arrive=#{arrive}, s.departure=#{departure}, s.description=#{description}
+    """
+    Sips.query!(Sips.conn, cypher)
+  end
+  def retrieve(%{type: "location_stop", id: stop_id}) do
+    cypher= """
+    MATCH (s:Stop)-[:LOCATE]->(l:Location)
+    WHERE id(s)=stop_id
+    RETURN l.address as address
+    """
+    Sips.query!(Sips.conn, cypher)
+  end
+  def retrieve(%{id: stop_id},%{ type: "UpdateArriveDepartureStop", name: name, arrive: arrive, departure: departure}, _context) do
+    cypher= """
+    MATCH (s:Stop)
+    WHERE id(stop)=#{stop_id}
+    SET s.arrive=#{arrive}, s.departure=#{departure}
+    """
+    Sips.query!(Sips.conn, cypher)
+  end
   # Callbacks for being a Plug used in Router.
   @behaviour Plug
   def init(opts) do

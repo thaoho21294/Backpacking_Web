@@ -47,4 +47,12 @@ defmodule BsnWeb.TripController do
     response=Backend.retrieve(%{id: trip_id}, %{type: "UpdateTripDetail",trip_name: trip_name, start_date: start_date, end_date: end_date, description: description, estimated_cost: estimated_cost, estimated_members: estimated_members, cost_detail: cost_detail, off_time: off_time, off_place: off_place, necessary_tool: necessary_tool, note: note}, nil)
     json conn, response
   end
+  def edit_stop(conn, %{"id"=>stop_id}, %{"stop_name"=>name, "stop_arrive"=>arrive, "stop_departure"=>departure, "stop_description"=>description, "stop_address"=>address, "stop_lat"=>lat, "stop_lng"=>lng}) do
+    response=Backend.retrieve(%{id: stop_id},%{ type: "UpdateStop", name: name, arrive: arrive, departure: departure, description: description, address: address, lat: lat, lng: lng}, nil)
+    json conn, response
+  end
+  def edit_arrive_departure_stop(conn, %{"id"=>stop_id}, %{"stop_arrive"=>arrive, "stop_departure"=>departure}) do
+    response=Backend.retrieve(%{id: stop_id},%{ type: "UpdateArriveDepartureStop", arrive: arrive, departure: departure}, nil)
+    json conn, response
+  end
 end

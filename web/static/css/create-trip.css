@@ -75,9 +75,24 @@ ul.vehicle-list li {
   }
 .modal-body input:focus{
     border-bottom: 2px solid blue;
-
+}
+.address-list {
+    width: 100%;
+    -webkit-appearance: none;
+    -moz-appearance: none;
 }
 form.new-trip-form{
   margin-top: 0px;
   margin-bottom: 0px;
+}
+/*for autocomplete box*/
+.address-item{
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  padding: 5px;
+}
+.address-item span{
+ padding-left:5px; 
+ padding-right:5px; 
+ color:#c0c0c0;
 }

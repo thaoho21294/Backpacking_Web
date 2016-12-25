@@ -41,19 +41,6 @@ $(document).ready(function(){
         $("#create-trip-next").attr('type', 'button')
       }
   });
-  // $("#add-point").click(function (){
-  //   var last_datalist_child=$(".next-point div:nth-last-child(1)").children('datalist.address-list')
-  //   var last_datalist_id=last_datalist_child.attr('id')
-  //   last_datalist_id=last_datalist_id.split('-');
-  //   last_datalist_id=last_datalist_id[last_datalist_id.length-1]
-  //   var next_datalist_id=parseInt(last_datalist_id)+1
-  //   $(".next-point").append("<div class='input-group next-point-group'>\
-  //     <input type='text' name='form-next-point' list='address-list-next-"+next_datalist_id+"' placeholder='Điểm đến tiếp theo...' class='address-input form-next-point form-control' id='form-next-point'>\
-  //     <datalist class='address-list' id='address-list-next-"+next_datalist_id+"'></datalist>\
-  //   <span class='input-group-btn'><button class='btn btn-default next-point-remove' type='button'><i class='fa fa-times' aria-hidden='true'>\
-  //   </i></button></span></div>");
-  // });
-
   $(".next-point-remove").click(function(){
     $(this).parents('.input-group').empty();
   });
@@ -113,21 +100,16 @@ $("#form-end-point").on('input', function(){
   $('.form-location').on('keyup','.address-input',function(){
     var input=$(this).val()
     var datalist_id=$(this).attr('list')
-
     input= input.replace(' ', '+')
      $.ajax({
         url: "/api/address/"+input,
         dataType: 'json',
         success: function(data){
           var autocomplete_string="";
-          console.log(data)
           if(!data) return false;
-          for(var ob in data.address){
-            //console.log(ob.description)
-            //autocomplete_data.push(ob.description)
-            autocomplete_string+="<option data-value='"+data.address[ob].place_id+"' value=\""+data.address[ob].description+"\"></option>"
+            for(var ob in data.address){
+              autocomplete_string+="<option class='address-item' data-value='"+data.address[ob].place_id+"' value=\""+data.address[ob].description+"\"></option>"
           }
-          //$("#"+datalist_id).remove();
         $("#"+datalist_id).html(autocomplete_string);
       }
 

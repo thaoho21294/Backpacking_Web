@@ -19,7 +19,10 @@
                           <div class ='content2-body'>
                               <form class='stop-detail'>
                                 <div class='item-content2'><input type='text' name='stop-name' placeholder="Name" value=''></div>
-                                <div class='item-content2'><input type='text' name='stop-address' placeholder="Address" value=''></div>
+                                <div class='item-content2'>
+                                <input type='text' name='stop-address' class="address-input" placeholder="Address" list='address-list-new' value=''>
+                                <datalist   class="address-list" id="address-list-new"> </datalist>
+                                </div>
 <%#                                 <div class='item-content2'>
                                  <label class='stop-label'>Thời gian đến</label><input type='text' name='stop-arrive-date' value='XXXXXXXXX'>
                                  <input type='text' name='stop-arrive-time' value='XXXX'>
