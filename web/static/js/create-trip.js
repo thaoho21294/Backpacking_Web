@@ -68,7 +68,7 @@ $("#form-start-point").on('input', function(){
   if(start_place_id!=undefined){
     //alert(data_value)
     $.ajax({
-    url:"api/locations/"+start_place_id,
+    url:"/api/locations/"+start_place_id,
     async: false,
     dataType: 'json',
     success: function(data){
@@ -86,7 +86,7 @@ $("#form-end-point").on('input', function(){
   if(end_place_id!=undefined){
     //alert(data_value)
     $.ajax({
-    url:"api/locations/"+end_place_id,
+    url:"/api/locations/"+end_place_id,
     async: false,
     dataType: 'json',
     success: function(data){
@@ -160,7 +160,7 @@ $("#form-end-point").on('input', function(){
       // var dfrd=$.Deferred();
         // body...
       $.ajax({
-        url:"api/direction/"+start_place_id+"/"+end_place_id,
+        url:"/api/direction/"+start_place_id+"/"+end_place_id,
         dataType: 'json',
         success: function(data){
          console.log(data.direction)
