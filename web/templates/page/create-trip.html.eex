@@ -12,7 +12,7 @@
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                         <h4 class="modal-title">Tạo mới chuyến phượt</h4>
                     </div>
-                    <form role="form" action="api/trips" method="post" class="new-trip-form" id="new-trip-form">
+                    <form role="form" action="/api/trips" method="post" class="new-trip-form" id="new-trip-form">
                     <div class="modal-body">
                             <fieldset id="fieldset1">
                                 <div class="form-top">
@@ -59,7 +59,7 @@
                                         <label class="sr-only" for="form-start-date">Ngày bắt đầu</label>
                                         <div class="input-group date start-date">
                                         <input type="text" name="form-start-date" placeholder="Ngày bắt đầu..." class="form-start-date" id="form-start-date">
-                                        mm/dd/yyy
+                                        mm/dd/yyyy
 
                                       </div>
                                        <input type="hidden" name="start-date-ms" id="start-date-ms">
@@ -74,7 +74,7 @@
                                     </div>
                                     <div class="form-group">
                                         <legend>
-                                            <h4>Phương tiện</h4></legend>
+                                            <h4>Phương tiện chủ yếu</h4></legend>
                                             <ul class="vehicle-list">
                                         <li><div class="radio"><label><input type="radio" name="form-mode" value="xe máy"> Xe máy</label></div></li>
                                         <li><div class="radio"> <label><input type="radio" name="form-mode" value="đi bộ"> Đi bộ</label></div></li>
