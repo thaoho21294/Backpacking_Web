@@ -113,6 +113,7 @@ ul.route-list , ul.content2-header{
   background-color: #615f5c;
   padding-top: 5px;
   padding-left: 5px;
+  color: white;
   /*padding-bottom: 5px;*/
 }
 
@@ -125,21 +126,21 @@ input[name='stop-address']{
     width: 100%;
 }
 
-.list-item input, .new-stop input, .trip-detail-content input{
+.list-item input, .new-stop input{
     border: 2px solid transparent;
     box-shadow: none;
     background: transparent;
     text-align: center; 
   }
-.list-item input:focus, .new-stop input:focus, .trip-detail-content input:focus{
+.list-item input:focus, .new-stop input:focus {
 
     border-bottom: 2px solid blue;
 
 }
-.list-item input:hover, .new-stop input:hover, .trip-detail-content input:hover{
+/*.list-item input:hover, .new-stop input:hover {
    border-bottom: 2px solid blue;
    cursor: text;
-}
+}*/
 input[name='stop-arrive-date'], input[name='stop-departure-date']{
     width: 80px;
 }
@@ -221,6 +222,9 @@ button.function-button:hover {
   flex-direction: column;
   background-color: white;
 }
+#trip-detail-form{
+  margin-top: 0px;
+}
 .trip-detail-header{
   background-size: 450px 300px;
   width: 450px;
@@ -230,20 +234,20 @@ button.function-button:hover {
   background: rgba(0, 0, 0, 0.4);
   background-size: 450px 300px;
 }
-.trip-detail-header h2, .trip-detail-header h3{
-  text-align: center;
-
-}
-.trip-detail-header h2{
+.trip-detail-name{
   font-weight: bold;
-  margin-top: 0px;
-  padding-top: 20px;
+  font-size: xx-large;
+  margin: auto;
+  width: 100%;
 }
-.trip-detail-header h3{
+.trip-month{
   color: #BDC1C7;
   }
 .trip-detail-header{
   color: white;
+}
+.trip-detail-header h3{
+   text-align: center;
 }
 .trip-detail-header p{
   margin-bottom: 0px
@@ -251,20 +255,40 @@ button.function-button:hover {
 .trip-detail-content{
   padding: 20px 20px 40px 20px;
 }
-.trip-detail-content input{
+.trip-detail-header input, .trip-detail-content input, .trip-detail-content select{
+    border: 1px solid transparent;
+    background: transparent;
+    text-align: center;
+    padding: 5px; 
+}
+.trip-detail-content select{
+  -webkit-appearance: none;
+    -moz-appearance: none;
 }
 .trip-detail-content textarea{
   width: 100%;
   border: none;
   resize: none;
   overflow: hidden;
+  background-color: white;
 }
-input[name='trip-detail-time']{
+.trip-detail-header textarea{
+  width: 100%;
+  border: none;
+  resize: none;
+  overflow: hidden;
+  background-color: transparent;
+  text-align: center;
+}
+#estimated-cost, #estimated-members, .trip-detail-time{
   width: 80px;  
 
 }
-#trip-off-place{
-  width: 300px;
+#off-place{
+  width: 100%px;
+}
+#trip-detail-title{
+  margin-bottom: 0px;
 }
 /*members css*/
 #members{
@@ -309,4 +333,7 @@ li.members-item{
 div.members-title{
   border-bottom: 1px solid #C0C0C0;
 
+}
+.close-button{
+  color: black;
 }

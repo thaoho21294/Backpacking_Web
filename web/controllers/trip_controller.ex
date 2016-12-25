@@ -39,8 +39,12 @@ defmodule BsnWeb.TripController do
     json conn, response
   end
   def create(conn, %{"form-start-address"=>start_address,"start-lat"=>start_lat, "start-lng"=>start_lng,"form-end-address"=>end_address,"end-lat"=>end_lat, "end-lng"=>end_lng, "form-trip-name"=>trip_name,"start-date-ms"=>start_date, "end-date-ms"=>end_date, "form-estimate-cost"=>estimated_cost, "form-estimate-members"=>estimated_members,"holder-id"=>holder_id, "form-mode"=>mode,"route-name"=>route_name, "route-duration"=>route_duration, "route-distance"=>route_distance}) do
-    response=Backend.retrieve(%{holder_id: holder_id}, %{start_address: start_address, start_lat: start_lat, start_lng: start_lng, end_address: end_address,end_lat: end_lat, end_lng: end_lng, trip_name: trip_name, start_date: start_date, end_date: end_date, estimated_cost: estimated_cost, estimated_members: estimated_members, mode: mode, route_name: route_name, route_duration: route_duration, route_distance: route_distance}) 
+    response=Backend.retrieve(%{holder_id: holder_id}, %{type: "TripNew", start_address: start_address, start_lat: start_lat, start_lng: start_lng, end_address: end_address,end_lat: end_lat, end_lng: end_lng, trip_name: trip_name, start_date: start_date, end_date: end_date, estimated_cost: estimated_cost, estimated_members: estimated_members, mode: mode, route_name: route_name, route_duration: route_duration, route_distance: route_distance}) 
     trip_id=Map.get(Enum.at(response,0), "trip_id")
     redirect conn, to: "/trips/#{trip_id}"
+  end
+  def edit_trip_detail(conn, %{"trip_id"=>trip_id, "trip_name"=>trip_name, "start_date"=>start_date, "end_date"=>end_date, "description"=>description, "estimated_cost"=>estimated_cost, "estimated_members"=>estimated_members, "cost_detail"=>cost_detail, "off_time"=>off_time, "off_place"=>off_place, "necessary_tool"=>necessary_tool, "note"=>note}) do
+    response=Backend.retrieve(%{id: trip_id}, %{type: "UpdateTripDetail",trip_name: trip_name, start_date: start_date, end_date: end_date, description: description, estimated_cost: estimated_cost, estimated_members: estimated_members, cost_detail: cost_detail, off_time: off_time, off_place: off_place, necessary_tool: necessary_tool, note: note}, nil)
+    json conn, response
   end
 end

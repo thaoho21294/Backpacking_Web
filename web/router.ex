@@ -37,7 +37,7 @@ defmodule BsnWeb.Router do
     get "/locations/:place_id", MapController, :get_location
     get "/direction/:origin/:destination", MapController, :get_direction
 
-    scope "/trips" do
+  scope "/trips" do
       get "/:id", TripController, :show
       get "/:id/stops", TripController, :get_all_stops
       post "/:id/stops", TripController, :add_stop
@@ -45,7 +45,8 @@ defmodule BsnWeb.Router do
       get "/:id/routes", TripController, :get_all_routes
       post "/", TripController, :create
       delete "/:id", TripController, :delete
-      post "/:id/members-location", TripController,  :update_member_location
+      post "/:id/members-location", TripController, :update_member_location
+      post "/:id/edit", TripController, :edit_trip_detail
     end
   end
 end

@@ -48,7 +48,7 @@ defmodule BsnWeb.Backend do
     cypher = """
     MATCH (t:Trip)-[:HAVE]->(s:Status) where id(t)=#{id} return t.name as name, t.off_time as off_time, t.note as note,
        t.start_date as start_date, t.end_date as end_date, t.estimated_number_of_members as estimated_members,
-       t.description as description, t.estimate_cost as estimated_cost, t.off_place as off_place, t.real_cost as real_cost, s.name as status,
+       t.description as description, t.estimated_cost as estimated_cost, t.off_place as off_place, t.real_cost as real_cost, s.name as status,
       t.necessary_tool as necessary_tool, t.cost_detail as cost_detail, t.background as background
     """
 
@@ -170,7 +170,7 @@ defmodule BsnWeb.Backend do
     cypher="MATCH (t:Trip)-[INCLUDE]->(s:Stop) WHERE id(t)=#{trip_id} and s.order>=#{new_stop_order} SET s.order=s.order+1"
     Sips.query!(Sips.conn, cypher)
   end
-  def retrieve(%{holder_id: holder_id}, %{start_address: start_address,start_lat: start_lat, start_lng: start_lng, end_address: end_address,end_lat: end_lat, end_lng: end_lng, trip_name: trip_name, start_date: start_date, end_date: end_date, estimated_cost: estimated_cost, estimated_members: estimated_members, mode: mode, route_name: route_name, route_duration: route_duration, route_distance: route_distance}) do
+  def retrieve(%{holder_id: holder_id}, %{type: "TripNew", start_address: start_address,start_lat: start_lat, start_lng: start_lng, end_address: end_address,end_lat: end_lat, end_lng: end_lng, trip_name: trip_name, start_date: start_date, end_date: end_date, estimated_cost: estimated_cost, estimated_members: estimated_members, mode: mode, route_name: route_name, route_duration: route_duration, route_distance: route_distance}) do
       
       start_lat=String.to_float(start_lat)
       start_lng=String.to_float(start_lng)
@@ -183,6 +183,8 @@ defmodule BsnWeb.Backend do
       end_stop_name=Enum.at(end_stop_name, Enum.count(end_stop_name)-2)
 
       end_date=String.to_integer(end_date)
+      if estimated_cost=="" do estimated_cost='0' end
+      if  estimated_members=="" do estimated_members='0' end
       estimated_members= String.to_integer(estimated_members)
       estimated_cost=String.to_integer(estimated_cost)
       holder_id=String.to_integer(holder_id)
@@ -193,15 +195,17 @@ defmodule BsnWeb.Backend do
       start_departure= start_arrive+3600000
       end_arrive=start_departure+route_duration*60000
       end_departure=end_arrive+3600000
-
+      off_time=start_date
       created_date=1470567600000
+      background="/images/trip_backgrounds/trip196.jpg"
+
         
       cypher= """
       MATCH (s:Status{name:'open'}),(u:User),(m:Vehicle{name:\"#{mode}\"})
       WHERE id(u)=#{holder_id} 
       CREATE (l1:Location{address: \"#{start_address}\", lat: #{start_lat}, long:#{start_lng}}) 
       CREATE (l2:Location{address: \"#{end_address}\", lat: #{end_lat}, long:#{end_lng}}) 
-      CREATE (t:Trip{name:\"#{trip_name}\",start_date:#{start_date}, end_date:#{end_date}, estimated_cost:#{estimated_cost}, estimated_number_of_members:#{estimated_members}, created_date:#{created_date}}) 
+      CREATE (t:Trip{name:\"#{trip_name}\",start_date:#{start_date}, end_date:#{end_date}, estimated_cost:#{estimated_cost}, estimated_number_of_members:#{estimated_members}, created_date:#{created_date}, off_time:#{off_time}}) 
       CREATE (s1:Stop{name:\"#{start_stop_name}\", arrive:#{start_arrive}, departure:#{start_departure}, order:1}) 
       CREATE (s2:Stop{name:\"#{end_stop_name}\", arrive:#{end_arrive}, departure:#{end_departure}, order:2}) 
       CREATE (r:Route{name:\"#{route_name}\", duration:#{route_duration}, distance:#{route_distance}}) 
@@ -210,6 +214,18 @@ defmodule BsnWeb.Backend do
      """
     Sips.query!(Sips.conn, cypher)
   end
+  def retrieve(%{id: trip_id}, %{type: "UpdateTripDetail", trip_name: trip_name, start_date: start_date, end_date: end_date, description: description, estimated_cost: estimated_cost, estimated_members: estimated_members, cost_detail: cost_detail, off_time: off_time, off_place: off_place, necessary_tool: necessary_tool, note: note}, _context) do
+    cypher="""
+    MATCH (t:Trip)
+    WHERE id(t)=#{trip_id}
+    SET t.trip_name=\"#{trip_name}\", t.start_date=#{start_date}, t.end_date=#{end_date}, t.description=\"#{description}\", t.estimated_cost=#{estimated_cost}, 
+    t.estimated_number_of_members= #{estimated_members}, t.cost_detail=\"#{cost_detail}\", t.off_time= #{off_time}, t.off_place= \"#{off_place}\",
+    t.necessary_tool= \"#{necessary_tool}\", t.note=\"#{note}\"
+    """
+    # IO.inspect(cypher);
+    Sips.query!(Sips.conn, cypher)
+  end
+
   # Callbacks for being a Plug used in Router.
   @behaviour Plug
   def init(opts) do

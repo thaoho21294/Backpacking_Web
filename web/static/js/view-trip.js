@@ -18,6 +18,7 @@ var stops_title=[]
 var icons;
 var tripdetail;
 var members=[]
+var route_mode={}
 // $.urlParam = function(name){
 //     var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
 //     if (results==null){
@@ -65,7 +66,7 @@ $(document).ready(function() {
     tripid=$("input[name='tripid']").val();
     
     if(tripid!=undefined){
-      //initMap();
+      initMap();
       $.ajax({
         url: "/api/trips/"+tripid+"/stops",
         async: false,
@@ -87,7 +88,7 @@ $(document).ready(function() {
         }
 
         if(stops.length>1){
-          //send_route_map(stops)
+          send_route_map(stops)
           create_stops_distinct()
           send_data_plan(stops)
           generateRequests(routeArray);
@@ -97,7 +98,17 @@ $(document).ready(function() {
         map.setCenter(center_latLng)
             }//end furnction(data)
       });//end ajax
-
+        $.ajax(
+          {url:"/api/trips/"+tripid+"/members",
+          async: false,
+          dataType: 'json',
+          success: function(data) {
+          if (!data.members) {return}
+            members= data.members;
+          console.log(members);
+            view_members(members);
+        }
+        });//end ajax
        $.ajax(
         {url:"/api/trips/"+tripid,
         async: false,
@@ -106,24 +117,9 @@ $(document).ready(function() {
         if (!data.tripdetail) {return}
           tripdetail= data.tripdetail
           create_tripdetail(tripdetail);
-          auto_height_textarea('#trip-desctiption');
-          auto_height_textarea('#trip-cost-detail');
-          auto_height_textarea('#trip-necessary-tool');
-          auto_height_textarea('#trip-note');
+      }
+    });//end ajax
 
-      }
-    });//end ajax
-      $.ajax(
-        {url:"/api/trips/"+tripid+"/members",
-        async: false,
-        dataType: 'json',
-        success: function(data) {
-        if (!data.members) {return}
-          members= data.members;
-        console.log("call function members");
-          view_members(members);
-      }
-    });//end ajax
   }
 //event for plan-list
 $("#plan-list").on('mouseenter', '.content1', function(){
@@ -146,13 +142,14 @@ $("#plan-list").on('click', '.content1', function(){
   var route_start=stops[id].arrive-stops[id].route_duration*60000
   var route_finish=stops[id].arrive
   var stop_duration= calulateStopDuration(stops[id].arrive, stops[id].departure)
-    var string=""
-    var stop_string ="<div class='content2'>\
+  var string=""
+  var stop_string ="<div class='content2'>\
         <ul class='content2-header'>\
           <li class='content2-header-item'><img id='avar' src='/images/flag2.png'> </li>\
-          <li class='content2-header-item'><button class='function-button'>Up <span class='glyphicon glyphicon-arrow-up'></span></button></button></li>\
-          <li class='content2-header-item'><button class='function-button'>Down <span class='glyphicon glyphicon-arrow-down'></span></button></li>\
-          <li class='li-close-button'><button class='close-button'>x</button></li>\
+          <li class='content2-header-item'><button class='function-button' id='up-stop'>Lên <span class='glyphicon glyphicon-arrow-up'></span></button></button></li>\
+          <li class='content2-header-item'><button class='function-button' id='down-stop'>Xuống <span class='glyphicon glyphicon-arrow-down'></span></button></li>\
+          <li class='content2-header-item'><button class='function-button' id='delete-stop'>Xóa <span class='glyphicon glyphicon-remove'></span></button></li>\
+          <li class='li-close-button'><button class='close-button' id='close-stop'><span class='glyphicon glyphicon-remove'></span></button></li>\
         </ul>\
         <div class ='content2-body'>\
             <form class='stop-detail'>\
@@ -174,7 +171,7 @@ $("#plan-list").on('click', '.content1', function(){
       var route_string="<div class='content2'>\
         <ul class='content2-header'>\
           <li class='content2-header-item'><button><img class='mode-icon' src='/images/moto-icon.png'></button></li>\
-          <li class='li-close-button'><button class='close-button'>x</button></li>\
+          <li class='li-close-button'><button class='close-button'><span class='glyphicon glyphicon-remove'></span></button></li>\
         </ul>\
         <div class ='content2-body'>\
             <form class='stop-detail'>\
@@ -264,22 +261,30 @@ else{
   $(element).css("right", "0px");
 }
 }
-//-------------------------------------
-// load data schedule 
-//------------------------------------
-//$("#schedule").append("");
+$(".new-stop").hide();
 
-
+$("#plan-list").on('click', 'input,textarea', function(){
+  $(this).parents(".content2").children('.content2-header').html("<li class='content2-header-item'><img id='avar' src='/images/flag2.png'></li>\
+    <li class='content2-header-item'><button class='function-button' id='cancel-edit-stop'>Hủy <span class='glyphicon glyphicon-remove'></span></button></button></li>\
+    <li class='content2-header-item'><button class='function-button' id='save-edit-stop'>Lưu <span class='glyphicon glyphicon-ok'></span></button></li>\
+    <li class='li-close-button'><button class='close-button' id='close-stop'><span class='glyphicon glyphicon-remove'></span></button></li>");
+});
+$("#plan-list").on('click', '#cancel-edit-stop', function(){
+  $(this).parents(".content2").children('.content2-header').html("<li class='content2-header-item'><img id='avar' src='/images/flag2.png'> </li>\
+          <li class='content2-header-item'><button class='function-button' id='up-stop'>Lên <span class='glyphicon glyphicon-arrow-up'></span></button></button></li>\
+          <li class='content2-header-item'><button class='function-button' id='down-stop'>Xuống <span class='glyphicon glyphicon-arrow-down'></span></button></li>\
+          <li class='content2-header-item'><button class='function-button' id='delete-stop'>Xóa <span class='glyphicon glyphicon-remove'></span></button></li>\
+          <li class='li-close-button'><button class='close-button' id='close-stop'><span class='glyphicon glyphicon-remove'></span></button></li>");
+});
 //end document ready
 });
   //-------------------------------------
 // START DEFINE FUNCTION
 //------------------------------------
-
-$(".new-stop").hide();
         function send_route_map(stops) {
             //create routes include many stop
             var mode = stops[1].mode
+            route_mode["route1"]=mode;
             var start = 1,
                 route_index = 1;
             if(stops.length==2){
@@ -293,8 +298,9 @@ $(".new-stop").hide();
                     //add stop to route
                     if (stops[i].mode != mode) {
                         start = i
-                        //console.log(start)
+                        route_mode["route"+route_index]=mode;
                         mode = stops[i].mode
+                         
                         //next route
                         break
                     }
@@ -310,13 +316,17 @@ $(".new-stop").hide();
                     start = i + 1
 
                 }
+
                 route_index++
             }
+            //add route mode last
+            route_mode["route"+(route_index-1)]=stops[stops.length-1].mode;
             stops[0]["route_index"]=1
             routeArray["route1"].unshift({
                 "lat": stops[0].lat,
                 "lng": stops[0].lng
-            })          
+            });        
+             console.log(route_mode); 
         }
         function create_stops_distinct(){
             var i=1;
@@ -480,54 +490,69 @@ function create_tripdetail(tripdetail){
   var start_date=new Date(tripdetail.start_date);
   var trip_month_year=name_month(start_date.getMonth())+" "+start_date.getFullYear();
   var neading_member= tripdetail.estimated_members-members.length;
+  if(tripdetail.description=="null") tripdetail.description="";
+  if(tripdetail.cost_detail=="null") tripdetail.cost_detail=""
+  if(tripdetail.off_time=='null') tripdetail.off_time="";
+  if(tripdetail.off_place=='null') tripdetail.off_place="";
+  if(tripdetail.necessary_tool=="null") tripdetail.necessary_tool="";
+  if(tripdetail.note=='null') tripdetail.note="";
 
-  var tripdetail_string="<div class='trip-detail-header' style=\"background-image: url('"+tripdetail.background+"')\">\
+  var tripdetail_string="<ul class='content2-header' id='trip-detail-title' style='display:none;'>\
+    <li class='content2-header-item'><button class='function-button' id='cancel-edit-trip'><span class='glyphicon glyphicon-remove'></span>CANCEL </button></li>\
+    <li class='content2-header-item'><button class='function-button' type='submit' id= 'save-edit-trip'><span class='glyphicon glyphicon-ok'></span> SAVE </button></li>\
+    <li class='li-close-button'><button class='close-button' id='close-button-edit-trip'><span class='glyphicon glyphicon-remove'></button></li>\
+   </ul>\
+  <div class='trip-detail-header' style=\"background-image: url('"+tripdetail.background+"')\">\
 <div class='trip-detail-header-background'>\
-  <h2 class='trip-detail-name'>"+tripdetail.name+"</h2>\
+  <textarea class='trip-detail-name' disabled='true' id='trip-name' name='trip-name'>"+tripdetail.name+"</textarea>\
   <h3 class='trip-month'>"+trip_month_year+"</h3>\
-  <p class='needing-member'>Needing "+neading_member+" member</p>\
+  <p class='needing-member'>Needing "+neading_member+" members</p>\
   </div>\
 </div>\
 <div class='trip-detail-content'>\
-  <form>\
   <div class='item-content2'>\
-      <label class='trip-detail-item'>Status: </label> <span>"+tripdetail.status+"</span>\
+      <label class='trip-detail-item'>Status: </label><span>"+tripdetail.status+"</span>\
     </div>\
   <div class='item-content2'>\
-    <label class='trip-detail-item'>Time: </label><input type='text' name='trip-detail-time' id='start-time' value='"+formatDatetoDate(tripdetail.start_date)+"'> - \
-   <input type='text' name='trip-detail-time' id='end-time' value='"+formatDatetoDate(tripdetail.end_date)+"'>\
+    <label class='trip-detail-item'>Time: </label><input type='text' class='trip-detail-time' id='start-date' name='start-date' disabled='true' value='"+formatDatetoDate(tripdetail.start_date)+"'> - \
+   <input type='text' class='trip-detail-time' id='end-date' name='end-date' disabled='true' value='"+formatDatetoDate(tripdetail.end_date)+"'>\
     </div>\
      <div class='item-content2'>\
-      <label class='trip-detail-item'>Description</label><textarea id='trip-desctiption'>"+tripdetail.description+"</textarea>\
+      <label class='trip-detail-item'>Description</label><textarea name='trip-description' id='trip-description' disabled='true'>"+tripdetail.description+"</textarea>\
     </div>\
     <div class='item-content2'>\
-      <label class='trip-detail-item'>Estimated Cost: </label><input type='text' id='estimated-cost' value='"+formatMoney(tripdetail.estimated_cost)+"/1person'>\
+      <label class='trip-detail-item'>Estimated Cost: </label><input type='text' id='estimated-cost' name='estimated-cost' disabled='true' value='"+formatMoney(tripdetail.estimated_cost)+"'><span>/1person</span>\
+      </div>\
+    <div class='item-content2'>\
+      <label class='trip-detail-item'>Estimated Members: </label><input type='text' name='estimated_members' id='estimated-members' disabled='true' value='"+tripdetail.estimated_members+"'><span> persons</span>\
     </div>\
     <div class='item-content2'>\
       <label class='trip-detail-item'>Cost Detail:</label>\
-      <textarea id='trip-cost-detail'>"+tripdetail.cost_detail+"</textarea>\
+      <textarea id='cost-detail' name='cost-detail' disabled='true'>"+tripdetail.cost_detail+"</textarea>\
     </div>\
     <div class='item-content2'>\
-      <label class='trip-detail-item'>Off Time: </label><input type='text' id='trip-off-time' value='"+formatDatetoTime(tripdetail.off_time)+" "+formatDatetoDate(tripdetail.off_time)+"'>\
+      <label class='trip-detail-item'>Off Time: </label><input type='text' name='off-time' id='off-time' disabled='true' value='"+formatDatetoTime(tripdetail.off_time)+" "+formatDatetoDate(tripdetail.off_time)+"'>\
     </div>\
     <div class='item-content2'>\
-      <label class='trip-detail-item'>Off Place: </label><input type='text' id='trip-off-place' value=\""+tripdetail.off_place+"\">\
+      <label class='trip-detail-item'>Off Place: </label><input type='text' name='off-place' id='off-place' disabled='true' value=\""+tripdetail.off_place+"\">\
     </div>\
          <div class='item-content2'>\
-      <label class='trip-detail-item'>Necessary Tool: </label><textarea id='trip-necessary-tool'>"+tripdetail.necessary_tool+"</textarea>\
+      <label class='trip-detail-item'>Necessary Tool: </label><textarea  name='necessary-tool' id='necessary-tool' disabled='true'>"+tripdetail.necessary_tool+"</textarea>\
     </div>\
          <div class='item-content2'>\
-      <label class='trip-detail-item'>Note: </label><textarea id='trip-note'>"+tripdetail.note+"</textarea>\
+      <label class='trip-detail-item'>Note: </label><textarea id='note' name='note' disabled='true'>"+tripdetail.note+"</textarea>\
     </div>\
-  </form>\
 </div>";
-$("#trip-detail ").html(tripdetail_string);
+$("#trip-detail").html(tripdetail_string);
+  auto_height_textarea('#cost-detail', 20);
+  auto_height_textarea('#trip-description',20);
+  auto_height_textarea('#necessary-tool',20);
+  auto_height_textarea('#note',20);
+  auto_height_textarea('#trip-name',90);
 }
-function auto_height_textarea(textarea){
-  console.log(textarea)
+function auto_height_textarea(textarea, one_line_height){
   var sum_line=0;
   var height=0;
-  var one_line_height=20
   var text = $(textarea).val()
   var line_array=[];
   line_array=text.split("\n")
@@ -536,11 +561,11 @@ function auto_height_textarea(textarea){
     num_line= Math.round(line_array[i].length/60);// a line have 60 character
     if (((line_array[i].length/60)-num_line)>0)
         num_line++;
-    console.log("num_line_last="+num_line);
+    //console.log("num_line_last="+num_line);
     sum_line+=num_line;
   }
   height=sum_line*one_line_height;
-
+  if(height==0 || height==20) height=30;
   $(textarea).css('height',height+"px");
 }
 function create_schedule(items,days,day_number_items){
@@ -566,6 +591,48 @@ function create_schedule(items,days,day_number_items){
       it++;
     }
   }
+}
+function DateToMs(date){
+  var ms_date=0;
+  var array=date.split("/");
+  var day=array[0];
+  var month=array[1];
+  var year=array[2];
+  var right_date=new Date(month+"/"+day+"/"+year);
+  ms_date=right_date.getTime();
+  return ms_date;
+} 
+function UnFormatMoney(money){
+  var result=0;
+  var last_word=money.charAt(money.length-1);
+  if(last_word=='k'){
+    result=money.split("k")[0]
+  }
+  if(last_word=='r'){
+    result=money.split("tr")[0]
+  }
+  result=parseInt(result);
+  return result;
+}
+function UnFormatOffTime(datetime){
+  var time= datetime.split("m ")[0]
+  var last_word=time[time.length-1]
+  var hours=time.split(":")[0]
+  var minutes=time.split(":")[1].split(" ")[0]
+  hours=parseInt(hours);
+  if(last_word='p'){ 
+    hours+=12;
+  }
+  var date=datetime.split("m ")[1];
+  var ms_date=0;
+  var array=date.split("/");
+  var day=array[0];
+  var month=array[1];
+  var year=array[2];
+  var str_date=year+"-"+month+"-"+day+"T"+hours+":"+minutes+":00";
+  console.log(str_date);
+  var right_date=new Date(str_date);
+  return right_date.getTime();
 }
 function name_date(day){
   var weekday = new Array(7);
@@ -617,7 +684,7 @@ function formatDatetoDate(date_ms) {
   hours = hours ? hours : 12; // the hour '0' should be '12'
   minutes = minutes < 10 ? '0'+minutes : minutes;
   //var strTime = hours + ':' + minutes + ' ' + ampm;
-  return date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear();
+  return  + date.getDate() + "/" + (date.getMonth()+1) + "/"+ date.getFullYear();
   //return strTime
 }
 function formatDatetoTime(date_ms) {
@@ -673,7 +740,25 @@ function getDuration(duration){
   minutes=parseInt(minutes)
   return hours*3600000+minutes*60000
 }
-
+function tranModeName(mode){
+  var result="";
+  switch (mode){
+    case "xe máy": 
+      result= "DRIVING";
+      break;
+    case "xe khách":
+      result= "DRIVING";
+      break;
+    case "xe đạp": 
+      result= "BICYCLING";
+      break;
+    case "đi bộ": 
+      result= "WALKING";
+      break;
+    default: result= "DRIVING";
+  }
+  return result;
+}
 var map
 var directionsService
 
@@ -719,8 +804,9 @@ function generateRequests(jsonArray) {
             origin: start,
             destination: finish,
             waypoints: waypts,
-            travelMode: google.maps.TravelMode.DRIVING
+            travelMode: google.maps.TravelMode[tranModeName(route_mode[route])]
         };
+        console.log(tranModeName(route_mode[route]));
         requestArray.push({
             "route": route,
             "request": request
@@ -836,25 +922,84 @@ function initMap() {
     map = new google.maps.Map(document.getElementById('map'), mapOption);
    //directionsDisplay.setMap(map)
 
-    addStop(map)
+    editTrip(map)
     addRoute_LoadAgain(map,directionsService);
 }
 var markers=[];
 var new_marker;
-function addStop(map){
+function editTrip(map){
   //click edit link event
   $("#edit-trip").click(function(e){
         if(!edit){
         edit= true;
          e.stopPropagation();
+
+          $("#trip-detail-title").show();
+          $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name").prop('disabled', false);
+          $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name" ).css('border', '1px solid #ddd')
+          // $(".trip-detail-content select").css({'-moz-appearance':'button-arrow-down', '-webkit-appearance': 'button-arrow-down'});
           map.setOptions({ draggableCursor: 'url(/images/flag-grey.png) 20 45, auto' });
           }
           else{
             edit= false;
-            map.setOptions({ draggableCursor: 'default' });
+              $("#trip-detail-title").hide();
+              $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name").prop('disabled', true);
+              $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name").css('border', '1px solid transparent')
+              // $(".trip-detail-content select").css({'-moz-appearance':'none', '-webkit-appearance': 'none'});
+          map.setOptions({ draggableCursor: 'default' });
+
           }
         
     });
+    $("#trip-detail").on('click', '#save-edit-trip', function(){
+      edit=false;
+     var input={
+        trip_id: tripid,
+        trip_name: $("#trip-name").val(),
+        start_date: DateToMs($("#start-date").val()),
+        end_date: DateToMs($("#end-date").val()),
+        description: $("#trip-description").val(),
+        estimated_cost: UnFormatMoney($("#estimated-cost").val()),
+        estimated_members: parseInt($("#estimated-members").val()),
+        cost_detail: $("#cost-detail").val(),
+        off_time: UnFormatOffTime($("#off-time").val()),
+        off_place: $("#off-place").val(),
+        necessary_tool: $("#necessary-tool").val(),
+        note: $("#note").val()
+      }
+      $.ajax({
+        type: 'POST',
+        dataType: 'json',
+        url: '/api/trips/'+tripid+"/edit",
+        contentType: 'application/json',
+        data: JSON.stringify(input),
+        success: function( data, textStatus, jQxhr ){
+        //console.log(data );
+        },
+        error: function( jqXhr, textStatus, errorThrown ){
+        console.log(errorThrown );
+       }
+      });//end ajax
+      $("#trip-detail-title").hide();
+      $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name").prop('disabled', true);
+      $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name").css('border', '1px solid transparent')
+
+      });//end submit
+      // $("#trip-detail").on('click', '', function(){
+      //   $("#trip-detail-title").hide();
+      //   create_tripdetail(tripdetail)
+      // });
+      $("#trip-detail").on('click', '#close-button-edit-trip, #cancel-edit-trip',function(){
+        edit=false;
+        $("#trip-detail-title").hide();
+        create_tripdetail(tripdetail)
+        $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name").prop('disabled', true);
+        $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name").css('border', '1px solid transparent')
+      });
+      $("#trip-detail").on('keyup', 'textarea', function(){
+          auto_height_textarea("#"+$(this).attr('id'), 20)
+      } );
+    if(map==undefined) return;
       //click event on map 
     map.addListener("click", function(e){
       if(edit){
@@ -889,9 +1034,10 @@ function addStop(map){
 
     }
 
-    });
-}
+    });//end map listener
 
+
+}
 function placeMarkerAndPanTo(latLng, map, icon) {
   new_marker = new google.maps.Marker({
     position: latLng,
