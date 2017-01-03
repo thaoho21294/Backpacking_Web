@@ -34,8 +34,9 @@ defmodule BsnWeb.Endpoint do
   # this means its contents can be read but not tampered with.
   # Set :encryption_salt if you would also like to encrypt it.
   plug Plug.Session,
-    store: :cookie,
-    key: "_bsn_web_key",
+    store: :ets,
+    key: "sid",
+    table: :session,
     signing_salt: "cq0qhmL3"
 
   plug BsnWeb.Router
