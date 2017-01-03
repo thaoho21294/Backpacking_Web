@@ -31,8 +31,9 @@ defmodule BsnWeb.Router do
     post "/", Backend, []
 
     post "/stops", TripController, :add_stop
-    post "/stops/:id/edit", TripController, :edit_stop
-    post "/stops/:id/edit_arrive_departure", TripController, :edit_arrive_departure_stop
+    post "/stops/edit", TripController, :edit_stop
+    post "/stops/edit-route", TripController, :edit_route
+    post "/stops/edit_arrive_departure", TripController, :edit_arrive_departure_stop
     post "/add-stop-edit-route", TripController, :add_stop_edit_route
     post "/add-stop-update-order", TripController, :add_stop_update_order
     get "/address/:input", MapController, :get_autocomplete_data
@@ -40,6 +41,7 @@ defmodule BsnWeb.Router do
     get "/direction/:origin/:destination", MapController, :get_direction
 
   scope "/trips" do
+      get "/view/:user_id", TripController, :get_trips_near_user
       get "/:id", TripController, :show
       get "/:id/stops", TripController, :get_all_stops
       post "/:id/stops", TripController, :add_stop
@@ -49,6 +51,13 @@ defmodule BsnWeb.Router do
       delete "/:id", TripController, :delete
       post "/:id/members-location", TripController, :update_member_location
       post "/:id/edit", TripController, :edit_trip_detail
+      post "/:id/edit-start-date/:start_date", TripController, :edit_trip_start_date
+      post "/:id/edit-end-date/:end_date", TripController, :edit_trip_end_date
+      post "/find", TripController, :find_trip
+
+    end
+    scope "/users" do
+      post "/login/", UserController, :check_login
     end
   end
 end

@@ -67,6 +67,7 @@ $(document).ready(function() {
     
     if(tripid!=undefined){
       initMap();
+      keep_position("#trip-detail");
       $.ajax({
         url: "/api/trips/"+tripid+"/stops",
         async: false,
@@ -185,10 +186,10 @@ $("#plan-list").on('click', '.content1', function(){
           </div>\
               <div class='item-content2'>\
                <b>Khoảng cách:</b> <input type='text' name='route-distance' disabled='true' value='"+formatDistance(stops[id].route_distance)+"'>\
-               <b>Thời gian:</b> <input type='text' name='route-duration-time' value='"+formatDuration(stops[id].route_duration)+"'>\
+               <b>Thời gian:</b> <input type='text' name='route-duration-time' id='route-duration-time' value='"+formatDuration(stops[id].route_duration)+"'>\
               </div>\
               <div class='item-content2'>\
-              <label class='route-label'>Kết thúc</label><input type='text' name='route-departure-time' disabled='true' value='"+formatDatetoTime(route_finish)+"'>\
+              <label class='route-label'>Kết thúc</label><input type='text' id='route-departure-time' name='route-departure-time' disabled='true' value='"+formatDatetoTime(route_finish)+"'>\
               </div>\
               <div class='item-content2'><textarea class='stop-description' id='route-description-show' placeholder='Route description...'>"+stops[id].route_description+"</textarea></div>\
         </form>\
@@ -199,10 +200,32 @@ $("#plan-list").on('click', '.content1', function(){
             else{
                 string=route_string;
             }
+
       $(this).parents('.list-item').append(string);
+      if(id==0){
+        $("#stop-arrive-date-show").attr('disabled', false)
+         $("#stop-arrive-time-show").attr('disabled', false)
+      }   
 
 });
+$("#plan").on('input','#stop-arrive-date-show, #stop-arrive-time-show, #stop-duration-show', function(){
+  var arrive_date=$('#stop-arrive-date-show').val();
+  var arive_time=$('#stop-arrive-time-show').val();
+  var stop_duration=0
+  stop_duration=UnFormatDuration($("#stop-duration-show").val())*60000
+  var arrive_ms=0
+  arrive_ms=UnFormatOffTime(arive_time+" "+arrive_date);
+  var departure_ms=0;
+  // console.log(stop)
+  if(arrive_ms!=0 && stop_duration!=0){
+    departure_ms=arrive_ms+stop_duration;
+  }
+   $('#stop-departure-date-show').val(formatDatetoDate(departure_ms));
+   $('#stop-departure-time-show').val(formatDatetoTime(departure_ms));
+});
+
 $('.trip-content-right').on('keyup','.address-input',function(){
+    if(event.key=='ArrowDown') return;
     var input=$(this).val()
     var datalist_id=$(this).attr('list')
     input= input.replace(' ', '+')
@@ -232,50 +255,77 @@ $('#plan-list').on('input','#stop-address-show',function(){
     success: function(data){
       console.log(data.location)
         $("#show-lat").val(data.location.lat)
-        $("#show-lng").val(data.location.lat)
+        $("#show-lng").val(data.location.lng)
     }
     });
-    var array=val.split(',');
-    $('#stop-name-show').val(array[array.length-2]);
+    var array_address=val.split(',');
+    $('#stop-name-show').val(array_address[1]);
   }
 
 });
-
+$('#plan-list').on('keyup','#route-duration-time',function(){
+  var stop_id= $(this).parents(".list-item").attr('id');
+  var id=stop_id.split("_")[1];
+  var val=$(this).val();
+  var route_departure= stops[id-1].departure+UnFormatDuration(val)*60000
+  console.log(route_departure)
+  $("#route-departure-time").val(formatDatetoTime(route_departure));
+});
 $('#plan-list').on('click', '#save-edit-stop', function(){
   var stop_id= $(this).parents(".list-item").attr('id');
-  var stop_order= parseInt(stop_id.split("_")[stop_id.split("_").length-1])
-  var stop_id_neo4j=stops[stop_order-1];
-  var arrive_string=$('#stop-arrive-time-show').val()+" "+$('#stop-arrive-date-show').val()
-  var stop_duration=UnFormatDuration($('#stop-duration-show').val())*60000
-  var stop_arrive=UnFormatOffTime(arrive_string)
-  var stop_departure=stop_arrive + stop_duration;
-  var id=stop_order-1;
-  stops[id].name=$("#stop-name-show").val();
-  stops[id].arrive= stop_arrive;
-  stops[id].departure=stop_departure
-  stops[id].address=$("#stop-address-show").val();
-  stops[id].description= $("#stop-description-show").val();
-  stops[id].lat= $("#show-lat").val();
-  stops[id].lng= $("#show-lng").val();
-  //UpdateStop(stop_id_neo4j, stop[id].name, stops[id].arrive, stops[id].departure, stops[id].description,stops[id].address, stops[id].lat,stops[id].lng);
-  //update info other stops
-  for (var i=stop_order; i<stops.length; i++){
-    stops[i].arrive=stops[i-1].departure+stops[i].route_duration;
-    stops[i].departure=stops[i].arrive+stops[i].duration;
-    //UpdateArriveDepartureStop(stops[i].id, stops[i].arrive, stops[i].departure);
+  var array=stop_id.split("_");
+  var id= parseInt(array[1])
+  var type=array[0]
+  if(type=='route'){
+    stops[id].route_duration=UnFormatDuration($("#route-duration-time").val())
+    stops[id].route_description=$("#route-description-show").val();
+    UpdateRoute(stops[id].id, stops[id].route_duration, stops[id].route_description);
+    stops[id].arrive=stops[id-1].departure+stops[id].route_duration*60000;
+    stops[id].departure=stops[id].arrive+stops[id].duration;
+    UpdateArriveDepartureStop(stops[id].id, stops[id].arrive, stops[id].departure);
+
+  }else{
+    var arrive_string=$('#stop-arrive-time-show').val()+" "+$('#stop-arrive-date-show').val()
+    var stop_duration=UnFormatDuration($('#stop-duration-show').val())*60000
+    var stop_arrive=UnFormatOffTime(arrive_string)
+    var stop_departure=stop_arrive + stop_duration;
+    console.log(stop_departure)
+    stops[id].name=$("#stop-name-show").val();
+    stops[id].arrive= stop_arrive;
+    stops[id].departure=stop_departure
+    stops[id].address=$("#stop-address-show").val();
+    stops[id].description= $("#stop-description-show").val();
+    stops[id].lat= $("#show-lat").val();
+    stops[id].lng= $("#show-lng").val();
+
+    UpdateStop(stops[id].id, stops[id].name, stops[id].arrive, stops[id].departure, stops[id].description,stops[id].address, stops[id].lat,stops[id].lng);
+    if(id==0){
+      tripdetail.start_date=stops[id].arrive; 
+      UpdateTripStartDate(stops[id].arrive) 
+    }
   }
+  //update info other stops
+  for (var i=id+1; i<stops.length; i++){
+    stops[i].arrive=stops[i-1].departure+stops[i].route_duration*60000;
+    stops[i].departure=stops[i].arrive+stops[i].duration;
+    UpdateArriveDepartureStop(stops[i].id, stops[i].arrive, stops[i].departure);
+    }
+  tripdetail.end_date=stops[stops.length-1].arrive
+  UpdateTripEndDate(stops[stops.length-1].arrive)
+  $("#plan-list").find(".list-item").remove();
+  $(".day-number li").remove();
+  $("#schedule-table tr").remove();
   send_data_plan(stops);
+  send_route_map(stops);
+  create_tripdetail(tripdetail)
 });
+// edit route mode
 $("#plan-list").on('click', '.close-button', function(e){
      e.stopPropagation()
     $(this).parents(".list-item").children(".content1").show();
      $(this).parents(".content2").remove();
 
  });
-$("#cancel-new-stop, .new-stop .close-button").click(function(){
-  $(".new-stop").hide();
-  $(".list-group .list-item").show();
-});
 //-----------------------------------
 //menu action
 //-----------------------------------
@@ -317,18 +367,10 @@ $("#schedule-menu").click(function(){
 $("#members-menu").click(function(){
   change_position("#members");
 });
-function change_position(element){
-  $(".trip-content-right").css("right", "-500px");
-  var view=$(element).css("right");
-  if(view=="0px")
-  $(element).css("right", "-500px");
-else{
-  $(element).css("right", "0px");
-}
-}
+
 $(".new-stop").hide();
 
-$("#plan-list").on('click', 'input,textarea', function(){
+$("#plan-list").on('click', '.list-item input, .list-item textarea', function(){
   $(this).parents(".content2").children('.content2-header').html("<li class='content2-header-item'><img id='avar' src='/images/flag2.png'></li>\
     <li class='content2-header-item'><button class='function-button' id='cancel-edit-stop'>Hủy <span class='glyphicon glyphicon-remove'></span></button></button></li>\
     <li class='content2-header-item'><button class='function-button' id='save-edit-stop'>Lưu <span class='glyphicon glyphicon-ok'></span></button></li>\
@@ -347,9 +389,45 @@ editTripDetail();
   //-------------------------------------
 // START DEFINE FUNCTION
 //------------------------------------
+function change_position(element){
+  $(".trip-content-right").css("right", "-500px");
+  var view=$(element).css("right");
+  if(view=="0px")
+  $(element).css("right", "-500px");
+else{
+  $(element).css("right", "0px");
+}
+}
+function keep_position(element){
+  $(".trip-content-right").css("right", "-500px");
+  var view=$(element).css("right");
+  $(element).css("right", "0px");
+}
+function UpdateRoute(stop_id, route_duration, route_description){
+  var input={
+    stop_id:stop_id,
+    route_duration: route_duration,
+    route_description: route_description,
+  }
+  console.log(input)
+      $.ajax({
+    url: "/api/stops/edit-route/",
+    type: 'POST',
+    dataType: 'json',
+    contentType: 'application/json',
+    data: JSON.stringify(input),
+    success: function( data, textStatus, jQxhr ){
+        //console.log(data );
+        },
+    error: function( jqXhr, textStatus, errorThrown ){
+        console.log(errorThrown );
+
+    }
+  });
+}
 function UpdateStop(stop_id, stop_name, stop_arrive, stop_departure, stop_description, stop_address, stop_lat, stop_lng ){
     var input={
-    id: stop_id,
+    stop_id: stop_id,
     stop_name: stop_name,
     stop_arrive: stop_arrive,
     stop_departure: stop_departure,
@@ -360,7 +438,7 @@ function UpdateStop(stop_id, stop_name, stop_arrive, stop_departure, stop_descri
   }
   console.log(input);
   $.ajax({
-    url: "/api/stops/"+stop_id+"/edit",
+    url: "/api/stops/edit",
     type: 'POST',
     dataType: 'json',
     contentType: 'application/json',
@@ -378,11 +456,12 @@ function UpdateStop(stop_id, stop_name, stop_arrive, stop_departure, stop_descri
 function UpdateArriveDepartureStop(stop_id, stop_arrive, stop_departure){
   var input={
     stop_id: stop_id,
-    stop_arrive: stop_id,
+    stop_arrive: stop_arrive,
     stop_departure: stop_departure
   }
+  console.log(input);
     $.ajax({
-    url: "/api/stops/"+stop_id+"/edit_arrive_departure",
+    url: "/api/stops/edit_arrive_departure",
     type: 'POST',
     dataType: 'json',
     contentType: 'application/json',
@@ -397,6 +476,36 @@ function UpdateArriveDepartureStop(stop_id, stop_arrive, stop_departure){
   });
   
 
+}
+function UpdateTripStartDate(start_date){
+    $.ajax({
+    url: "/api/trips/"+tripid+"/edit-start-date/"+start_date,
+    type: 'POST',
+    dataType: 'json',
+    // contentType: 'application/json',
+    // data: JSON.stringify(input),
+    success: function( data, textStatus, jQxhr ){
+        //console.log(data );
+        },
+    error: function( jqXhr, textStatus, errorThrown ){
+        console.log(errorThrown );
+
+    }
+  });
+}
+function UpdateTripEndDate(end_date){
+    $.ajax({
+    url: "/api/trips/"+tripid+"/edit-end-date/"+end_date,
+    type: 'POST',
+    dataType: 'json',
+    success: function( data, textStatus, jQxhr ){
+        //console.log(data );
+        },
+    error: function( jqXhr, textStatus, errorThrown ){
+        console.log(errorThrown );
+
+    }
+  });
 }
 var editTrip=false
 function editTripDetail(){
@@ -544,71 +653,63 @@ function editTripDetail(){
         function send_data_plan(stops){
           var image="flag2.png";
          $("#plan-list").append("<li class='list-item' id='stop_0'><div class='content1'><img id='avar' src='/images/start.png'>  "+stops[0].name+"</div></li>");
+          stops[0].duration= stops[0].departure-stops[0].arrive
           for(var i=1; i<stops.length; i++){
-            if(i==stops.length-1)
-              image="end.png"
-          // var departure= new Date(stops[i].departure)
-          // var arrrive = new Date(stops[i].arrive)
-
-          //date for route
-          // var start=new Date(stops[i].departure)
-          // var end = new Date(stops[i].arrive)
-          // start= formatDatetoTime(start)
-          // end= formatDatetoTime(end)
-          //date for stop
-          var route_start=stops[i].arrive-stops[i].route_duration*60000
-          var route_finish=stops[i].arrive
-
-          $("#plan-list").append("\
-            <li class='list-item' id='route_"+i+"'>\
-            <div class='content1'>\
-            <ul class= 'route-list'>\
-          <li class='route-item'>\
-            "+stops[i].mode+"\
-          </li>\
-          <li class='route-item'>\
-              "+formatDatetoTime(route_start)+"\
-          </li>\
-          <li class='route-item'>\
-              "+formatDuration(stops[i].route_duration)+"/"+formatDistance(stops[i].route_distance)+"\
-          </li>\
-          <li class='route-item'>\
-              "+formatDatetoTime(route_finish)+"\
-          </li>\
-            </ul>\
-            </div></li>\
-            <li class='list-item' id='stop_"+i+"'>\
-            <div class='content1'><img id='avar' src='/images/"+image+"'>  "+stops[i].name+"</div>\
-            </li>");
+            if(i==stops.length-1) image="end.png"
+              var route_start=stops[i].arrive-stops[i].route_duration*60000
+              var route_finish=stops[i].arrive
+              stops[i].duration= stops[i].departure-stops[i].arrive
+              $("#plan-list").append("\
+                <li class='list-item' id='route_"+i+"'>\
+                <div class='content1'>\
+                <ul class= 'route-list'>\
+              <li class='route-item'>\
+                "+stops[i].mode+"\
+              </li>\
+              <li class='route-item'>\
+                  "+formatDatetoTime(route_start)+"\
+              </li>\
+              <li class='route-item'>\
+                  "+formatDuration(stops[i].route_duration)+"/"+formatDistance(stops[i].route_distance)+"\
+              </li>\
+              <li class='route-item'>\
+                  "+formatDatetoTime(route_finish)+"\
+              </li>\
+                </ul>\
+                </div></li>\
+                <li class='list-item' id='stop_"+i+"'>\
+                <div class='content1'><img id='avar' src='/images/"+image+"'>  "+stops[i].name+"</div>\
+                </li>");
              }//end for
               var items=[]
               var stop_description;
               var route_description;
               console.log(stops)
               for(var i=0;i<stops.length-1;i++){
-              stop_description=stops[i].description;
-              route_description=stops[i+1].route_description
-              if(stop_description==""){
-                if(i==0){
-                stop_description="Tập trung tại "+stops[i].name;
-              }
-              else
-                stop_description="Tham quan "+stops[i].name;
+                stop_description=stops[i].description;
+                route_description=stops[i+1].route_description
+                if(stop_description=="" || stop_description==null){
+                  if(i==0){
+                  stop_description="Tập trung tại "+stops[i].name;
+                }
+                else
+                  stop_description="Tham quan "+stops[i].name;
 
-              } 
-              if(route_description==""){
-                if(stops[i+1].mode=="xe máy") route_description="Lên xe máy đi "+stops[i+1].name;
-                if(stops[i+1].mode=="đi bộ") route_description="Đi bộ đến "+ stops[i+1].name;
-              }
+                } 
+                if(route_description==""|| route_description==null){
+                  if(stops[i+1].mode=="xe máy") route_description="Lên xe máy đi "+stops[i+1].name;
+                  if(stops[i+1].mode=="đi bộ") route_description="Đi bộ đến "+ stops[i+1].name;
+                }
 
-              items.push({time:stops[i].arrive,description:stop_description})
+                items.push({time:stops[i].arrive,description:stop_description})
 
-              items.push({time:stops[i].departure, description:route_description});
+                items.push({time:stops[i].departure, description:route_description});
               }
               stop_description=stops[stops.length-1].description
-              if(stops[stops.length-1].description=="") stop_description="Kết thúc chuyến đi. Về lại "+stops[stops.length-1].name;
+              if(stop_description=="" || stop_description==null) stop_description="Kết thúc chuyến đi. Về lại "+stops[stops.length-1].name;
 
               items.push({time:stops[stops.length-1].arrive,description:stop_description});
+              console.log("items=")
               console.log(items)
               var days=cal_number_days(stops)
               var start_date=new Date(stops[0].departure)
@@ -616,7 +717,7 @@ function editTripDetail(){
               var height_item=32; // height of a item on plan list
               var padding=0
               var number_item_part=0
-              // console.log("days="+days)
+              console.log("days="+days)
               var number_item=0;
               var day_max=0;
               var start_item_number=0;
@@ -639,8 +740,8 @@ function editTripDetail(){
                   number_item++;
                   start_item_number++;
                 }
-                // console.log(start_item_number);
-                // console.log(number_item)
+                console.log(start_item_number);
+                console.log(number_item)
                 // console.log(number_item_part)
                 // console.log(number_item+number_item_part)
                 day_number_items.push(number_item);
@@ -824,17 +925,20 @@ function UnFormatOffTime(datetime){
   var year=array[2];
   var str_date=year+"-"+month+"-"+day+"T"+hours+":"+minutes+":00";
   var right_date=new Date(str_date);
+
   return right_date.getTime();
 }
 function UnFormatDuration(duration){
   var result=0;
   var last_word=duration[duration.length-1]
-  if(last_word=='p')
-   result= parseInt(duration.substring(0, duration.length-1))
-  if(last_word=='h')
-    result=parseInt(duration.substring(0, duration.length-1))*60
+  if(last_word=='p'){
+   result=parseInt(duration.substring(0, duration.length-1));
+  }
+  else if(last_word=='h'){
+    result=parseInt(duration.substring(0, duration.length-1))*60;
+  }
   else{
-    result=parseInt(duration.split("h")[0])*60+parseInt(duration.split("h")[1])
+    result=parseInt(duration.split("h")[0])*60+parseInt(duration.split("h")[1]);
   }
   return result;
 }
@@ -867,16 +971,34 @@ function formatMoney(money){
 function cal_number_days(stops){
   if(stops.length==0) return 0;
   if(stops.length==1) return 1;
+  var days=0;
+  var start_date=new Date(stops[0].departure);
+  var end_date=new Date(stops[stops.length-1].arrive);
+  var start_month=start_date.getMonth()+1;
+  var end_month=end_date.getMonth()+1;
+  var next_date=new Date(start_date);
+  if(start_month==12){
+    while(next_date.getMonth()+1>end_month){
+      next_date.setDate(next_date.getDate()+1);
+      days++;
+    }
+  }
+  else{
+    while(next_date.getMonth()+1<end_month){
+      next_date.setDate(next_date.getDate()+1);
+      days++;
+    }
+  }
+  days+=end_date.getDate()-next_date.getDate()+1
 
-  var startdate_ms=stops[0].departure;
-  var enddate_ms=stops[stops.length-1].arrive
-  // console.log(enddate_ms-startdate_ms);
-  var days = (enddate_ms-startdate_ms)/(24*3600*1000); // 1day =24h
-  var floor_day=Math.floor(days)
-  var decimal_day=days-floor_day;
+  //console.log(enddate_ms-startdate_ms);
+  //var days = (enddate_ms-startdate_ms)/(24*3600*1000); // 1day =24h
+  //var floor_day=Math.floor(days)
+  //var decimal_day=days-floor_day;
   // console.log(decimal_day)
-  if(decimal_day>=0) floor_day++;
-  return floor_day;
+  //if(decimal_day>=0) floor_day++;
+
+  return days;
 }
 
 function formatDatetoDate(date_ms) {
@@ -928,7 +1050,7 @@ function calulateStopDuration(startdate_ms, enddate_ms){
     var days = Math.floor(duration/24);
     if(days==0) {days=""} else{ days=days+'d'}
     if(hours==0) {hours="" }else {hours= hours+'h'}
-    if(minutes==0) minutes="";
+    if(minutes==0) {minutes=""} else {minutes=minutes+'p'};
     return days+hours+minutes
 }
 function getDuration(duration){
@@ -1133,8 +1255,9 @@ var markers=[];
 var new_marker;
 function addStop(map){
   //click edit link event
-  $("#edit-trip").click(function(e){
+    $("#edit-trip").click(function(e){
         if(!add_stop){
+        keep_position("#plan");
         add_stop= true;
          e.stopPropagation();
           map.setOptions({ draggableCursor: 'url(/images/flag-grey.png) 20 45, auto' });
@@ -1145,12 +1268,12 @@ function addStop(map){
 
           }
         
-    });
+    });//end edit trip click
   
     if(map==undefined) return;
       //click event on map 
     map.addListener("click", function(e){
-      if(edit){
+      if(add_stop){
         if(markers.length!=0){
           markers[0].setMap(null);
           markers.pop()
@@ -1167,10 +1290,12 @@ function addStop(map){
                 var address=responses[0].formatted_address; 
                 var lat=responses[0].geometry.location.lat();
                 var lng=responses[0].geometry.location.lng();
-                $(".new-stop input[name='stop-address']").attr('value',address);
-                $(".new-stop input[name='stop-lat']").attr('value', lat)
-                $(".new-stop input[name='stop-lng']").attr('value', lng)
+                $(".new-stop input[name='stop-address']").val(address);
+                $(".new-stop input[name='stop-lat']").val(lat)
+                $(".new-stop input[name='stop-lng']").val(lng)
                 $(".new-stop").show();
+                var array_address=address.split(',');
+                $(".new-stop input[name='stop-name']").val(array_address[1]);
                 $(".new-stop input[name='stop-name']").focus();
                //console.log("in="+responses[0].formatted_address);
               }
@@ -1183,7 +1308,37 @@ function addStop(map){
     }
 
     });//end map listener
+    $('#plan-list').on('input','#stop-address-new',function(){
+      var val= this.value
+     var place_id=$('#address-list-new').find("option[value=\""+val+"\"]").attr("data-value")
+      if(place_id!=undefined){
+      //alert(data_value)
+        $.ajax({
+        url:"/api/locations/"+place_id,
+        async: false,
+        dataType: 'json',
+        success: function(data){
+          console.log(data.location)
+            $("#new-lat").val(data.location.lat)
+            $("#new-lng").val(data.location.lng)
+                markers[0].setMap(null);
+                markers.pop()
+              placeMarkerAndPanTo(new google.maps.LatLng(data.location.lat, data.location.lng), map, icons.new_stop_marker);
+            //remove current marker on map
+            //draw new marker
+        }
+        });
+        var array_address=val.split(',');
+        $('#stop-name-new').val(array_address[1]);
+      }
 
+    });// end plan-list on....
+    $("#cancel-new-stop, .new-stop .close-button").click(function(){
+      markers[0].setMap(null);
+      markers.pop()
+      $(".new-stop").hide();
+      $(".list-group .list-item").show();
+    });
 
 }
 function placeMarkerAndPanTo(latLng, map, icon) {
@@ -1331,12 +1486,12 @@ function addRoute(map, directionsService){
          var remove_route_index=neareast_stop.route_index;
          new_stop_route_index=remove_route_index
           console.log(neareast_stop.route_index)
-          // first stop of removed route
+         // first stop of removed route
+
           var removed_route=routeArray["route"+remove_route_index]
           var first_stop_route=removed_route[0]
          var start_latLng={lat:first_stop_route.lat, lng:first_stop_route.lng}
-         console.log(renderArray);
-         console.log(remove_route_index);
+
         renderArray[remove_route_index-1].setMap(null);
          renderArray[remove_route_index-1]= new google.maps.DirectionsRenderer()
          renderArray[remove_route_index-1].setMap(map);
@@ -1351,7 +1506,7 @@ function addRoute(map, directionsService){
                      }     
                   });
          console.log(neareast_stop.order+"=="+stops.length)
-        if(neareast_stop.order==stops.length){
+        //if(neareast_stop.order==stops.length){
           var waypts=[]
           for(var i=1; i< removed_route.length; i++){
               waypts.push({
@@ -1381,161 +1536,153 @@ function addRoute(map, directionsService){
                 }//end if
 
               });         
-        }//end TH2
-        else
-        {
-          var near_stop_first, near_stop_second;
-          var route_length= removed_route.length;
-          var end_stop_route=routeArray["route"+remove_route_index][route_length-1]
-          var end_latLng={lat:end_stop_route.lat, lng:end_stop_route.lng}
-          //var near_stop_first;
-          console.log ("check list distance")
-          console.log(list_distance_stop)
-          console.log (neareast_stop.order)
-          for(var ds in list_distance_stop){
-                if(list_distance_stop[ds].order==neareast_stop.order-1){
-                  near_stop_first=list_distance_stop[ds];
-                }
-                if(list_distance_stop[ds].order==neareast_stop.order+1){
-                  near_stop_second=list_distance_stop[ds];
-                }
+        //}//end TH2
+        // else
+        // {
+        //   var near_stop_first, near_stop_second;
+        //   var route_length= removed_route.length;
+        //   console.log(route_length)
+        //   console.log(remove_route_index);
+        //   console.log(routeArray);
+        //   var end_stop_route=routeArray["route"+remove_route_index][route_length-1]
+        //   var end_latLng={lat:end_stop_route.lat, lng:end_stop_route.lng}
+        //   //var near_stop_first;
+        //   console.log ("check list distance")
+        //   console.log(list_distance_stop)
+        //   console.log (neareast_stop.order)
+        //   for(var ds in list_distance_stop){
+        //         if(list_distance_stop[ds].order==neareast_stop.order-1){
+        //           near_stop_first=list_distance_stop[ds];
+        //         }
+        //         if(list_distance_stop[ds].order==neareast_stop.order+1){
+        //           near_stop_second=list_distance_stop[ds];
+        //         }
 
-          }  
-            // console.log(near_stop_first)
-            // console.log(near_stop_second)
-            // var start;
-              console.log ("check first, second distance")
-              console.log (near_stop_first)
-              console.log (near_stop_second)
-            if(near_stop_first==undefined){ 
-              new_stop_order=neareast_stop.order+1
-              console.log("TH1: first undefined")
-            }
-            else if(near_stop_second==undefined){
-              new_stop_order=neareast_stop.order
-              console.log("TH2: second undefined")
-            }
-            else if (near_stop_first.distance>near_stop_second.distance){
-              new_stop_order=neareast_stop.order+1
-              console.log("TH3: first > second")
-            } 
-            else{
-              new_stop_order=neareast_stop.order
-              console.log("TH4: first < second")
-            }
+        //   }  
+        //     // console.log(near_stop_first)
+        //     // console.log(near_stop_second)
+        //     // var start;
+        //       console.log ("check first, second distance")
+        //       console.log (near_stop_first)
+        //       console.log (near_stop_second)
+        //     if(near_stop_first==undefined){ 
+        //       new_stop_order=neareast_stop.order+1
+        //       console.log("TH1: first undefined")
+        //     }
+        //     else if(near_stop_second==undefined){
+        //       new_stop_order=neareast_stop.order
+        //       console.log("TH2: second undefined")
+        //     }
+        //     else if (near_stop_first.distance>near_stop_second.distance){
+        //       new_stop_order=neareast_stop.order+1
+        //       console.log("TH3: first > second")
+        //     } 
+        //     else{
+        //       new_stop_order=neareast_stop.order
+        //       console.log("TH4: first < second")
+        //     }
 
-            // console.log(start)
-            // console.log(end)
-          console.log("new order="+new_stop_order)
+        //     // console.log(start)
+        //     // console.log(end)
+        //   console.log("new order="+new_stop_order)
 
-          var waypts=[]
-          var index_input_route
-          console.log("removed_route=")
-          console.log(removed_route)
-            if(removed_route.length==2){
-              waypts.push({
-              location:new_stop_latLng,
-              stopover:true})
-            }
-              for(var i=0; i<removed_route.length;i++){
-                console.log(i)
-                if(new_stop_order-1==i){
-                   waypts.push({
-                      location:new_stop_latLng,
-                      stopover:true})
+        //   var waypts=[]
+        //   var index_input_route
+        //   console.log("removed_route=")
+        //   console.log(removed_route)
+        //     if(removed_route.length==2){
+        //       waypts.push({
+        //       location:new_stop_latLng,
+        //       stopover:true})
+        //     }
+        //       for(var i=0; i<removed_route.length;i++){
+        //         console.log(i)
+        //         if(new_stop_order-1==i){
+        //            waypts.push({
+        //               location:new_stop_latLng,
+        //               stopover:true})
 
-                }
-                if(i>0 && i<removed_route.length-1){
-                waypts.push({
-                 location: removed_route[i],
-                  stopover: true})
-              }
-              }
-              //mot viec nua la cap nhat order cua cac stop sau nearest stop or new
+        //         }
+        //         if(i>0 && i<removed_route.length-1){
+        //         waypts.push({
+        //          location: removed_route[i],
+        //           stopover: true})
+        //       }
+        //       }
+        //       //mot viec nua la cap nhat order cua cac stop sau nearest stop or new
 
-            var request = {
-                  origin: start_latLng,
-                  destination: end_latLng,
-                  waypoints:  waypts,
-                  travelMode: google.maps.TravelMode.DRIVING
-            }; 
-            console.log("TH3: request");
-            console.log(request)
-            directionsService.route(request, function(result, status){
-              if (status == google.maps.DirectionsStatus.OK) {
-                renderArray[remove_route_index-1].setDirections(result);
-                //console.log("pass");
-                var legs= result.routes[0].legs
-                var input_leg
-                var edit_leg
-                console.log(new_stop_latLng.lat)
-                for(var leg in legs){
-                  console.log(legs[leg].end_location.lat())
-                  if(legs[leg].end_location.lat()==new_stop_latLng.lat){
-                      input_leg=legs[leg]
-                  }
-                  if(legs[leg].start_location.lat()==new_stop_latLng.lat){
-                    edit_leg=legs[leg]
-                  }
-                }
-                console.log(input_leg)
-                send_new_stop_input(input_leg, input, new_stop_order, stop_duration)
-                change_stop_order(tripid, new_stop_order)
-                function edit_route(leg){
-                    //get route name-----------------------------------
-                    var input;
-                    var instructions
-                    var part_route_name
-                    var split1
-                    var same_part_route_name
-                    for(var step in leg.steps){
-                      instructions=leg.steps[step].instructions
-                      console.log(instructions)
-                      split1=instructions.split("<b>")[2]
-                      if(split1==undefined) split1=""
-                      part_route_name=(split1).split("</b>")[0]
-                      console.log(part_route_name)
-                      same_part_route_name=route_name.substring(route_name.length-part_route_name.length-3,route_name.length-3);
-                      //console.log("same="+same_part_route_name)
-                      if(part_route_name!="" && same_part_route_name!=part_route_name){
-                        route_name+=part_route_name+" - "
-                         //console.log()
-                      }
+        //     var request = {
+        //           origin: start_latLng,
+        //           destination: end_latLng,
+        //           waypoints:  waypts,
+        //           travelMode: google.maps.TravelMode.DRIVING
+        //     }; 
+        //     console.log("TH3: request");
+        //     console.log(request)
+        //     directionsService.route(request, function(result, status){
+        //       if (status == google.maps.DirectionsStatus.OK) {
+        //         renderArray[remove_route_index-1].setDirections(result);
+        //         //console.log("pass");
+        //         console.log(result.routes[0].legs)
+        //         var input_leg= result.routes[0].legs[new_stop_order-2]
+        //         console.log(input_leg)
+        //         send_new_stop_input(input_leg, input, new_stop_order, stop_duration)
+        //         change_stop_order(tripid, new_stop_order)
+        //         function edit_route(leg){
+        //             //get route name-----------------------------------
+        //             var input;
+        //             var instructions
+        //             var part_route_name
+        //             var split1
+        //             var same_part_route_name
+        //             for(var step in leg.steps){
+        //               instructions=leg.steps[step].instructions
+        //               console.log(instructions)
+        //               split1=instructions.split("<b>")[2]
+        //               if(split1==undefined) split1=""
+        //               part_route_name=(split1).split("</b>")[0]
+        //               console.log(part_route_name)
+        //               same_part_route_name=route_name.substring(route_name.length-part_route_name.length-3,route_name.length-3);
+        //               //console.log("same="+same_part_route_name)
+        //               if(part_route_name!="" && same_part_route_name!=part_route_name){
+        //                 route_name+=part_route_name+" - "
+        //                  //console.log()
+        //               }
 
-                    }
-                    var route_name=route_name.substring(0,route_name.length-3)
-                    //end get route name-------------------------------
-                    var route_duration=Math.round(leg.duration.value/60)
-                    var route_distance=Math.round(leg.distance.value)
-                    var route_mode="xe máy"
-                    var stop_order=near_stop_second.order
+        //             }
+        //             var route_name=route_name.substring(0,route_name.length-3)
+        //             //end get route name-------------------------------
+        //             var route_duration=Math.round(leg.duration.value/60)
+        //             var route_distance=Math.round(leg.distance.value)
+        //             var route_mode="xe máy"
+        //             var stop_order=near_stop_second.order
 
 
-                    //send data to controller
-                    input.route_name=route_name
-                    input.route_duration=route_duration
-                    input.route_distance=route_distance
-                    //input.route_mode=route_mode
-                    input.stop_order=stop_order
-                    input.tripid=tripid
-                      $.ajax({
-                          type: 'POST',
-                          dataType: 'json',
-                          url: '/api/add-stop-edit-route',
-                          contentType: 'application/json',
-                          data: JSON.stringify(input),
-                          success: function( data, textStatus, jQxhr ){
-                          //console.log(data );
-                          },
-                          error: function( jqXhr, textStatus, errorThrown ){
-                          console.log(errorThrown );
-                        }
-                    });
-                }//end function edit_route
-              }//end if
-            });//end directionService
+        //             //send data to controller
+        //             input.route_name=route_name
+        //             input.route_duration=route_duration
+        //             input.route_distance=route_distance
+        //             //input.route_mode=route_mode
+        //             input.stop_order=stop_order
+        //             input.tripid=tripid
+        //               $.ajax({
+        //                   type: 'POST',
+        //                   dataType: 'json',
+        //                   url: '/api/add-stop-edit-route',
+        //                   contentType: 'application/json',
+        //                   data: JSON.stringify(input),
+        //                   success: function( data, textStatus, jQxhr ){
+        //                   //console.log(data );
+        //                   },
+        //                   error: function( jqXhr, textStatus, errorThrown ){
+        //                   console.log(errorThrown );
+        //                 }
+        //             });
+        //         }//end function edit_route
+        //       }//end if
+        //     });//end directionService
 
-        }//end else
+        // }//end else
     }//end if
   new_marker.setIcon(icons.blueflag)
   new_marker.setTitle(stop_name)
@@ -1548,6 +1695,8 @@ function addRoute(map, directionsService){
 function load_data_again(){
   console.log("load_data_again")
   $("#plan-list").find(".list-item").remove();
+  $(".day-number li").remove();
+  $("#schedule-table tr").remove();
   var dfrd= $.Deferred();
   setTimeout(function(){
 
@@ -1563,7 +1712,7 @@ function load_data_again(){
       }
       send_data_plan(stops)
      }
-    });    
+    });//end ajax
     $(".new-stop").hide();
     console.log("function 2 done!")
   }, 2000);

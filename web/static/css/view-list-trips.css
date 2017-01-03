@@ -1,6 +1,84 @@
-/* This file is for your main application css. */
-.create-trip{
-	margin-top: 70px;
+.find-trip{
+margin-top: 80px;
+margin-left: 450px;
+}
+.find-trip input, .find-trip button{
+	padding: 10px;
+}
+#find-trip-location{
+	width: 300px;
+}
+.find-trip-form input{
+	display: inline;
+	width: auto;
+	height: 100%;
+	border-radius: 0px;
+	background-color: white;
+	border: 1px solid #ccc;
+}
+.menu-left{
+	transform: rotate(-90deg);
+	transform-origin: left top 0;
+	background-color: orange;
+	  color: white;
+	  position: fixed;
+	  font-weight: bold;
+	  top: 350px;
+	  left: 0px;
+	  padding: 10px 20px 10px 20px;
+}
+.menu-left:hover{
+  cursor: pointer;
+}
+
+#trip-near-you{
+padding-top: 60px
+}	
+.trip-near-you-header{
+	display: flex;
+	 justify-content: space-between;
+}
+.trip-near-you-header h2{
+	margin-top: 0px;
+}
+.trip-near-you-header button{
+	border: 2px solid orange;
+	background-color: white;
+	padding-right: 10px;
+	padding-left: 10px;
+}
+.trip-item-list{
+	display: flex;
+	flex-wrap: wrap;
+
+}
+.trip-item{
+	width: 230px;
+	height: auto;
+	border: 1px solid #C0C0C0;
+	margin-bottom: 30px;
+	margin-right: 50px;
+}
+.trip-item img{
+	width: 228px;
+	height: 150px;
+}
+.trips-list hr{
+	border-top: 2px solid #eee;
+}
+.trip-item-element{
+	margin-left: 10px;
+	margin-right: 10px;
+}
+.trip-item hr{
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+.trip-item:hover{
+	cursor: pointer;
+}
+.trip-item a{
+	visibility: hidden;
 }
 .btn-circle {
   width: 30px;

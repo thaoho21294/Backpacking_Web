@@ -13,8 +13,10 @@
 // to also remove its path from "config.paths.watched".
 import "phoenix_html";
 require('jquery');
-require('./create-trip.js');
 require('./view-trip.js');
+require('./trips-list.js');
+
+
 // require('gmaps')
 
 // Import local files

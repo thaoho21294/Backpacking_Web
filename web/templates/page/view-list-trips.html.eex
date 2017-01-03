@@ -1,9 +1,46 @@
-<div class="container create-trip">
-        <!-- Trigger the modal with a button -->
-        <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Tạo chuyến phượt</button>
-        <i class="fa fa-thermometer-empty fa-5x" aria-hidden="true"></i>
-        <!-- Modal -->
-        <div id="myModal" class="modal fade" role="dialog">
+<div class="content">
+<input type="hidden" name="user_id" id="user_id" value="194">
+<div class='container find-trip'>
+	<form class="find-trip-form">
+	<input type="text" name="find-trip-location" id='find-trip-location' placeholder="Địa điểm" list='location-list'>
+	<datalist id='location-list'></datalist>
+	<input type="text" name="find-trip-start-date" id='find-trip-start-date' placeholder="Ngày bắt đầu">
+	<input type="text" name="find-trip-end-date" id='find-trip-end-date' placeholder="Ngày kết thúc">
+	<button type="submit" id='find-trip-submit'>Tìm</button>
+	</form>
+</div>
+<div class='container trips-list' id='find-trip-list'>
+	<div class="trip-near-you-header">
+		<h2>Chuyến phượt tìm thấy</h2>
+	</div>
+	<hr>
+	<div class='trip-item-list'>
+	</div>
+</div>
+<div class="menu-left" id="menu-my-trip">MY TRIP</div>
+<div class='container trips-list' id='trip-near-you'>
+	<div class="trip-near-you-header">
+		<h2>Chuyến phượt gần đây</h2>
+		<button type="button" data-toggle="modal" data-target="#myModal" id="create-trip-button"> Tạo chuyến phượt</button>
+	</div>
+	<hr>
+	<div class='trip-item-list'>
+<%# 		<div class="trip-item">
+			<img src="/images/trip_backgrounds/trip196.jpg">
+			<h4 class='trip-item-element'>Cung Sài Gòn- đà lạt 2 ngày 1 đêm</h4>
+			<p class='trip-item-element'>1/8/2016 - 3/8/2016</p>
+			<hr class='trip-item-element'>
+			<p class='trip-item-element'>đã đăng 2 này trước</p>
+		</div> %>
+		
+	</div>
+</div>
+	<div class='container trips-list' id='trip-new'>
+		<h2>Chuyến phượt mới</h2>
+		<hr>
+		<%# <input class="flatpickr" type="text" placeholder="Select Date.."> %>
+	</div>
+	    <div id="myModal" class="modal fade" role="dialog">
             <div class="modal-dialog">
 
                 <!-- Modal content-->
@@ -30,7 +67,7 @@
                                     <div class="end-point form-group form-group-70">
                                         <label class="sr-only" for="form-end-address">Điểm kết thúc</label>
                                             <input type="text" name="form-end-address" list='address-list-end' class="address-input" placeholder="Điểm kết thúc" id="form-end-point">
-                                            <dalalist   class="address-list" id="address-list-end"> </datalist>
+                                            <datalist   class="address-list" id="address-list-end"> </datalist>
                                         <input type="hidden" name="end-lat" value="" id='end-lat'>
                                         <input type="hidden" name="end-lng" value="" id='end-lng'>
                                             <%# <span class="input-group-btn">
@@ -59,8 +96,6 @@
                                         <label class="sr-only" for="form-start-date">Ngày bắt đầu</label>
                                         <div class="input-group date start-date">
                                         <input type="text" name="form-start-date" placeholder="Ngày bắt đầu..." class="form-start-date" id="form-start-date">
-                                        mm/dd/yyyy
-
                                       </div>
                                        <input type="hidden" name="start-date-ms" id="start-date-ms">
                                     </div>
@@ -68,7 +103,6 @@
                                         <label class="sr-only" for="form-end-date">Ngày kết thúc</label>
                                         <div class="input-group date end-date">
                                         <input type="datetime" name="form-end-date" placeholder="Ngày kết thúc..." class="form-end-date" id="form-end-date">
-                                        mm/dd/yyyy
                                         </div>
                                         <input type="hidden" name="end-date-ms" id="end-date-ms">
                                     </div>
@@ -128,4 +162,4 @@
             </div>
         </div>
 
-    </div>
+</div>
