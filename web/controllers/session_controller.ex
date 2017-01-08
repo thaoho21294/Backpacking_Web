@@ -3,7 +3,6 @@ defmodule BsnWeb.SessionController do
   alias BsnWeb.Backend
 
   plug :scrub_params, "user" when action in [:create]
-  plug :action
 
   def new(conn, _params) do
     conn 
