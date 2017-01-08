@@ -33,10 +33,10 @@ defmodule BsnWeb.Backend.Schema.Viewer do
       """,
       fields: Map.merge(fields, %{
         user: %{
-          type: %Type.String{},
+          type: Schema.User,
           description: "The logged in user if any.",
-          resolve: fn(_, _args, _context) ->
-            "Anonymous"
+          resolve: fn(viewer, _args, _context) ->
+            viewer.user
           end
         }
       })
@@ -47,6 +47,11 @@ defmodule BsnWeb.Backend.Schema.Viewer do
   Generates a new viewer struct and authenticate if token provided.
   """
   def new(token \\ nil) do
-    %__MODULE__{token: token}
+    %__MODULE__{token: token, user: %{
+      "name" => "Son Tran-Nguyen",
+      "picture" => "http://apriliauae.com/wp-content/uploads/2014/04/vespa-girl.jpg",
+      "level" => 13,
+      "progress" => 0.75
+    }}
   end
 end

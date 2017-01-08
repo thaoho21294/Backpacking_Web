@@ -12,14 +12,14 @@ defmodule BsnWeb.Backend.Schema.Trip do
       name: "Trip",
       description: "A trip from one place to another, with stops in between.",
       fields: %{
-        id: Node.global_id_field("trip", fn(obj, _, _) -> obj["id"] end),
+        id: Node.global_id_field("trip", fn(trip, _, _) -> trip["id"] end),
         name: %{
           type: %Type.String{},
-          resolve: fn(obj, _args, _info) -> obj["name"] end
+          resolve: fn(trip, _args, _info) -> trip["name"] end
         },
         description: %{
           type: %Type.String{},
-          resolve: fn(obj, _args, _info) -> obj["description"] end
+          resolve: fn(trip, _args, _info) -> trip["description"] end
         },
         stops: %{
           type: Schema.Stop.connection[:connection_type],
@@ -31,7 +31,28 @@ defmodule BsnWeb.Backend.Schema.Trip do
             Connection.List.resolve(stops, args)
           end
         },
-        routes: Backend.Query.all_routes(nil)
+        routes: Backend.Query.all_routes(nil),
+        members: %{
+          type: %Type.List{ofType: Schema.User},
+          description: "Users participating in the trip",
+          args: %{},
+          resolve: fn(source, args, context) ->
+            args = Map.put(args, :type, "Member")
+            Backend.retrieve(source, args, context)
+          end
+        },
+        start: %{
+          # @TODO: Use DateTime type
+          type: %Type.Float{},
+          description: "The time in milliseconds on which the trip starts",
+          resolve: fn(trip, _, _) -> trip["start_date"] end
+        },
+        end: %{
+          # @TODO: Use DateTime type
+          type: %Type.Float{},
+          description: "The time in milliseconds on which the trip ends",
+          resolve: fn(trip, _, _) -> trip["end_date"] end
+        }
       },
       interfaces: [Schema.node_interface]
     }

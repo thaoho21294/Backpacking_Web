@@ -18,7 +18,7 @@ defmodule BsnWeb.TripController do
   end
 
   def get_members(conn, %{"id"=>trip_id}) do
-    members=Backend.retrieve(%{id: trip_id}, %{type: "Member"}, nil)
+    members=Backend.retrieve(%{"id" => trip_id}, %{type: "Member"}, nil)
     render(conn, "get_members.json", members: members)
   end
   def update_member_location(conn, %{"member_id"=>member_id, "lat"=>lat, "lng"=>lng}) do

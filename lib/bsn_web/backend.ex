@@ -45,9 +45,10 @@ defmodule BsnWeb.Backend do
 
   # Get the current trip of the authenticated viewer, if any.
   def retrieve(_source, %{type: "Trip", id: "current"}, %{root_value: %{user: _user}}) do
-    # @FIXME: Returns the actual current trip.
     cypher = """
-    MATCH (t:Trip)-[:HAVE]->(s:Status) where id(t)=195 return id(t) as id, t.name as name, t.off_time as off_time, t.note as note,
+    MATCH (t:Trip)-[:HAVE]->(s:Status)
+    WHERE t.start_date <= timestamp() and t.end_date > timestamp()
+    RETURN id(t) as id, t.name as name, t.off_time as off_time, t.note as note,
      t.start_date as start_date, t.end_date as end_date, t.estimated_number_of_members as estimated_number_of_members,
      t.description as description, t.estimate_cost as estimate_cost, t.off_place as off_place, t.real_cost as real_cost, s.name as status
     """
@@ -108,7 +109,7 @@ defmodule BsnWeb.Backend do
   end
 
   #get trip's member
-  def retrieve(%{id: trip_id}, %{type: "Member"}, _context) do
+  def retrieve(%{"id" => trip_id}, %{type: "Member"}, _context) do
     cypher="""
     MATCH (p:Profile)<-[:HAVE]-(u:User)-[m:MEMBER]->(t:Trip) 
     where id(t)=#{trip_id} 
@@ -218,6 +219,8 @@ defmodule BsnWeb.Backend do
     """
     # IO.inspect(cypher);
     Sips.query!(Sips.conn, cypher)
+
+  end
 
   def retrieve(viewer, %{type: "Route"}, _context) do
     cypher = """
@@ -352,7 +355,20 @@ defmodule BsnWeb.Backend do
   def root_value(conn) do
     # The map we return here will be made available to our resolve/3 functions.
     # We can include any data we want, however right now we're only interested in
-    # the currently logged in user.
-    %{user: conn.assigns[:user]}
+    # the currently logged in user and the URL the app is running at.
+    endpoint_conf = Application.get_env(:bsn_web, BsnWeb.Endpoint)
+    url = endpoint_conf
+    |> Keyword.get(:url) 
+    |> Enum.into(%{})
+    |> case do
+      %{port: port} = url -> url
+      url ->
+        port = endpoint_conf
+              |> Keyword.get(:http)
+              |> Keyword.get(:port)
+        Map.put(url, :port, port)
+    end
+
+    %{user: conn.assigns[:user], url: url}
   end
 end
