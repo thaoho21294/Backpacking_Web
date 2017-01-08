@@ -25,8 +25,8 @@ defmodule BsnWeb.TripController do
     response=Backend.retrieve(%{type: "MemberLocation", member_id: member_id, lat: lat, lng: lng}, nil)
     json conn, response
   end
-  def add_stop(conn, %{"name"=>name, "address"=>address, "arrive"=>arrive,"departure"=>departure, "order"=>order,"lat"=>lat, "lng"=>lng, "description"=>description, "tripid"=>trip_id,"route_name"=>route_name, "route_duration"=>route_duration, "route_distance"=>route_distance, "route_mode"=>route_mode}) do
-    response=Backend.retrieve(%{id: trip_id}, %{type: "AddStop", name: name, address: address, arrive: arrive, departure: departure, order: order, lat: lat, lng: lng, description: description, route_name: route_name, route_duration: route_duration, route_distance: route_distance, route_mode: route_mode}, nil)
+  def add_stop(conn, %{"name"=>name, "address"=>address, "arrive"=>arrive,"departure"=>departure, "order"=>order,"lat"=>lat, "lng"=>lng, "description"=>description, "tripid"=>trip_id,"route_name"=>route_name, "route_duration"=>route_duration, "route_distance"=>route_distance, "route_mode"=>route_mode, "route_polyline"=>route_polyline}) do
+    response=Backend.retrieve(%{id: trip_id}, %{type: "AddStop", name: name, address: address, arrive: arrive, departure: departure, order: order, lat: lat, lng: lng, description: description, route_name: route_name, route_duration: route_duration, route_distance: route_distance, route_mode: route_mode, route_polyline: route_polyline}, nil)
     json conn, response
   end
   def add_stop_edit_route(conn, %{"name"=>name, "duration"=>duration, "distance"=>distance, "stop_order"=>stop_order, "tripid"=>trip_id}) do
@@ -37,8 +37,8 @@ defmodule BsnWeb.TripController do
     response=Backend.retrieve(%{id: trip_id}, %{new_stop_order: new_stop_order})
     json conn, response
   end
-  def create(conn, %{"form-start-address"=>start_address,"start-lat"=>start_lat, "start-lng"=>start_lng,"form-end-address"=>end_address,"end-lat"=>end_lat, "end-lng"=>end_lng, "form-trip-name"=>trip_name,"start-date-ms"=>start_date, "end-date-ms"=>end_date, "form-estimate-cost"=>estimated_cost, "form-estimate-members"=>estimated_members,"holder-id"=>holder_id, "form-mode"=>mode,"route-name"=>route_name, "route-duration"=>route_duration, "route-distance"=>route_distance}) do
-    response=Backend.retrieve(%{holder_id: holder_id}, %{type: "TripNew", start_address: start_address, start_lat: start_lat, start_lng: start_lng, end_address: end_address,end_lat: end_lat, end_lng: end_lng, trip_name: trip_name, start_date: start_date, end_date: end_date, estimated_cost: estimated_cost, estimated_members: estimated_members, mode: mode, route_name: route_name, route_duration: route_duration, route_distance: route_distance}) 
+  def create(conn, %{"form-start-address"=>start_address,"start-lat"=>start_lat, "start-lng"=>start_lng,"form-end-address"=>end_address,"end-lat"=>end_lat, "end-lng"=>end_lng, "form-trip-name"=>trip_name,"start-date-ms"=>start_date, "end-date-ms"=>end_date, "form-estimate-cost"=>estimated_cost, "form-estimate-members"=>estimated_members,"holder-id"=>holder_id, "form-mode"=>mode,"route-name"=>route_name, "route-duration"=>route_duration, "route-distance"=>route_distance, "route-polyline"=>route_polyline}) do
+    response=Backend.retrieve(%{holder_id: holder_id}, %{type: "TripNew", start_address: start_address, start_lat: start_lat, start_lng: start_lng, end_address: end_address,end_lat: end_lat, end_lng: end_lng, trip_name: trip_name, start_date: start_date, end_date: end_date, estimated_cost: estimated_cost, estimated_members: estimated_members, mode: mode, route_name: route_name, route_duration: route_duration, route_distance: route_distance, route_polyline: route_polyline}) 
     trip_id=Map.get(Enum.at(response,0), "trip_id")
     redirect conn, to: "/trips/#{trip_id}"
   end

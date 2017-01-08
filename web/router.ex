@@ -15,8 +15,12 @@ defmodule BsnWeb.Router do
 
   scope "/", BsnWeb do
     pipe_through :browser # Use the default browser stack
-
+    get "/registration", RegistrationController, :new
+    post "/registration", RegistrationController, :create
     get "/", PageController, :index
+    get "/new", SessionController, :new
+    post "/login", SessionController, :create
+    get "/logout", SessionController, :delete
     get "/trips/new", PageController, :create_trip
     get "/trips/:id", PageController, :view_trip
     get "/map", MapController, :index

@@ -112,45 +112,23 @@ defmodule BsnWeb.Backend do
     """
   end
   #Add a stop to trip
-  def retrieve(%{id: trip_id} = _trip, %{type: "AddStop", name: name, address: address, arrive: arrive, departure: departure, order: order, lat: lat, lng: lng, description: description, route_name: route_name, route_duration: route_duration, route_distance: route_distance, route_mode: route_mode}, _context) do
+  def retrieve(%{id: trip_id} = _trip, %{type: "AddStop", name: name, address: address, arrive: arrive, departure: departure, order: order, lat: lat, lng: lng, description: description, route_name: route_name, route_duration: route_duration, route_distance: route_distance, route_mode: route_mode, route_polyline: route_polyline}, _context) do
     locations= retrieve(%{type: "locations", address: address})
-     cypher=
-    case route_name do
-      ""->
-        case Enum.empty?(locations)do
-          true->"""
-          MATCH (t:Trip)
-          WHERE id(t)=#{trip_id}
-          CREATE (s:Stop{name:\"#{name}\", arrive:#{arrive}, departure:#{departure}, description: \"#{description}\", order: #{order}})
-          CREATE (l:Location{address:\"#{address}\", lat:#{lat}, long:#{lng} })
-          CREATE (t)-[:INCLUDE]->(s)-[:LOCATE]->(l)
-          """
-          false->"""
-          MATCH (t:Trip), (l:Location{address:\"#{address}\"})
-          WHERE id(t)=#{trip_id}
-          CREATE (s:Stop{name:\"#{name}\", arrive:#{arrive}, departure:#{departure}, description: \"#{description}\", order: #{order}})
-          CREATE (t)-[:INCLUDE]->(s)-[:LOCATE]->(l)
-          """
-        end
-      _->
-        case Enum.empty?(locations)do
-          true->"""
-            MATCH (t:Trip), (m:Vehicle{name:\"#{route_mode}\"})
-            WHERE id(t)=#{trip_id}
-            CREATE (s:Stop{name:\"#{name}\", arrive:#{arrive}, departure:#{departure}, description: \"#{description}\", order: #{order}})
-            CREATE (l:Location{address:\"#{address}\", lat:#{lat}, long:#{lng} })
-            CREATE (r:Route{name:\"#{route_name}\", duration:#{route_duration},distance: #{route_distance}})
-            CREATE (t)-[:INCLUDE]->(s)-[:LOCATE]->(l), (s)-[:THROUGH]->(r)-[:MODE]->(m)
-            """
-          false->"""
-              MATCH (t:Trip), (l:Location{address:\"#{address}\"}),(m:Vehicle{name:\"#{route_mode}\"})
-              WHERE id(t)=#{trip_id}
-              CREATE (s:Stop{name:\"#{name}\", arrive:#{arrive}, departure:#{departure}, description:\"#{description}\",  order: #{order}})
-              CREATE (r:Route{name:\"#{route_name}\", duration:#{route_duration},distance: #{route_distance}})
-              CREATE (t)-[:INCLUDE]->(s)-[:LOCATE]->(l), (s)-[:THROUGH]->(r)-[:MODE]->(m)
-              """
-        end 
+    if(Enum.empty?(locations)) do
+      retrieve(%{type: "create_location", address: address, lat: lat, lng: lng})
     end
+    cypher="
+          MATCH (t:Trip), (l:Location{address:\"#{address}\"}), (m:Vehicle{name:\"xe máy\"})
+          WHERE id(t)=#{trip_id}
+          CREATE (s:Stop{name:\"#{name}\", arrive:#{arrive}, departure:#{departure}, description: \"#{description}\", order: #{order}})
+          CREATE (t)-[:INCLUDE]->(s)-[:LOCATE]->(l)
+          "
+    if route_name!="" do
+      route_polyline=String.replace(route_polyline, "\\", "\\\\");
+      cypher=cypher <> "
+              CREATE (r:Route{name:\"#{route_name}\", duration:#{route_duration}, distance: #{route_distance}, polyline:\"#{route_polyline}\"})
+              CREATE (s)-[:THROUGH]->(r)-[:MODE]->(m) "
+      end
     Sips.query!(Sips.conn, cypher)
   end
   def retrieve(%{id: trip_id}, %{type: "EditRoute",name: name, duration: duration, distance: distance, stop_order: stop_order}) do
@@ -165,7 +143,7 @@ defmodule BsnWeb.Backend do
     cypher="MATCH (t:Trip)-[INCLUDE]->(s:Stop) WHERE id(t)=#{trip_id} and s.order>=#{new_stop_order} SET s.order=s.order+1"
     Sips.query!(Sips.conn, cypher)
   end
-  def retrieve(%{holder_id: holder_id}, %{type: "TripNew", start_address: start_address,start_lat: start_lat, start_lng: start_lng, end_address: end_address,end_lat: end_lat, end_lng: end_lng, trip_name: trip_name, start_date: start_date, end_date: end_date, estimated_cost: estimated_cost, estimated_members: estimated_members, mode: mode, route_name: route_name, route_duration: route_duration, route_distance: route_distance}) do
+  def retrieve(%{holder_id: holder_id}, %{type: "TripNew", start_address: start_address,start_lat: start_lat, start_lng: start_lng, end_address: end_address,end_lat: end_lat, end_lng: end_lng, trip_name: trip_name, start_date: start_date, end_date: end_date, estimated_cost: estimated_cost, estimated_members: estimated_members, mode: mode, route_name: route_name, route_duration: route_duration, route_distance: route_distance, route_polyline: route_polyline}) do
       
       
       start_lat=String.to_float(start_lat)
@@ -204,14 +182,14 @@ defmodule BsnWeb.Backend do
       if Enum.empty?(end_locations) do
         retrieve(%{type: "create_location", address: end_address,lat: end_lat,lng: end_lng})
       end
-        
+      route_polyline=String.replace(route_polyline, "\\", "\\\\");
       cypher= """
       MATCH (s:Status{name:'open'}),(u:User),(m:Vehicle{name:\"#{mode}\"}), (l1:Location{address: \"#{start_address}\"}), (l2:Location{address: \"#{end_address}\"}) 
       WHERE id(u)=#{holder_id} 
       CREATE (t:Trip{name:\"#{trip_name}\",start_date:#{start_date}, end_date:#{end_date}, estimated_cost:#{estimated_cost}, estimated_number_of_members:#{estimated_members}, created_date:#{created_date}, off_time:#{off_time}, background:\"#{background}\"}) 
       CREATE (s1:Stop{name:\"#{start_stop_name}\", arrive:#{start_arrive}, departure:#{start_departure}, order:1}) 
       CREATE (s2:Stop{name:\"#{end_stop_name}\", arrive:#{end_arrive}, departure:#{end_departure}, order:2}) 
-      CREATE (r:Route{name:\"#{route_name}\", duration:#{route_duration}, distance:#{route_distance}}) 
+      CREATE (r:Route{name:\"#{route_name}\", duration:#{route_duration}, distance:#{route_distance}, polyline: \"#{route_polyline}\"}) 
       CREATE (u)-[:MEMBER {role:"leader",joined_date:#{created_date}}]->(t)-[:HAVE]->(s), (l1)<-[:LOCATE]-(s1)<-[:INCLUDE]-(t)-[:INCLUDE]->(s2)-[:LOCATE]->(l2), (s2)-[:THROUGH]->(r)-[:MODE]->(m) 
       return id(t) as trip_id
      """
@@ -243,7 +221,6 @@ defmodule BsnWeb.Backend do
     WHERE id(s)=#{stop_id} 
     DELETE lt
     """
-    create_location="CREATE (l:Location{address: \"#{address}\", lat: #{lat}, long:#{lng}})"
     create_relationship_stop_location="""
     MATCH (s:Stop), (l:Location{address:\"#{address}\"})
     WHERE id(s)=#{stop_id}
@@ -256,7 +233,7 @@ defmodule BsnWeb.Backend do
       #check location if exited
       locations= retrieve(%{type: "locations", address: address})
       if(Enum.empty?(locations)) do
-        Sips.query!(Sips.conn, create_location)
+        retrieve(%{type: "create_location", address: address, lat: lat, lng: lng})
       end
     end
     Sips.query!(Sips.conn, create_relationship_stop_location)
@@ -322,6 +299,19 @@ defmodule BsnWeb.Backend do
       RETURN DISTINCT id(t) as id, t.name as name, t.start_date as start_date, t.end_date as end_date, t.background as background, t.created_date as created_date 
       ORDER BY t.created_date DESC
       """
+      Sips.query!(Sips.conn, cypher)
+    end
+    def retrieve(%{type: "CreateUser", email: email, password: password, first_name: first_name, last_name: last_name }) do
+      cypher=""
+       Sips.query!(Sips.conn, cypher)
+    end
+    def retrieve(%{type: "FindUser", email: email}) do
+      IO.inspect(email)
+      cypher="MATCH (u:User) WHERE u.email=\"#{email}\" return id(u) as id, u.pass as password"
+      Sips.query!(Sips.conn, cypher)
+    end
+    def retrieve(%{type: "CheckUser", email: email, password: password}) do
+      cypher="MATCH (u:User) WHERE u.email=\"#{email}\" and u.pass=\"#{password}\" return id(u) as id"
       Sips.query!(Sips.conn, cypher)
     end
   # Callbacks for being a Plug used in Router.

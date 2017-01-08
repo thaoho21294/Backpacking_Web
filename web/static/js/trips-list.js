@@ -213,18 +213,23 @@ $("#form-end-point").on('input', function(){
         url:"/api/direction/"+start_place_id+"/"+end_place_id,
         dataType: 'json',
         success: function(data){
-         console.log(data.direction)
+         if(!data) {
+          alert("Somthing wrong, please do it again.");
+          return;
+         }
          var leg=data.direction[0].legs[0]
-
           var route_name= create_route_name(leg)
           var route_duration=Math.round(leg.duration.value/60)
           var route_distance=Math.round(leg.distance.value)
+          var route_polyline=data.direction[0].overview_polyline.points;
           console.log(route_name)
           console.log(route_duration)
           console.log(route_distance)
+          console.log(route_polyline)
           $("#route-name").val(route_name)
           $("#route-distance").val(route_distance)
           $("#route-duration").val(route_duration)
+          $("#route-polyline").val(route_polyline)
           $(form).off('submit.ajax').submit();
           //send_new_stop_input(leg,input, new_stop_order)
         }

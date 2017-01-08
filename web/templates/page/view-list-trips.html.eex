@@ -1,5 +1,5 @@
 <div class="content">
-<input type="hidden" name="user_id" id="user_id" value="194">
+<input type="hidden" name="user_id" id="user_id" value="<%= @user_id %>">
 <div class='container find-trip'>
 	<form class="find-trip-form">
 	<input type="text" name="find-trip-location" id='find-trip-location' placeholder="Địa điểm" list='location-list'>
@@ -148,6 +148,7 @@
                                 <input type="hidden" name="route-name" id='route-name'>
                                 <input type="hidden" name="route-distance" id='route-distance'>
                                 <input type="hidden" name="route-duration" id='route-duration'>
+                                <input type="hidden" name="route-polyline" id='route-polyline'>
                             </fieldset>
                         
 

@@ -31,9 +31,6 @@
                     </div>
                 </form>
                 <ul class="nav navbar-nav navbar-right">
-<%#                     <li class="hidden">
-                        <a href="#page-top"></a>
-                    </li> %>
                     <li class='page-scroll' id="edit-trip">
                         <a href="#addstop"><span class="glyphicon glyphicon-pencil" style="font-size:14pt"></span></a>
                     </li>
@@ -61,6 +58,10 @@
         </div>
         <!-- /.container-fluid -->
     </nav>
+     <div class="container">
+      <p class="alert alert-info info"><%= get_flash(@conn, :info) %></p>
+      
+    </div>
     <div>
       <!--<header class="header">
         <nav role="navigation">

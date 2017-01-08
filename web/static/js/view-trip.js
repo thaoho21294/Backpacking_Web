@@ -1452,7 +1452,9 @@ function addRoute(map, directionsService){
           
           renderer.setDirections(result)
           var leg= result.routes[0].legs[0]
-          send_new_stop_input(leg,input, new_stop_order, stop_duration)
+          //console.log(result.routes[0])
+          input.route_polyline=result.routes[0].overview_polyline;
+          send_new_stop_input(leg, input, new_stop_order, stop_duration)
         }//end if
         //end directionService
       });
@@ -1529,7 +1531,8 @@ function addRoute(map, directionsService){
                   renderArray[remove_route_index-1].setDirections(result)
                   var legs= result.routes[0].legs
                   var leg=legs[legs.length-1]
-                  
+                  //console.log(result.routes[0])
+                  input.route_polyline=result.routes[0].overview_polyline
                   send_new_stop_input(leg, input, new_stop_order, stop_duration)
                   
 
@@ -1626,6 +1629,7 @@ function addRoute(map, directionsService){
         //         console.log(result.routes[0].legs)
         //         var input_leg= result.routes[0].legs[new_stop_order-2]
         //         console.log(input_leg)
+        //         input.route_polyline=result.routes[0].overview_polyline.points
         //         send_new_stop_input(input_leg, input, new_stop_order, stop_duration)
         //         change_stop_order(tripid, new_stop_order)
         //         function edit_route(leg){
@@ -1730,6 +1734,7 @@ function send_new_stop_input(leg, input, new_stop_order, stop_duration){
         input.order=new_stop_order
         input.arrive= stops[new_stop_order-2].departure+route_duration*60000
         input.departure=input.arrive+stop_duration;
+
 
         console.log("input=")
         console.log(input)
