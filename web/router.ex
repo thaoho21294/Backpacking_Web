@@ -11,6 +11,7 @@ defmodule BsnWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug :scrub
   end
 
   scope "/", BsnWeb do
@@ -64,4 +65,16 @@ defmodule BsnWeb.Router do
       post "/login/", UserController, :check_login
     end
   end
+
+  # Simple plug to scrub and escape string params.
+  def scrub(conn, _opts) do
+    params = Enum.map(conn.params, &scrub_param/1) |> Enum.into(%{})
+
+    %{conn | params: params}
+  end
+
+  def scrub_param({k, v}) when is_binary(v) do
+    {k, String.replace(v, "\\", "\\\\")}
+  end
+  def scrub_param(param), do: param
 end
