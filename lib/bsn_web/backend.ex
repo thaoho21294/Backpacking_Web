@@ -46,13 +46,13 @@ defmodule BsnWeb.Backend do
   # Get the current trip of the authenticated viewer, if any.
   def retrieve(_source, %{type: "Trip", id: "current"}, %{root_value: %{user: _user}}) do
     cypher = """
-    MATCH (t:Trip)-[:HAVE]->(s:Status)
-    WHERE t.start_date <= timestamp() and t.end_date > timestamp()
+    MATCH (u:User)-[:MEMBER]->(t:Trip)-[:HAVE]->(s:Status)
+    WHERE s.name=\"happen\" and id(u)=_user.id
     RETURN id(t) as id, t.name as name, t.off_time as off_time, t.note as note,
-     t.start_date as start_date, t.end_date as end_date, t.estimated_number_of_members as estimated_number_of_members,
+     t.start_date as start_date, t.end_date as end_date, t.estimated  _number_of_members as estimated_number_of_members,
      t.description as description, t.estimate_cost as estimate_cost, t.off_place as off_place, t.real_cost as real_cost, s.name as status
     """
-
+    #t.start_date <= timestamp() and t.end_date > timestamp()
     Enum.at(Sips.query!(Sips.conn, cypher),0)
   end
 
@@ -184,7 +184,8 @@ defmodule BsnWeb.Backend do
       end_arrive=start_departure+route_duration*60000
       end_departure=end_arrive+3600000
       off_time=start_date
-      created_date=1470567600000
+      created_date= DateTime.to_unix(DateTime.utc_now())
+      IO.inspect(created_date)
       background="/images/trip_backgrounds/trip196.jpg"
 
 
