@@ -340,6 +340,21 @@ defmodule BsnWeb.Backend do
       cypher="MATCH (u:User) WHERE u.email=\"#{email}\" and u.pass=\"#{password}\" return id(u) as id"
       Sips.query!(Sips.conn, cypher)
     end
+
+  ## UPDATES ##
+  def update(_, %{type: "Trip", id: trip_id, trip_name: trip_name, start_date: start_date, end_date: end_date, description: description, estimated_cost: estimated_cost, estimated_members: estimated_members, cost_detail: cost_detail, off_time: off_time, off_place: off_place, necessary_tool: necessary_tool, note: note}, _context) do
+    cypher="""
+    MATCH (t:Trip)
+    WHERE id(t)=#{trip_id}
+    SET t.trip_name=\"#{trip_name}\", t.start_date=#{start_date}, t.end_date=#{end_date}, t.description=\"#{description}\", t.estimated_cost=#{estimated_cost}, 
+    t.estimated_number_of_members=#{estimated_members}, t.cost_detail=\"#{cost_detail}\", t.off_time= #{off_time}, t.off_place= \"#{off_place}\",
+    t.necessary_tool= \"#{necessary_tool}\", t.note=\"#{note}\"
+    """
+    # IO.inspect(cypher);
+    Sips.query!(Sips.conn, cypher)
+
+  end
+
   # Callbacks for being a Plug used in Router.
   @behaviour Plug
   def init(opts) do

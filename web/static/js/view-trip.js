@@ -909,6 +909,7 @@ function UnFormatMoney(money){
   return result;
 }
 function UnFormatOffTime(datetime){
+  return Date.parse(datetime);
   var time= datetime.split("m ")[0]
   var last_word=time[time.length-1]
   var hours=time.split(":")[0]

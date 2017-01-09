@@ -43,7 +43,7 @@ defmodule BsnWeb.TripController do
     redirect conn, to: "/trips/#{trip_id}"
   end
   def edit_trip_detail(conn, %{"trip_id"=>trip_id, "trip_name"=>trip_name, "start_date"=>start_date, "end_date"=>end_date, "description"=>description, "estimated_cost"=>estimated_cost, "estimated_members"=>estimated_members, "cost_detail"=>cost_detail, "off_time"=>off_time, "off_place"=>off_place, "necessary_tool"=>necessary_tool, "note"=>note}) do
-    response=Backend.retrieve(%{id: trip_id}, %{type: "UpdateTripDetail",trip_name: trip_name, start_date: start_date, end_date: end_date, description: description, estimated_cost: estimated_cost, estimated_members: estimated_members, cost_detail: cost_detail, off_time: off_time, off_place: off_place, necessary_tool: necessary_tool, note: note}, nil)
+    response=Backend.update(nil, %{type: "Trip", id: trip_id, trip_name: trip_name, start_date: start_date, end_date: end_date, description: description, estimated_cost: estimated_cost, estimated_members: estimated_members, cost_detail: cost_detail, off_time: off_time, off_place: off_place, necessary_tool: necessary_tool, note: note}, nil)
     json conn, response
   end
   def edit_route(conn, %{"stop_id"=>stop_id, "route_duration"=>route_duration, "route_description"=>route_description}) do
