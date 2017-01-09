@@ -287,7 +287,7 @@ $('#plan-list').on('click', '#save-edit-stop', function(){
   }else{
     var arrive_string=$('#stop-arrive-time-show').val()+" "+$('#stop-arrive-date-show').val()
     var stop_duration=UnFormatDuration($('#stop-duration-show').val())*60000
-    var stop_arrive=UnFormatOffTime(arrive_string)
+    var stop_arrive=UnFormatOffTime(arrive_string);
     var stop_departure=stop_arrive + stop_duration;
     console.log(stop_departure)
     stops[id].name=$("#stop-name-show").val();
@@ -532,6 +532,7 @@ function editTripDetail(){
     });
   $("#trip-detail").on('click', '#save-edit-trip', function(){
       editTrip=false;
+
      var input={
         trip_id: tripid,
         trip_name: $("#trip-name").val(),
@@ -580,7 +581,11 @@ function editTripDetail(){
         $(".trip-detail-content input, .trip-detail-content textarea, .trip-detail-content select, #trip-name").css('border', '1px solid transparent')
       });
       $("#trip-detail").on('keyup', 'textarea', function(){
-          auto_height_textarea("#"+$(this).attr('id'), 20)
+        var id=$(this).attr('id');
+        if(id=="trip-name")
+          auto_height_textarea("#"+id, 90)
+        else
+          auto_height_textarea("#"+id, 20)
       } );
 }
         function send_route_map(stops) {
@@ -897,19 +902,24 @@ function DateToMs(date){
   return ms_date;
 } 
 function UnFormatMoney(money){
+  console.log(money)
   var result=0;
   var last_word=money.charAt(money.length-1);
-  if(last_word=='k'){
-    result=money.split("k")[0]
+  var fist_word=money.split("k")[0];
+  if(fist_word!='null'){
+    if(last_word=='k'){
+      result=money.split("k")[0]
+      
+    }
+    if(last_word=='r'){
+      result=money.split("tr")[0]
+    }
+    result=parseInt(result);
   }
-  if(last_word=='r'){
-    result=money.split("tr")[0]
-  }
-  result=parseInt(result);
+  console.log(result)
   return result;
 }
 function UnFormatOffTime(datetime){
-  return Date.parse(datetime);
   var time= datetime.split("m ")[0]
   var last_word=time[time.length-1]
   var hours=time.split(":")[0]
