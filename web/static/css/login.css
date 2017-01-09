@@ -1,7 +1,12 @@
 #login-page{
-	background-image: url('/images/IMG_8473.jpg');
+	background-image: url('/images/login-background.jpg');
+	background-repeat: no-repeat;
+	background-size: 100%;
 	padding-top: 250px;
 	padding-left: 600px;
 	padding-right: 650px;
 	color: black;
+}
+
+#login-button{
 }
