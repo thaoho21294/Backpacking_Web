@@ -144,7 +144,7 @@
                                             ngàn đồng/1 người
                                     </div>
                                 </div>
-                                <input type='hidden' name="holder-id" value='194' id='holder-id'>
+                                <input type='hidden' name="holder-id" value="<%= @user_id %>" id='holder-id'>
                                 <input type="hidden" name="route-name" id='route-name'>
                                 <input type="hidden" name="route-distance" id='route-distance'>
                                 <input type="hidden" name="route-duration" id='route-duration'>
