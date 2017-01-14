@@ -1,0 +1,11 @@
+#my-trips {
+	margin-top: 150px;
+	
+}
+.status-label{
+	color: white;
+	position: absolute;	
+	padding: 5px;
+	background-color: orange;
+
+}

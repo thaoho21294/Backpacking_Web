@@ -51,7 +51,8 @@ $(document).ready(function(){
 		});
 	});
 	//Load list trips from database
-
+  var trip_list=document.getElementById("trip-near-you")
+if(trip_list!=undefined){
 	$.ajax({
 		url:"/api/trips/view/"+user_id,
 		dataType: 'json',
@@ -63,6 +64,7 @@ $(document).ready(function(){
 
     	}
 	});//enđ ajax
+}
 	$("#trip-near-you").on('click', '.trip-item', function(){
 		var url=$(this).children('a').attr('href')
 		window.open(url);
@@ -260,23 +262,24 @@ function formatTimePeriod(start_date, end_date){
 	days=subtract/(24*3600*1000); // 1day =24h
 	hours=subtract/(3600*1000)
 	minutes=subtract/(60*1000)
-	if(month>0) return Math.round(month)+ " tháng";
-	if(days>0) return Math.round(days)+ " ngày";
-	if(hours>0) return Math.round(hours)+ " giờ";
-	if(minutes>0) return Math.round(minutes)+ " phút"
+	if(month>1) return Math.round(month)+ " tháng";
+	if(days>1) return Math.round(days)+ " ngày";
+	if(hours>1) return Math.round(hours)+ " giờ";
+	if(minutes>1) return Math.round(minutes)+ " phút"
 }
 function findDateInput(start_date_id, end_date_id){
 	var config={
 		altInput: true,
 		altFormat: "d/m/Y"
 	}
-	flatpickr(start_date_id,config);	
-	flatpickr(end_date_id,config);
-	$(start_date_id).change(function(){
-		var start_date=$(this).val();
-		config.minDate=start_date;
-		flatpickr(end_date_id, config);
-	});
+
+	// flatpickr(start_date_id,config);	
+	// flatpickr(end_date_id,config);
+	// $(start_date_id).change(function(){
+	// 	var start_date=$(this).val();
+	// 	config.minDate=start_date;
+	// 	flatpickr(end_date_id, config);
+	// });
 
 }
 function drawTripList(element, trips){
@@ -284,13 +287,16 @@ function drawTripList(element, trips){
 	if(trips.length==0) $(element).html("Không tìm thấy chuyến phượt nào!");
 	for(var trip in trips){
 	$(element).append("<div class='trip-item'>\
-			<a href='/trips/"+trips[trip].id+"'></a>\
+			<a class='trip-link' href='/trips/"+trips[trip].id+"'></a>\
+      <div class='status-label'>"+trips[trip].status+"</div>\
 			<img src='"+trips[trip].background+"'>\
 			<h4 class='trip-item-element'>"+trips[trip].name+"</h4>\
 			<p class='trip-item-element'>"+formatDatetoDate(trips[trip].start_date)+" - "+formatDatetoDate(trips[trip].end_date)+"</p>\
-			<hr class='trip-item-element'>\
+			<p class='trip-item-element'><i class='fa fa-motorcycle' aria-hidden='true'></i> "+trips[trip].vehicle+"</p>\
+      <p class='trip-item-element'><i class='fa fa-user' aria-hidden='true'></i><a href='#' class='leader-name'> "+trips[trip].leader_name+"</a></p>\
+      <hr class='trip-item-element'>\
 			<p class='trip-item-element'>đã đăng "+formatTimePeriod(trips[trip].created_date, now_day.getTime())+" trước</p>\
-		</div>");
+      </div>");
 			}
 }
 function DateToMs(date){

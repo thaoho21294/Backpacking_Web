@@ -1,15 +1,17 @@
-  <div class="content">
-<input type="hidden" name="tripid" value="<%= @tripid %>">
-<div id= map></div>
-
-<div id="plan" class="trip-content-right">
+<div class="content">
+  <input type="hidden" name="tripid" value="<%= @sum_info.trip_id %>">
+  <input type="hidden" name="user_id" id="user_id" value="<%= @sum_info.user_id %>">
+  <input type="hidden" name="view_members" value="<%= @sum_info.view_members %>">
+  <div id= map></div>
+  <div class="menu-left" id="menu-my-trip"><a href="/mytrips">MY TRIP</a></div>
+  <div id="plan" class="trip-content-right">
   <ul class="day-number">
-  </ul>
-  <!-- <ul class="list-group" id="plan-list">
-  </ul> -->
-  <ul class="list-group" id="plan-list">
-    <li class='new-stop'>
-      <div class='content2'>
+    </ul>
+    <!-- <ul class="list-group" id="plan-list">
+    </ul> -->
+    <ul class="list-group" id="plan-list">
+      <li class='new-stop'>
+        <div class='content2'>
                           <ul class='content2-header'>
                             <li class='content2-header-item'><img id='avar' src='/images/flag2.png'> </li>
                             <li class='content2-header-item'><button class='function-button' id="cancel-new-stop"><span class='glyphicon glyphicon-remove'></span>CANCEL </button></li>
@@ -17,7 +19,7 @@
                             <li class='li-close-button'><button class='close-button'><span class='glyphicon glyphicon-remove'></button></li>
                           </ul>
                           <div class ='content2-body'>
-                              <form class='stop-detail'>
+                              <div class='stop-detail'>
                                 <div class='item-content2'><input type='text' name='stop-name' id='stop-name-new' placeholder="Name" value=''></div>
                                 <div class='item-content2'>
                                 <input type='text' name='stop-address' id='stop-address-new' class="address-input" placeholder="Address" list='address-list-new' value=''>
@@ -57,12 +59,93 @@
   <ul id="members-list">
   </ul>
   </div>
-
 </div>
+
+<div id='history' class="trip-content-right">
+<div id='history-header' style="background-image: url('/images/trip_backgrounds/trip196.jpg');">
+  <div id='history-header-content'>
+    <div  id='history-trip-name'>Tà Năng Phan Dũng</div>
+    <div  id='history-trip-month'>Tháng 6 2016</div>
+  </div>
+  <div id='trip-statistics'>
+    <div class='trip-statistics-item' id='trip-distance'>32km</div>
+    <div class='trip-statistics-item' id='trip-views'>8 lượt xem</div>
+    <div class='trip-statistics-item' id='trip-star'> 4.8 sao</div>
+    <div class='trip-statistics-item' id='trip-days'>4 ngày</div>
+    <div class='trip-statistics-item' id='trip-photos'>33 hình ảnh</div>
+  </div>
+</div>
+
+  <div id='history-body'>
+  <ul id="history-list">
+  <li class='home-end-history'>
+    <button class="btn btn-circle btn-default glyphicon glyphicon-home"></button>
+    <div class='right-text'>
+      <div class='right-up-text'>Ngày bắt đầu</div>
+      <div class='right-dow-text' id='start-date'>1/4/2015</div>
+      </div>
+  </li>
+  <li><button class='btn btn-circle btn-warning glyphicon glyphicon-plus'></button> Thêm điểm dừng</li>
+  <li>
+    <div class='stop-history'>
+      <h3 class='stop-history-name'>Làng Cù Lần</h3>
+      <h4 class='stop-history-province'>Đà Lạt</h4>
+      <div class='stop-history-time-group'><span class='stop-history-day-number'>ngày 1</span><span class='stop-history-time'>  30/3/2016</span></div>
+      <div class='stop-history-description'><p>Mua thêm 1 ít nước uống và snack và hướng đến Làng Cù Lần.
+
+  Đi theo hướng Đankia suối Vàng ( tỉnh lộ 722) hay còn gọi là đường Đông Trường Sơn, ngang qua những mặt hồ mênh mông, xuyên qua những rừng thông bất tận (Từ Khu du lịch Thung Lũng Vàng đi thêm chừng 10 km nữa), cách Tp khoảng 30km.
+  Làng rất rộng, đi bộ rất mệt nên các bạn nhớ trang bị giày khi đến đây nhé.</p></div>
+  <div class='stop-history-image'><img src="/images/IMG_8473.jpg"></div>
+
+    </div>
+    </li>
+  </ul>
+  <div id="vertical-line"></div>
+  </div>
+</div>
+
 <div class="menu-right" id="trip-menu">TRIP</div>
 <div class="menu-right" id="plan-menu">PLAN</div>
 <div class="menu-right" id="schedule-menu">SCHEDULE</div>
 <div class="menu-right" id="members-menu">MEMBER</div>
+<div class="menu-right" id="history-menu">HISTORY</div>
+
+ <div id="joinModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Đăng ký tham gia chuyến phượt</h4>
+                    </div>
+                    <form role="form" action="/api/members/new" method="post" class="new-trip-form" id="join-trip-form">
+                      <div class="modal-body">
+                      <div class="form-group form-group-70">
+                        <label>Số điện thoại: </label>
+                        <input type="text" name="phone-number">
+                      </div>
+                      <div class="form-group form-group-70">
+                        <label>Số người tham gia: </label>
+                        <input type="text" name="slot">
+                      </div>
+                      <div class="form-group form-group-70 driver-group">
+                            <label><input type="radio" name="driver" value="driver"> Xế</label>
+                            <label><input type="radio" name="driver" value="none"> Ôm</label>
+                            <label><input type="radio" name="driver" value="full"> Cả xế và ôm</label>
+                      </div>
+                      <input type="hidden" name="trip-id" value="<%= @sum_info.trip_id %>">
+                      <input type="hidden" name="user-id" value="<%= @sum_info.user_id %>">
+                      </div>
+
+                      <div class="modal-footer">
+                        <button type="submit" id="submit-button" class="btn btn-primary">Xác nhận</button>
+                      </div>
+                    </form>
+                    </div>
+            </div>
+  </div>
+  <div class="menu-bottom" id="menu-discussion">DISCUSSION</div>
 </div>
 
 

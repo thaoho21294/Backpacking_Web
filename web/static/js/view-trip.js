@@ -62,11 +62,17 @@ $(document).ready(function() {
    new google.maps.Point( 20, 45 )
    )
 
+
  }; 
     tripid=$("input[name='tripid']").val();
+    var view_members_trip=$("input[name='view_members']").val();
     
     if(tripid!=undefined){
       initMap();
+     if(view_members_trip=="true"){
+      keep_position("#members")
+     }
+     else
       keep_position("#trip-detail");
       $.ajax({
         url: "/api/trips/"+tripid+"/stops",
@@ -89,14 +95,15 @@ $(document).ready(function() {
         }
 
         if(stops.length>1){
-          send_route_map(stops)
+           send_route_map(stops)
           create_stops_distinct()
           send_data_plan(stops)
           generateRequests(routeArray);
         }
         var center_stop= stops[Math.floor(stops.length/2)]
         var center_latLng= {lat:center_stop.lat, lng:center_stop.lng}
-        map.setCenter(center_latLng)
+        //---------------------cafully
+       //map.setCenter(center_latLng)
             }//end furnction(data)
       });//end ajax
         $.ajax(
@@ -143,9 +150,22 @@ $("#plan-list").on('click', '.content1', function(){
   var route_finish=stops[id].arrive
   var stop_duration= calulateStopDuration(stops[id].arrive, stops[id].departure)
   var string=""
+  // console.log(stops[id].route_description)
+  // if(stops[id].route_description==null) {
+  //   console.log("==null")
+    // stops[id].route_description="";
+    var mode_icon;
+  switch(stops[id].mode){
+    case 'xe máy': mode_icon='motorcycle'; break;
+    case 'ô tô': mode_icon='car'; break;
+    case 'xe khách': mode_icon='bus'; break;
+    case 'xe đạp':mode_icon ='bicycle'; break;
+    case 'đi bộ': mode_icon= 'blind'; break; 
+    default: mode_icon='motorcycle'; break;
+  }
   var stop_string ="<div class='content2'>\
         <ul class='content2-header'>\
-          <li class='content2-header-item'><img id='avar' src='/images/flag2.png'> </li>\
+          <li class='content2-header-item'><img class='plan-list-icon' src='/images/flag2.png'> </li>\
           <li class='content2-header-item'><button class='function-button' id='up-stop'>Lên <span class='glyphicon glyphicon-arrow-up'></span></button></button></li>\
           <li class='content2-header-item'><button class='function-button' id='down-stop'>Xuống <span class='glyphicon glyphicon-arrow-down'></span></button></li>\
           <li class='content2-header-item'><button class='function-button' id='delete-stop'>Xóa <span class='glyphicon glyphicon-remove'></span></button></li>\
@@ -173,9 +193,19 @@ $("#plan-list").on('click', '.content1', function(){
                </form>\
         </div>\
       </div>";
+      // console.log(stop_string)
       var route_string="<div class='content2'>\
         <ul class='content2-header'>\
-          <li class='content2-header-item'><button><img class='mode-icon' src='/images/moto-icon.png'></button></li>\
+          <li class='dropdown content2-header-item'>\
+          <button class='dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>\
+          <i class='fa fa-"+mode_icon+" fa-2x' aria-hidden='true' style='color: black'></i></button>\
+          <ul class='dropdown-menu'>\
+          <li><a href='#' id='mode-motobike' class='route-mode'> Xe máy</a></li>\
+          <li><a href='#' id='mode-car' class='route-mode'> Ô tô</a></li>\
+          <li><a href='#' id='mode-coach' class='route-mode'> Xe khách</a></li>\
+          <li><a href='#' id='mode-bike' class='route-mode'> Xe đạp</a></li>\
+          <li><a href='#' id='mode-walking' class='route-mode'> Đi bộ</a></li>\
+          </ul></li>\
           <li class='li-close-button'><button class='close-button'><span class='glyphicon glyphicon-remove'></span></button></li>\
         </ul>\
         <div class ='content2-body'>\
@@ -212,11 +242,15 @@ $("#plan").on('input','#stop-arrive-date-show, #stop-arrive-time-show, #stop-dur
   var arrive_date=$('#stop-arrive-date-show').val();
   var arive_time=$('#stop-arrive-time-show').val();
   var stop_duration=0
+  console.log("---------------")
+  console.log($("#stop-duration-show").val())
+  console.log(arive_time+" "+arrive_date)
   stop_duration=UnFormatDuration($("#stop-duration-show").val())*60000
   var arrive_ms=0
   arrive_ms=UnFormatOffTime(arive_time+" "+arrive_date);
   var departure_ms=0;
-  // console.log(stop)
+  console.log(stop_duration)
+  console.log(arrive_ms)
   if(arrive_ms!=0 && stop_duration!=0){
     departure_ms=arrive_ms+stop_duration;
   }
@@ -224,7 +258,7 @@ $("#plan").on('input','#stop-arrive-date-show, #stop-arrive-time-show, #stop-dur
    $('#stop-departure-time-show').val(formatDatetoTime(departure_ms));
 });
 
-$('.trip-content-right').on('keyup','.address-input',function(){
+$('.trip-content-right').on('keyup','.address-input',function(event){
     if(event.key=='ArrowDown') return;
     var input=$(this).val()
     var datalist_id=$(this).attr('list')
@@ -326,81 +360,188 @@ $("#plan-list").on('click', '.close-button', function(e){
      $(this).parents(".content2").remove();
 
  });
+$("#plan-list").on('click', '.route-mode', function(){
+  var stop_id_str= $(this).parents(".list-item").attr('id');
+  var array=stop_id_str.split("_");
+  var stop_id= parseInt(array[1])
+  var mode;
+  var mode_icon;
+  var mode_name;
+  var id=this.id;
+  switch(id) {
+    case 'mode-motobike': mode="xe máy"; mode_icon='motorcycle';mode_name='driving'; break;
+    case 'mode-car': mode="ô tô"; mode_icon='car';mode_name='driving'; break;
+    case 'mode-coach': mode="xe khách"; mode_icon='bus';mode_name='driving'; break;
+    case 'mode-bike': mode="xe đạp"; mode_icon='bicycle';mode_name='bicycling'; break;
+    case 'mode-walking': mode="đi bộ"; mode_icon='blind'; mode_name='walking'; break;
+    default: mode="xe máy"; mode_icon='motorcycle'; mode_name='driving'; break;
+  }
+  mode_icon="fa fa-"+mode_icon+" fa-2x";
+  $(this).parents(".content2-header-item").children("button").children('i').attr('class', mode_icon)
+  console.log(stops[stop_id-1]);
+  var origin=stops[stop_id-1].lat+","+stops[stop_id-1].lng
+  var destination=stops[stop_id].lat+","+stops[stop_id].lng
+  var route_distance=0
+  var route_duration=0
+
+
+// $.wait= function(ms){
+  // var defer = $.Deferred();
+    // setTimeout(function(){
+
+    $.ajax({
+      url: "/api/direction-location/"+origin+"/"+destination+"/"+mode_name,
+      dataType: 'json',
+      async: false,
+      success: function(data){
+          console.log(data.direction[0])
+          if(!data.direction[0]){
+            route_distance=stops[stop_id].route_distance;
+            route_duration=stop[stop_id].route_duration;
+            return;
+          }          
+          var legs= data.direction[0].legs;
+          for(var i in legs){
+            route_distance+=legs[i].distance.value
+            route_duration+=legs[i].duration.value
+          }
+          route_duration= Math.floor(route_duration/60);
+      }
+    });
+    stops[stop_id].route_distance=route_distance;
+    stops[stop_id].route_duration=route_duration;
+    stops[stop_id].mode=mode;
+  console.log("ajax done");
+   // defer.resolve(); 
+  // }, ms);
+  // return defer;
+ // };
+ // $.wait(500).then(function(){
+    var stop_duration=stops[stop_id].departure-stops[stop_id].arrive
+    stops[stop_id].arrive=stops[stop_id-1].departure+route_duration*60*1000
+    stops[stop_id].departure=stops[stop_id].arrive+stop_duration
+    var input={
+      id: stops[stop_id].id,
+      mode: stops[stop_id].mode,
+      distance: stops[stop_id].route_distance,
+      duration: stops[stop_id].route_duration, 
+      arrive: stops[stop_id].arrive,
+      departure: stops[stop_id].departure
+    };
+    console.log(input);
+    $.ajax({
+      url: "/api/stops/edit-route-mode/",
+      type: 'POST',
+      dataType: 'json',
+      contentType: 'application/json',
+      data: JSON.stringify(input),
+      success: function( data, textStatus, jQxhr ){
+          console.log("done");
+          },
+      error: function( jqXhr, textStatus, errorThrown ){
+          console.log(errorThrown );
+
+      }
+    });//end ajax
+
+
+ // });//end wait
+
+  $("#plan-list").find(".list-item").remove();
+  $(".day-number li").remove();
+  $("#schedule-table tr").remove();
+  send_data_plan(stops);
+//generateRequests(routeArray);
+
+});
 //-----------------------------------
 //menu action
 //-----------------------------------
 //hover event on menu
+$("#trip-menu").mouseover(function(){
+  $(this).css("right", "-80px");
+});
+$("#trip-menu").mouseleave(function(){
+  $(this).css("right", "-108px");
+});
 $("#plan-menu").mouseover(function(){
   $(this).css("right", "-80px");
 });
 $("#plan-menu").mouseleave(function(){
-  $(this).css("right", "-105px");
+  $(this).css("right", "-103px");
 });
 $("#schedule-menu").mouseover(function(){
   $(this).css("right", "-89px");
 });
 $("#schedule-menu").mouseleave(function(){
-  $(this).css("right", "-119px");
+  $(this).css("right", "-117px");
 });
-$("#trip-menu").mouseover(function(){
-  $(this).css("right", "-80px");
-});
-$("#trip-menu").mouseleave(function(){
-  $(this).css("right", "-110px");
-});
-
 $("#members-menu").mouseover(function(){
-  $(this).css("right", "-89px");
+  $(this).css("right", "-76px");
 });
 $("#members-menu").mouseleave(function(){
-  $(this).css("right", "-105px");
+  $(this).css("right", "-104px");
+});
+$("#history-menu").mouseover(function(){
+  $(this).css("right", "-76px");
+});
+$("#history-menu").mouseleave(function(){
+  $(this).css("right", "-104px");
 });
 $("#trip-menu").click(function(){
-change_position("#trip-detail");
+  change_position("#trip-detail", "-500px");
 });
 $("#plan-menu").click(function(){
-  change_position("#plan");
+  change_position("#plan", "-500px");
 });
 $("#schedule-menu").click(function(){
-  change_position("#schedule");
+  change_position("#schedule", "-500px");
 });
 $("#members-menu").click(function(){
-  change_position("#members");
+  change_position("#members", "-500px");
 });
+$("#history-menu").click(function(){
+  change_position("#history", "-600px");
+});
+
 
 $(".new-stop").hide();
 
 $("#plan-list").on('click', '.list-item input, .list-item textarea', function(){
-  $(this).parents(".content2").children('.content2-header').html("<li class='content2-header-item'><img id='avar' src='/images/flag2.png'></li>\
+  $(this).parents(".content2").children('.content2-header').html("<li class='content2-header-item'><img class='plan-list-icon' src='/images/flag2.png'></li>\
     <li class='content2-header-item'><button class='function-button' id='cancel-edit-stop'>Hủy <span class='glyphicon glyphicon-remove'></span></button></button></li>\
     <li class='content2-header-item'><button class='function-button' id='save-edit-stop'>Lưu <span class='glyphicon glyphicon-ok'></span></button></li>\
     <li class='li-close-button'><button class='close-button' id='close-stop'><span class='glyphicon glyphicon-remove'></span></button></li>");
 });
 $("#plan-list").on('click', '#cancel-edit-stop', function(){
-  $(this).parents(".content2").children('.content2-header').html("<li class='content2-header-item'><img id='avar' src='/images/flag2.png'> </li>\
+  $(this).parents(".content2").children('.content2-header').html("<li class='content2-header-item'><img class='plan-list-icon' src='/images/flag2.png'> </li>\
           <li class='content2-header-item'><button class='function-button' id='up-stop'>Lên <span class='glyphicon glyphicon-arrow-up'></span></button></button></li>\
           <li class='content2-header-item'><button class='function-button' id='down-stop'>Xuống <span class='glyphicon glyphicon-arrow-down'></span></button></li>\
           <li class='content2-header-item'><button class='function-button' id='delete-stop'>Xóa <span class='glyphicon glyphicon-remove'></span></button></li>\
           <li class='li-close-button'><button class='close-button' id='close-stop'><span class='glyphicon glyphicon-remove'></span></button></li>");
 });
 editTripDetail();
+approve_member();
 //end document ready
+
 });
   //-------------------------------------
 // START DEFINE FUNCTION
 //------------------------------------
-function change_position(element){
-  $(".trip-content-right").css("right", "-500px");
+function change_position(element, width){
+  $(".trip-content-right").css("right", width);
+  $("#history").css("right", "-600px");
   var view=$(element).css("right");
   if(view=="0px")
-  $(element).css("right", "-500px");
+  $(element).css("right", width);
 else{
   $(element).css("right", "0px");
 }
 }
 function keep_position(element){
   $(".trip-content-right").css("right", "-500px");
-  var view=$(element).css("right");
+   $("#history").css("right", "-600px");
+  // var view=$(element).css("right");
   $(element).css("right", "0px");
 }
 function UpdateRoute(stop_id, route_duration, route_description){
@@ -590,8 +731,10 @@ function editTripDetail(){
 }
         function send_route_map(stops) {
             //create routes include many stop
+            if(stops.length==1) return
             var mode = stops[1].mode
             route_mode["route1"]=mode;
+            //console.log(mode)
             var start = 1,
                 route_index = 1;
             if(stops.length==2){
@@ -599,41 +742,45 @@ function editTripDetail(){
               routeArray["route1"].push(stops[1])
               stops[1]["route_index"]=1
             }
-            while (start < stops.length - 1) {
+            while (start < stops.length) {
               routeArray["route" + route_index]=[]
                 for (var i = start; i < stops.length; i++) {
                     //add stop to route
                     if (stops[i].mode != mode) {
                         start = i
-                        route_mode["route"+route_index]=mode;
                         mode = stops[i].mode
-                         
+                        route_mode["route"+(route_index+1)]=mode;
+
                         //next route
                         break
                     }
-                    //stops[i].route=
                     stops[i]["route_index"]=route_index
-                    //console.log(i)
-                    //console.log(stops[i])
                     routeArray["route" + route_index].push({
                         "lat": stops[i].lat,
                         "lng": stops[i].lng
                     });
+
                     //increase start route
                     start = i + 1
+                    //console.log(start)
 
                 }
+               
+                route_index++ 
+                
 
-                route_index++
             }
+            //console.log(route_index);
+            console.log(route_mode);
             //add route mode last
-            route_mode["route"+(route_index-1)]=stops[stops.length-1].mode;
+            //route_mode["route"+(route_index-1)]
+            // console.log()
             stops[0]["route_index"]=1
             routeArray["route1"].unshift({
                 "lat": stops[0].lat,
                 "lng": stops[0].lng
             });        
-             console.log(route_mode); 
+             console.log(routeArray); 
         }
         function create_stops_distinct(){
             var i=1;
@@ -657,7 +804,7 @@ function editTripDetail(){
         }//end function
         function send_data_plan(stops){
           var image="flag2.png";
-         $("#plan-list").append("<li class='list-item' id='stop_0'><div class='content1'><img id='avar' src='/images/start.png'>  "+stops[0].name+"</div></li>");
+         $("#plan-list").append("<li class='list-item' id='stop_0'><div class='content1'><img class='plan-list-icon' src='/images/start.png'>  "+stops[0].name+"</div></li>");
           stops[0].duration= stops[0].departure-stops[0].arrive
           for(var i=1; i<stops.length; i++){
             if(i==stops.length-1) image="end.png"
@@ -683,7 +830,7 @@ function editTripDetail(){
                 </ul>\
                 </div></li>\
                 <li class='list-item' id='stop_"+i+"'>\
-                <div class='content1'><img id='avar' src='/images/"+image+"'>  "+stops[i].name+"</div>\
+                <div class='content1'><img class='plan-list-icon' src='/images/"+image+"'>  "+stops[i].name+"</div>\
                 </li>");
              }//end for
               var items=[]
@@ -693,25 +840,26 @@ function editTripDetail(){
               for(var i=0;i<stops.length-1;i++){
                 stop_description=stops[i].description;
                 route_description=stops[i+1].route_description
-                if(stop_description=="" || stop_description==null){
+                if(stop_description=="" || stop_description==null || stop_description=="null"){
                   if(i==0){
                   stop_description="Tập trung tại "+stops[i].name;
                 }
                 else
                   stop_description="Tham quan "+stops[i].name;
 
-                } 
-                if(route_description==""|| route_description==null){
-                  if(stops[i+1].mode=="xe máy") route_description="Lên xe máy đi "+stops[i+1].name;
-                  if(stops[i+1].mode=="đi bộ") route_description="Đi bộ đến "+ stops[i+1].name;
                 }
-
+                if(route_description==""|| route_description==null || route_description=="null"){
+                  if(stops[i+1].mode=="đi bộ") route_description="Đi bộ đến "+ stops[i+1].name;
+                  else{
+                    route_description="Lên "+stops[i+1].mode+" đi "+stops[i+1].name;
+                  }
+                }
                 items.push({time:stops[i].arrive,description:stop_description})
 
                 items.push({time:stops[i].departure, description:route_description});
               }
               stop_description=stops[stops.length-1].description
-              if(stop_description=="" || stop_description==null) stop_description="Kết thúc chuyến đi. Về lại "+stops[stops.length-1].name;
+              if(stop_description=="" || stop_description==null || stop_description=="null") stop_description="Kết thúc chuyến đi. Về lại "+stops[stops.length-1].name;
 
               items.push({time:stops[stops.length-1].arrive,description:stop_description});
               console.log("items=")
@@ -773,16 +921,84 @@ function view_members(members){
       </li>");
     }
     else{
+      if(members[i].status=="waiting"){
+        $("#members-list").append("<li class='members-item'>\
+          <div class='member-avatar'><img src=\""+members[i].avatar+"\"></div>\
+          <div class='member-info'>\
+            <div class='member-name'>"+members[i].full_name+"</div>\
+            <div class='member-hometown'>"+members[i].hometown+"</div>\
+            <div class='member-joined-date'>joined <span>"+formatDatetoDate(members[i].joined_date)+"</span></div>\
+          </div>\
+          <div class='members-control'>\
+          <button class='approve btn btn-primary'>Chấp nhận</button>\
+          <button class='ignore btn btn-default'>Bỏ qua</button>\
+          <input type='hidden' id='member_id' value='"+members[i].id+"' >\
+          </div>\
+        </li>");
+      }
+    else{
+      if(members[i].status=="approved"){
       $("#members-list").append("<li class='members-item'>\
-        <div class='member-avatar'><img src=\""+members[i].avatar+"\"></div>\
-        <div class='member-info'>\
-          <div class='member-name'>"+members[i].full_name+"</div>\
-          <div class='member-hometown'>"+members[i].hometown+"</div>\
-          <div class='member-joined-date'>joined <span>"+formatDatetoDate(members[i].joined_date)+"</span></div>\
-        </div>\
-      </li>");
+          <div class='member-avatar'><img src=\""+members[i].avatar+"\"></div>\
+          <div class='member-info'>\
+            <div class='member-name'>"+members[i].full_name+"</div>\
+            <div class='member-hometown'>"+members[i].hometown+"</div>\
+            <div class='member-joined-date'>requested <span>"+formatDatetoDate(members[i].joined_date)+"</span></div>\
+          </div>\
+        </li>");
+      }
     }
+   }
   }
+}
+function approve_member(){
+  $("#members-list").on('click', ".approve", function(e){
+    e.stopPropagation()
+   var member_id=$(this).parents(".members-control").children("#member_id").val();
+   console.log(member_id)
+      $.ajax({
+        type: 'POST',
+        url: "/api/members/"+member_id+"/update/approved",
+        dataType: 'json',
+        success: function( data, textStatus, jQxhr ){
+            
+
+        },
+        error: function( jqXhr, textStatus, errorThrown ){
+        console.log(errorThrown );
+       }
+      });//end ajax
+      $(this).parents(".members-control").hide();
+  });//end on click
+  $("#members-list").on('click', ".ignore", function(e){
+    e.stopPropagation()
+   var member_id=$(this).parents(".members-control").children("#member_id").val();
+   console.log(member_id)
+      $.ajax({
+        type: 'POST',
+        url: "/api/members/"+member_id+"/update/ignore",
+        dataType: 'json',
+        success: function( data, textStatus, jQxhr ){
+           
+        },
+        error: function( jqXhr, textStatus, errorThrown ){
+        console.log(errorThrown );
+       }
+      });//end ajax
+      $(this).parents(".members-control").hide();
+  });//end on click
+}
+function MemberView(){
+
+}
+function LeaderView(){
+
+}
+function UserView(){
+
+}
+function CheckPeopleView(){
+
 }
 function create_tripdetail(tripdetail){
   //console.log(tripdetail)
@@ -803,9 +1019,10 @@ function create_tripdetail(tripdetail){
    </ul>\
   <div class='trip-detail-header' style=\"background-image: url('"+tripdetail.background+"')\">\
 <div class='trip-detail-header-background'>\
-  <textarea class='trip-detail-name' disabled='true' id='trip-name' name='trip-name'>"+tripdetail.name+"</textarea>\
+  <textarea class='trip-name' disabled='true' id='trip-name' name='trip-name'>"+tripdetail.name+"</textarea>\
   <h3 class='trip-month'>"+trip_month_year+"</h3>\
   <p class='needing-member'>Needing "+neading_member+" members</p>\
+  <button type='button' data-toggle='modal' data-target='#joinModal' id='join-button' class='join-button'>Tham gia</button>\
   </div>\
 </div>\
 <div class='trip-detail-content'>\
@@ -920,21 +1137,17 @@ function UnFormatMoney(money){
   return result;
 }
 function UnFormatOffTime(datetime){
-  var time= datetime.split("m ")[0]
-  var last_word=time[time.length-1]
-  var hours=time.split(":")[0]
-  var minutes=time.split(":")[1].split(" ")[0]
-  hours=parseInt(hours);
-  if(last_word=='p'){ 
-    hours+=12;
-  }
+  ///hope it dispear
+  var time= datetime.split("m ")[0];
   var date=datetime.split("m ")[1];
   var ms_date=0;
   var array=date.split("/");
   var day=array[0];
   var month=array[1];
   var year=array[2];
-  var str_date=year+"-"+month+"-"+day+"T"+hours+":"+minutes+":00";
+  //var str_date=year+"-"+month+"-"+day+"T"+hours+":"+minutes+":00";
+  var str_date=time+"m "+ month+ "/"+day+"/"+year;
+  console.log(str_date);
   var right_date=new Date(str_date);
 
   return right_date.getTime();
@@ -1040,6 +1253,7 @@ function formatDuration(duration){
   if (duration<60)
     return duration+"p"
   else {
+    if(duration%60==0) return ~~(duration/60)+"h"
     return ~~(duration/60)+"h"+duration%60
   }
 }
@@ -1061,7 +1275,8 @@ function calulateStopDuration(startdate_ms, enddate_ms){
     var days = Math.floor(duration/24);
     if(days==0) {days=""} else{ days=days+'d'}
     if(hours==0) {hours="" }else {hours= hours+'h'}
-    if(minutes==0) {minutes=""} else {minutes=minutes+'p'};
+    if(minutes==0) {minutes=""}
+    if(days==0 && hours==0) minutes=minutes+"p";
     return days+hours+minutes
 }
 function getDuration(duration){
@@ -1137,13 +1352,14 @@ function generateRequests(jsonArray) {
         } else {
             finish = finish.location;
         }
+
         var request = {
             origin: start,
             destination: finish,
             waypoints: waypts,
             travelMode: google.maps.TravelMode[tranModeName(route_mode[route])]
         };
-        console.log(tranModeName(route_mode[route]));
+        console.log(request);
         requestArray.push({
             "route": route,
             "request": request
@@ -1243,9 +1459,8 @@ var add_stop=false;
 var geocoder;
 // var directionsDisplay;
 function initMap() {
-
     var mapOption = {
-        zoom: 8,
+        zoom: 9,
         mapTypeControl: false,
         streetViewControl: false,
         center: nice_hotel,
@@ -1264,13 +1479,13 @@ function initMap() {
 }
 var markers=[];
 var new_marker;
+var add_next_stop=true;
 function addStop(map){
   //click edit link event
     $("#edit-trip").click(function(e){
         if(!add_stop){
         keep_position("#plan");
         add_stop= true;
-         e.stopPropagation();
           map.setOptions({ draggableCursor: 'url(/images/flag-grey.png) 20 45, auto' });
           }
           else{
@@ -1278,9 +1493,22 @@ function addStop(map){
           map.setOptions({ draggableCursor: 'default' });
 
           }
+          console.log(add_next_stop);
         
     });//end edit trip click
-  
+  $("#add-next-stop").click(function(e){
+    e.stopPropagation();
+    add_next_stop=true;
+    add_stop=true;
+     map.setOptions({ draggableCursor: 'url(/images/flag-grey.png) 20 45, auto' });
+  });
+    $("#add-middle-stop").click(function(e){
+    e.stopPropagation();
+    add_next_stop=false;
+    add_stop= true;
+    console.log(add_next_stop);
+    map.setOptions({ draggableCursor: 'url(/images/flag-grey.png) 20 45, auto' });
+  });
     if(map==undefined) return;
       //click event on map 
     map.addListener("click", function(e){
@@ -1376,6 +1604,7 @@ $("#save-new-stop").click(function(){
 
 }
 function addRoute(map, directionsService){
+  console.log(add_next_stop)
   var stop_name=$(".new-stop input[name='stop-name']").val();
   var stop_arrive= 0
   var stop_departure=0
@@ -1519,7 +1748,8 @@ function addRoute(map, directionsService){
                      }     
                   });
          console.log(neareast_stop.order+"=="+stops.length)
-        //if(neareast_stop.order==stops.length){
+         console.log(add_next_stop);
+        if(neareast_stop.order==stops.length || add_next_stop==true){
           var waypts=[]
           for(var i=1; i< removed_route.length; i++){
               waypts.push({
@@ -1550,154 +1780,156 @@ function addRoute(map, directionsService){
                 }//end if
 
               });         
-        //}//end TH2
-        // else
-        // {
-        //   var near_stop_first, near_stop_second;
-        //   var route_length= removed_route.length;
-        //   console.log(route_length)
-        //   console.log(remove_route_index);
-        //   console.log(routeArray);
-        //   var end_stop_route=routeArray["route"+remove_route_index][route_length-1]
-        //   var end_latLng={lat:end_stop_route.lat, lng:end_stop_route.lng}
-        //   //var near_stop_first;
-        //   console.log ("check list distance")
-        //   console.log(list_distance_stop)
-        //   console.log (neareast_stop.order)
-        //   for(var ds in list_distance_stop){
-        //         if(list_distance_stop[ds].order==neareast_stop.order-1){
-        //           near_stop_first=list_distance_stop[ds];
-        //         }
-        //         if(list_distance_stop[ds].order==neareast_stop.order+1){
-        //           near_stop_second=list_distance_stop[ds];
-        //         }
+        }//end TH2
+        else
+        {
+          if(add_next_stop==false){
+          var near_stop_first, near_stop_second;
+          var route_length= removed_route.length;
+          console.log(route_length)
+          console.log(remove_route_index);
+          console.log(routeArray);
+          var end_stop_route=routeArray["route"+remove_route_index][route_length-1]
+          var end_latLng={lat:end_stop_route.lat, lng:end_stop_route.lng}
+          //var near_stop_first;
+          console.log ("check list distance")
+          console.log(list_distance_stop)
+          console.log (neareast_stop.order)
+          for(var ds in list_distance_stop){
+                if(list_distance_stop[ds].order==neareast_stop.order-1){
+                  near_stop_first=list_distance_stop[ds];
+                }
+                if(list_distance_stop[ds].order==neareast_stop.order+1){
+                  near_stop_second=list_distance_stop[ds];
+                }
 
-        //   }  
-        //     // console.log(near_stop_first)
-        //     // console.log(near_stop_second)
-        //     // var start;
-        //       console.log ("check first, second distance")
-        //       console.log (near_stop_first)
-        //       console.log (near_stop_second)
-        //     if(near_stop_first==undefined){ 
-        //       new_stop_order=neareast_stop.order+1
-        //       console.log("TH1: first undefined")
-        //     }
-        //     else if(near_stop_second==undefined){
-        //       new_stop_order=neareast_stop.order
-        //       console.log("TH2: second undefined")
-        //     }
-        //     else if (near_stop_first.distance>near_stop_second.distance){
-        //       new_stop_order=neareast_stop.order+1
-        //       console.log("TH3: first > second")
-        //     } 
-        //     else{
-        //       new_stop_order=neareast_stop.order
-        //       console.log("TH4: first < second")
-        //     }
+          }  
+            // console.log(near_stop_first)
+            // console.log(near_stop_second)
+            // var start;
+              console.log ("check first, second distance")
+              console.log (near_stop_first)
+              console.log (near_stop_second)
+            if(near_stop_first==undefined){ 
+              new_stop_order=neareast_stop.order+1
+              console.log("TH1: first undefined")
+            }
+            else if(near_stop_second==undefined){
+              new_stop_order=neareast_stop.order
+              console.log("TH2: second undefined")
+            }
+            else if (near_stop_first.distance>near_stop_second.distance){
+              new_stop_order=neareast_stop.order+1
+              console.log("TH3: first > second")
+            } 
+            else{
+              new_stop_order=neareast_stop.order
+              console.log("TH4: first < second")
+            }
 
-        //     // console.log(start)
-        //     // console.log(end)
-        //   console.log("new order="+new_stop_order)
+            // console.log(start)
+            // console.log(end)
+          console.log("new order="+new_stop_order)
 
-        //   var waypts=[]
-        //   var index_input_route
-        //   console.log("removed_route=")
-        //   console.log(removed_route)
-        //     if(removed_route.length==2){
-        //       waypts.push({
-        //       location:new_stop_latLng,
-        //       stopover:true})
-        //     }
-        //       for(var i=0; i<removed_route.length;i++){
-        //         console.log(i)
-        //         if(new_stop_order-1==i){
-        //            waypts.push({
-        //               location:new_stop_latLng,
-        //               stopover:true})
+          var waypts=[]
+          var index_input_route
+          console.log("removed_route=")
+          console.log(removed_route)
+            if(removed_route.length==2){
+              waypts.push({
+              location:new_stop_latLng,
+              stopover:true})
+            }
+              for(var i=0; i<removed_route.length;i++){
+                console.log(i)
+                if(new_stop_order-1==i){
+                   waypts.push({
+                      location:new_stop_latLng,
+                      stopover:true})
 
-        //         }
-        //         if(i>0 && i<removed_route.length-1){
-        //         waypts.push({
-        //          location: removed_route[i],
-        //           stopover: true})
-        //       }
-        //       }
-        //       //mot viec nua la cap nhat order cua cac stop sau nearest stop or new
+                }
+                if(i>0 && i<removed_route.length-1){
+                waypts.push({
+                 location: removed_route[i],
+                  stopover: true})
+              }
+              }
+              //mot viec nua la cap nhat order cua cac stop sau nearest stop or new
 
-        //     var request = {
-        //           origin: start_latLng,
-        //           destination: end_latLng,
-        //           waypoints:  waypts,
-        //           travelMode: google.maps.TravelMode.DRIVING
-        //     }; 
-        //     console.log("TH3: request");
-        //     console.log(request)
-        //     directionsService.route(request, function(result, status){
-        //       if (status == google.maps.DirectionsStatus.OK) {
-        //         renderArray[remove_route_index-1].setDirections(result);
-        //         //console.log("pass");
-        //         console.log(result.routes[0].legs)
-        //         var input_leg= result.routes[0].legs[new_stop_order-2]
-        //         console.log(input_leg)
-        //         input.route_polyline=result.routes[0].overview_polyline.points
-        //         send_new_stop_input(input_leg, input, new_stop_order, stop_duration)
-        //         change_stop_order(tripid, new_stop_order)
-        //         function edit_route(leg){
-        //             //get route name-----------------------------------
-        //             var input;
-        //             var instructions
-        //             var part_route_name
-        //             var split1
-        //             var same_part_route_name
-        //             for(var step in leg.steps){
-        //               instructions=leg.steps[step].instructions
-        //               console.log(instructions)
-        //               split1=instructions.split("<b>")[2]
-        //               if(split1==undefined) split1=""
-        //               part_route_name=(split1).split("</b>")[0]
-        //               console.log(part_route_name)
-        //               same_part_route_name=route_name.substring(route_name.length-part_route_name.length-3,route_name.length-3);
-        //               //console.log("same="+same_part_route_name)
-        //               if(part_route_name!="" && same_part_route_name!=part_route_name){
-        //                 route_name+=part_route_name+" - "
-        //                  //console.log()
-        //               }
+            var request = {
+                  origin: start_latLng,
+                  destination: end_latLng,
+                  waypoints:  waypts,
+                  travelMode: google.maps.TravelMode.DRIVING
+            }; 
+            console.log("TH3: request");
+            console.log(request)
+            directionsService.route(request, function(result, status){
+              if (status == google.maps.DirectionsStatus.OK) {
+                renderArray[remove_route_index-1].setDirections(result);
+                //console.log("pass");
+                console.log(result.routes[0].legs)
+                var input_leg= result.routes[0].legs[new_stop_order-2]
+                console.log(input_leg)
+                input.route_polyline=result.routes[0].overview_polyline
+                send_new_stop_input(input_leg, input, new_stop_order, stop_duration)
+                change_stop_order(tripid, new_stop_order)
+                // function edit_route(leg){
+                //     //get route name-----------------------------------
+                //     var input;
+                //     var instructions
+                //     var part_route_name
+                //     var split1
+                //     var same_part_route_name
+                //     for(var step in leg.steps){
+                //       instructions=leg.steps[step].instructions
+                //       console.log(instructions)
+                //       split1=instructions.split("<b>")[2]
+                //       if(split1==undefined) split1=""
+                //       part_route_name=(split1).split("</b>")[0]
+                //       console.log(part_route_name)
+                //       same_part_route_name=route_name.substring(route_name.length-part_route_name.length-3,route_name.length-3);
+                //       //console.log("same="+same_part_route_name)
+                //       if(part_route_name!="" && same_part_route_name!=part_route_name){
+                //         route_name+=part_route_name+" - "
+                //          //console.log()
+                //       }
 
-        //             }
-        //             var route_name=route_name.substring(0,route_name.length-3)
-        //             //end get route name-------------------------------
-        //             var route_duration=Math.round(leg.duration.value/60)
-        //             var route_distance=Math.round(leg.distance.value)
-        //             var route_mode="xe máy"
-        //             var stop_order=near_stop_second.order
+                //     }
+                //     var route_name=route_name.substring(0,route_name.length-3)
+                //     //end get route name-------------------------------
+                //     var route_duration=Math.round(leg.duration.value/60)
+                //     var route_distance=Math.round(leg.distance.value)
+                //     var route_mode="xe máy"
+                //     var stop_order=near_stop_second.order
 
 
-        //             //send data to controller
-        //             input.route_name=route_name
-        //             input.route_duration=route_duration
-        //             input.route_distance=route_distance
-        //             //input.route_mode=route_mode
-        //             input.stop_order=stop_order
-        //             input.tripid=tripid
-        //               $.ajax({
-        //                   type: 'POST',
-        //                   dataType: 'json',
-        //                   url: '/api/add-stop-edit-route',
-        //                   contentType: 'application/json',
-        //                   data: JSON.stringify(input),
-        //                   success: function( data, textStatus, jQxhr ){
-        //                   //console.log(data );
-        //                   },
-        //                   error: function( jqXhr, textStatus, errorThrown ){
-        //                   console.log(errorThrown );
-        //                 }
-        //             });
-        //         }//end function edit_route
-        //       }//end if
-        //     });//end directionService
+                //     //send data to controller
+                //     input.route_name=route_name
+                //     input.route_duration=route_duration
+                //     input.route_distance=route_distance
+                //     //input.route_mode=route_mode
+                //     input.stop_order=stop_order
+                //     input.tripid=tripid
+                //       $.ajax({
+                //           type: 'POST',
+                //           dataType: 'json',
+                //           url: '/api/add-stop-edit-route',
+                //           contentType: 'application/json',
+                //           data: JSON.stringify(input),
+                //           success: function( data, textStatus, jQxhr ){
+                //           //console.log(data );
+                //           },
+                //           error: function( jqXhr, textStatus, errorThrown ){
+                //           console.log(errorThrown );
+                //         }
+                //     });
+                //}//end function edit_route
+              }//end if
+            });//end directionService
+          }
+        }//end else== end TH3
 
-        // }//end else
     }//end if
   new_marker.setIcon(icons.blueflag)
   new_marker.setTitle(stop_name)

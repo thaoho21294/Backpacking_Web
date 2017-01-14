@@ -17,7 +17,7 @@
 	<div class='trip-item-list'>
 	</div>
 </div>
-<div class="menu-left" id="menu-my-trip">MY TRIP</div>
+<div class="menu-left" id="menu-my-trip"><a href="/mytrips">MY TRIP</a></div>
 <div class='container trips-list' id='trip-near-you'>
 	<div class="trip-near-you-header">
 		<h2>Chuyến phượt gần đây</h2>
@@ -50,7 +50,7 @@
                         <h4 class="modal-title">Tạo mới chuyến phượt</h4>
                     </div>
                     <form role="form" action="/api/trips" method="post" class="new-trip-form" id="new-trip-form">
-                    <div class="modal-body">
+                    <div class="modal-body" id="myModal-body">
                             <fieldset id="fieldset1">
                                 <div class="form-top">
                                 <h4>Đi đâu đây?</h4>

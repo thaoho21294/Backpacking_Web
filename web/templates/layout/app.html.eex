@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Hello BsnWeb!</title>
+    <title>Backpacker's Space</title>
     <link rel="stylesheet" href="https://unpkg.com/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
   </head>
@@ -20,7 +20,7 @@
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
                 <span class="sr-only">Toggle navigation</span> Menu <i class="fa fa-bars"></i>
             </button>
-                <a class="navbar-brand" href="#page-top">Backpacker's Space</a>
+                <a class="navbar-brand" href="/">Backpacker's Space</a>
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
@@ -31,27 +31,33 @@
                     </div>
                 </form>
                 <ul class="nav navbar-nav navbar-right">
-                    <li class='page-scroll' id="edit-trip">
-                        <a href="#addstop"><span class="glyphicon glyphicon-pencil" style="font-size:14pt"></span></a>
+                    <li class='page-scroll dropdown' id="edit-trip">
+                        <a href="#addstop"  class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-pencil" style="font-size:14pt"></span></a>
+                        <ul class= "dropdown-menu">
+                            <li><a id="add-next-stop" href="#">Add next stop</a></li>
+                            <li><a id="add-middle-stop" href="#">Add middle stop</a></li>
+                        </ul>
                     </li>
                     <li class="page-scroll">
                         <a href="#portfolio"><span class="glyphicon glyphicon-comment" style="font-size:14pt"></a>
                     </li>
                     <li class="page-scroll">
-                        <a href="#about"><span class="glyphicon glyphicon-bell" style="font-size:14pt"></span></a>
+                        <a href="#"><span class="glyphicon glyphicon-bell" id='noti-icon' role="button" style="font-size:14pt"></span> </a><div class='noti'></div>                     
                     </li>
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><img id="avar" src="/images/avatar1.jpg"> Sang Trần <span class="caret"></span></a>
+                        <a href="#" id='avatar-group' class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><img id="main-avatar" src='/images/avatar_white.jpg'><span id="user-name-nav" >Tên người dùng</span> <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="#">My trips</a></li>
+                            <li><a href="/mytrips">My trips</a></li>
                             <li role="separator" class="divider"></li>
                             <li><a href="#">Profile settings</a></li>
                             <li role="separator" class="divider"></li>
                             <li><a href="#">Account settings</a></li>
                             <li role="separator" class="divider"></li>
-                            <li><a href="#">Logout</a></li>
+                            <li><a href="/logout">Logout</a></li>
                         </ul>
                     </li>
+                </ul>
+                 <ul class="noti-list" id='noti-list'>
                 </ul>
             </div>
             <!-- /.navbar-collapse -->

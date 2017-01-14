@@ -70,8 +70,17 @@ defmodule BsnWeb.TripController do
     trips=Backend.retrieve(%{id: user_id}, %{type: "ViewTripsList"})
     render(conn, "get_trips_near_user.json", trips: trips)
   end
+  def get_my_trips(conn, %{"user_id"=>user_id}) do
+     trips=Backend.retrieve(%{id: user_id}, %{type: "ViewMyTrips"})
+    render(conn, "get_my_trips.json", trips: trips)
+  end
   def find_trip(conn, %{"location"=>location, "start_date"=>start_date, "end_date"=>end_date}) do
     trips=Backend.retrieve(%{type: "FindTrip", location: location, start_date: start_date, end_date: end_date})
     render(conn, "find_trip.json", trips: trips)
   end
+  def edit_route_mode(conn, %{"id"=>stop_id, "mode"=>route_mode, "distance"=>route_distance, "duration"=>route_duration, "arrive"=>stop_arrive, "departure"=>stop_departure}) do
+    response=Backend.update(%{type: "Mode", stop_id: stop_id, route_mode: route_mode, route_distance: route_distance, route_duration: route_duration, stop_arrive: stop_arrive, stop_departure: stop_departure})
+    json conn, response;
+  end
+
 end

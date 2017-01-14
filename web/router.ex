@@ -11,7 +11,7 @@ defmodule BsnWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
-    plug :scrub
+    #plug :scrub
   end
 
   scope "/", BsnWeb do
@@ -22,9 +22,16 @@ defmodule BsnWeb.Router do
     get "/new", SessionController, :new
     post "/login", SessionController, :create
     get "/logout", SessionController, :delete
-    get "/trips/new", PageController, :create_trip
-    get "/trips/:id", PageController, :view_trip
     get "/map", MapController, :index
+
+    scope "/trips" do
+      get "/", PageController, :index
+      get "/new", PageController, :create_trip
+      get "/:id", PageController, :view_trip
+      get "/:id/members/:noti_id", PageController, :view_members
+    end
+
+    get "/mytrips", PageController, :view_my_trips
     #get "/auto/:input", MapController, :get_auto_complete_data
   end
   # Other scopes may use custom stacks.
@@ -38,15 +45,19 @@ defmodule BsnWeb.Router do
     post "/stops", TripController, :add_stop
     post "/stops/edit", TripController, :edit_stop
     post "/stops/edit-route", TripController, :edit_route
+    post "/stops/edit-route-mode/", TripController, :edit_route_mode
     post "/stops/edit_arrive_departure", TripController, :edit_arrive_departure_stop
     post "/add-stop-edit-route", TripController, :add_stop_edit_route
     post "/add-stop-update-order", TripController, :add_stop_update_order
     get "/address/:input", MapController, :get_autocomplete_data
     get "/locations/:place_id", MapController, :get_location
-    get "/direction/:origin/:destination", MapController, :get_direction
+    get "/direction/:origin/:destination", MapController, :get_direction_by_placeid
+    get "/direction-location/:origin/:destination/:mode", MapController, :get_direction_by_location
+
 
   scope "/trips" do
       get "/view/:user_id", TripController, :get_trips_near_user
+      get "/leader-view/:user_id", TripController, :get_my_trips
       get "/:id", TripController, :show
       get "/:id/stops", TripController, :get_all_stops
       post "/:id/stops", TripController, :add_stop
@@ -61,9 +72,16 @@ defmodule BsnWeb.Router do
       post "/find", TripController, :find_trip
 
     end
-    scope "/users" do
-      post "/login/", UserController, :check_login
+  scope "/users" do
+      get "/:id/simple_info", UserController, :get_simple_info
     end
+  scope "/members" do
+      post "/new", MemberController, :create
+      post "/:id/update/:status", MemberController, :update
+  end
+  scope "/noti" do
+    get "/:receiver_id", NotiController, :retrieve
+  end
   end
 
   # Simple plug to scrub and escape string params.

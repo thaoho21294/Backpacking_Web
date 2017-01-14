@@ -31,6 +31,11 @@ margin-left: 450px;
   cursor: pointer;
 }
 
+.menu-left a{
+  color: white;
+  text-decoration: none;
+}
+
 #trip-near-you{
 padding-top: 60px
 }	
@@ -69,6 +74,7 @@ padding-top: 60px
 .trip-item-element{
 	margin-left: 10px;
 	margin-right: 10px;
+  margin-bottom: 5px;
 }
 .trip-item hr{
 	margin-top: 5px;
@@ -77,8 +83,11 @@ padding-top: 60px
 .trip-item:hover{
 	cursor: pointer;
 }
-.trip-item a{
+.trip-link{
 	visibility: hidden;
+}
+.leader-name{
+  color: black;
 }
 .btn-circle {
   width: 30px;
@@ -143,7 +152,7 @@ ul.vehicle-list li {
   position: static;
   border: 0px 
 }*/
-.modal-body input{
+#myModal-body input{
     border: 2px solid transparent;
     border-bottom: 2px solid #E6E6FA;
     box-shadow: none;
@@ -151,7 +160,7 @@ ul.vehicle-list li {
     padding: 5px 5px 5px 5px;
     width: 100%
   }
-.modal-body input:focus{
+#myModal-body input:focus{
     border-bottom: 2px solid blue;
 }
 .address-list {

@@ -18,4 +18,7 @@ defmodule BsnWeb.TripView do
  def render("find_trip.json", %{trips: trips}) do
  	%{trips: trips}
  end
+   def render("get_my_trips.json", %{trips: trips}) do
+   	%{trips: trips}
+   end
 end

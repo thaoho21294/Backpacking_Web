@@ -1,0 +1,9 @@
+<div class="content">
+<input type="hidden" name="user_id" id="user_id" value="<%= @user_id %>">
+<div class="menu-left" id="menu-my-trip"><a href="/trips">EXPLORE TRIPS</a></div>
+<div class='container trips-list' id='my-trips'>
+	<div class='trip-item-list'>
+
+	</div>
+</div>
+</div>

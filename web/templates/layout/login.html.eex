@@ -16,8 +16,6 @@
       <main role="main">
         <%= render @view_module, @view_template, assigns %>
       </main>
-    <script src="http://maps.google.com/maps/api/js?key=AIzaSyDnPCkQMDmfgneX6juLvQ6rjBF98lyG5T0"></script>
-    <script src="https://unpkg.com/flatpickr"></script>
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
 	<!--<script src="/js/view-trip.js" ></script>-->
 

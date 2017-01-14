@@ -30,13 +30,48 @@ body {
 .navbar-form input[type=text]{
   width: 400px !important;
 }
-#avar{
-  width: 30px;
-  height: 20px;
+#main-avatar{
+  width: 33px;
+  height: 27px;
 }
 .info{
-  position: absolutely;
+  position: absolute;
   top: 100px;
   right: 20px;
+}
+.noti{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: white;
+  background-color: red;
+  padding-left: 3px;
+  padding-right: 3px;
+  font-size: smaller;
+}
+.noti-list{
+  position: absolute;
+  list-style-type: none;
+  background-color: #f8f9fb;
+  border: solid 1px #e6e9ef;
+  top: 37px;
+  right: 100px;
+  padding-left: 0px;
+}
+.noti-list li{
+  padding: 10px;
+  width: 200px;
+}
+.navbar-inverse {
+    background-color: #292b31;
+    border-color: #222;
+    }
+.noti-link{
+  width: 100%;
+  height: 100%;
+}
+.noti-list hr{
+  margin-top: 0px;
+margin-bottom: 0px;
 }
 @import "node_modules/font-awesome/scss/font-awesome.scss"
