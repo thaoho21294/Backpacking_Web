@@ -77,30 +77,28 @@
 </div>
 
   <div id='history-body'>
+ 
   <ul id="history-list">
+
   <li class='home-end-history'>
     <button class="btn btn-circle btn-default glyphicon glyphicon-home"></button>
     <div class='right-text'>
       <div class='right-up-text'>Ngày bắt đầu</div>
-      <div class='right-dow-text' id='start-date'>1/4/2015</div>
+      <div class='right-dow-text' id='start-date-history'>1/4/2015</div>
       </div>
   </li>
-  <li><button class='btn btn-circle btn-warning glyphicon glyphicon-plus'></button> Thêm điểm dừng</li>
-  <li>
-    <div class='stop-history'>
-      <h3 class='stop-history-name'>Làng Cù Lần</h3>
-      <h4 class='stop-history-province'>Đà Lạt</h4>
-      <div class='stop-history-time-group'><span class='stop-history-day-number'>ngày 1</span><span class='stop-history-time'>  30/3/2016</span></div>
-      <div class='stop-history-description'><p>Mua thêm 1 ít nước uống và snack và hướng đến Làng Cù Lần.
-
-  Đi theo hướng Đankia suối Vàng ( tỉnh lộ 722) hay còn gọi là đường Đông Trường Sơn, ngang qua những mặt hồ mênh mông, xuyên qua những rừng thông bất tận (Từ Khu du lịch Thung Lũng Vàng đi thêm chừng 10 km nữa), cách Tp khoảng 30km.
-  Làng rất rộng, đi bộ rất mệt nên các bạn nhớ trang bị giày khi đến đây nhé.</p></div>
-  <div class='stop-history-image'><img src="/images/IMG_8473.jpg"></div>
-
-    </div>
-    </li>
+  <div id="middle-item">
+  </div>
+    <li class="add_stop_history"><button class='btn btn-circle btn-warning glyphicon glyphicon-plus'></button>Thêm điểm dừng</li>
+      <li class='home-end-history'>
+    <button class="btn btn-circle btn-default glyphicon glyphicon-home"></button>
+    <div class='right-text'>
+      <div class='right-up-text'>Ngày kết thúc</div>
+      <div class='right-dow-text' id='end-date-history'>1/4/2015</div>
+      </div>
+  </li>
+  
   </ul>
-  <div id="vertical-line"></div>
   </div>
 </div>
 

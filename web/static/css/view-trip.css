@@ -46,7 +46,7 @@
     top: 60px;
     right: -500px;
     background-color: #f2f2f2;
-    height:auto;
+    height:700px;
     display: flex;
     overflow-y: scroll;
     overflow-x: hidden;
@@ -272,7 +272,7 @@ button.function-button:hover {
 .join-button{
   position: absolute;
   right: 10px;
-  top: 180px;
+  top: 150px;
   padding: 10px;
   padding-left: 20px;
   padding-right: 20px;
@@ -400,7 +400,7 @@ div.members-title{
     background: rgba(0, 0, 0, 0.4);
   background-size: 600px 300px;
   text-align: center;
-  padding-bottom: 90px;
+  padding-bottom: 30px;
 }
 #history-trip-name{
   font-weight: bold;
@@ -429,7 +429,7 @@ div.members-title{
 }
 #vertical-line{
   border-left: 1px solid grey;
-  height: 100%;
+  height: 118%;
   margin-left: 70px;
   position: absolute;
   margin-top: 40px;
@@ -441,8 +441,7 @@ div.members-title{
 }
 #history-list li{
   padding: 20px;
-  padding-left: 36px;
-
+  padding-left:36px;
 }
 .btn-circle{
   font-size: 20px;
@@ -456,7 +455,7 @@ div.members-title{
 .stop-history{
   background-color: white;
   padding: 24px;
-   border-radius: 4px;
+  border-radius: 4px;
 }
 .home-end-history{
   display: flex;

@@ -273,13 +273,13 @@ function findDateInput(start_date_id, end_date_id){
 		altFormat: "d/m/Y"
 	}
 
-	// flatpickr(start_date_id,config);	
-	// flatpickr(end_date_id,config);
-	// $(start_date_id).change(function(){
-	// 	var start_date=$(this).val();
-	// 	config.minDate=start_date;
-	// 	flatpickr(end_date_id, config);
-	// });
+	flatpickr(start_date_id,config);	
+	flatpickr(end_date_id,config);
+	$(start_date_id).change(function(){
+		var start_date=$(this).val();
+		config.minDate=start_date;
+		flatpickr(end_date_id, config);
+	});
 
 }
 function drawTripList(element, trips){

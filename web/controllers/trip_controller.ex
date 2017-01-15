@@ -82,5 +82,8 @@ defmodule BsnWeb.TripController do
     response=Backend.update(%{type: "Mode", stop_id: stop_id, route_mode: route_mode, route_distance: route_distance, route_duration: route_duration, stop_arrive: stop_arrive, stop_departure: stop_departure})
     json conn, response;
   end
-
+  def get_stop_images(conn, %{"id"=>trip_id}) do
+    images=Backend.retrieve(%{type: "StopImages", trip_id: trip_id})
+    render(conn, "get_stop_images.json", images: images)
+  end
 end

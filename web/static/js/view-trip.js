@@ -12,6 +12,7 @@
 //         //  "route8": [nice_hotel, dinh_pinhatt, thac_dalanta]
 // };
 var tripid=0;
+var user_id=0;
 var routeArray = {}
 var stops=[]
 var stops_title=[]
@@ -19,6 +20,7 @@ var icons;
 var tripdetail;
 var members=[]
 var route_mode={}
+var view_mode;
 // $.urlParam = function(name){
 //     var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
 //     if (results==null){
@@ -65,10 +67,11 @@ $(document).ready(function() {
 
  }; 
     tripid=$("input[name='tripid']").val();
+    user_id=$("#user_id").val();
     var view_members_trip=$("input[name='view_members']").val();
     
     if(tripid!=undefined){
-      initMap();
+      // initMap();
      if(view_members_trip=="true"){
       keep_position("#members")
      }
@@ -95,10 +98,10 @@ $(document).ready(function() {
         }
 
         if(stops.length>1){
-           send_route_map(stops)
+           // send_route_map(stops)
           create_stops_distinct()
           send_data_plan(stops)
-          generateRequests(routeArray);
+          // generateRequests(routeArray);
         }
         var center_stop= stops[Math.floor(stops.length/2)]
         var center_latLng= {lat:center_stop.lat, lng:center_stop.lng}
@@ -114,7 +117,9 @@ $(document).ready(function() {
           if (!data.members) {return}
             members= data.members;
           console.log(members);
-            view_members(members);
+          GetView(members)
+          console.log("view="+view_mode);
+          view_members(members);
         }
         });//end ajax
        $.ajax(
@@ -163,12 +168,15 @@ $("#plan-list").on('click', '.content1', function(){
     case 'đi bộ': mode_icon= 'blind'; break; 
     default: mode_icon='motorcycle'; break;
   }
+  var stop_string_control="";
+  if(view_mode=="leader"){
+    stop_string_control="<li class='content2-header-item'><button class='function-button' id='up-stop'>Lên <span class='glyphicon glyphicon-arrow-up'></span></button></button></li>\
+          <li class='content2-header-item'><button class='function-button' id='down-stop'>Xuống <span class='glyphicon glyphicon-arrow-down'></span></button></li>\
+          <li class='content2-header-item'><button class='function-button' id='delete-stop'>Xóa <span class='glyphicon glyphicon-remove'></span></button></li>";
+        }
   var stop_string ="<div class='content2'>\
         <ul class='content2-header'>\
-          <li class='content2-header-item'><img class='plan-list-icon' src='/images/flag2.png'> </li>\
-          <li class='content2-header-item'><button class='function-button' id='up-stop'>Lên <span class='glyphicon glyphicon-arrow-up'></span></button></button></li>\
-          <li class='content2-header-item'><button class='function-button' id='down-stop'>Xuống <span class='glyphicon glyphicon-arrow-down'></span></button></li>\
-          <li class='content2-header-item'><button class='function-button' id='delete-stop'>Xóa <span class='glyphicon glyphicon-remove'></span></button></li>\
+          <li class='content2-header-item'><img class='plan-list-icon' src='/images/flag2.png'> </li>"+stop_string_control+"\
           <li class='li-close-button'><button class='close-button' id='close-stop'><span class='glyphicon glyphicon-remove'></span></button></li>\
         </ul>\
         <div class ='content2-body'>\
@@ -194,18 +202,22 @@ $("#plan-list").on('click', '.content1', function(){
         </div>\
       </div>";
       // console.log(stop_string)
-      var route_string="<div class='content2'>\
-        <ul class='content2-header'>\
-          <li class='dropdown content2-header-item'>\
-          <button class='dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>\
-          <i class='fa fa-"+mode_icon+" fa-2x' aria-hidden='true' style='color: black'></i></button>\
-          <ul class='dropdown-menu'>\
+      var route_string_control=""
+      if(view_mode=="leader"){
+        route_string_control="<ul class='dropdown-menu'>\
           <li><a href='#' id='mode-motobike' class='route-mode'> Xe máy</a></li>\
           <li><a href='#' id='mode-car' class='route-mode'> Ô tô</a></li>\
           <li><a href='#' id='mode-coach' class='route-mode'> Xe khách</a></li>\
           <li><a href='#' id='mode-bike' class='route-mode'> Xe đạp</a></li>\
           <li><a href='#' id='mode-walking' class='route-mode'> Đi bộ</a></li>\
-          </ul></li>\
+          </ul>"
+      }
+      var route_string="<div class='content2'>\
+        <ul class='content2-header'>\
+          <li class='dropdown content2-header-item'>\
+          <button class='dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>\
+          <i class='fa fa-"+mode_icon+" fa-2x' aria-hidden='true' style='color: black'></i></button>"+route_string_control+"\
+          </li>\
           <li class='li-close-button'><button class='close-button'><span class='glyphicon glyphicon-remove'></span></button></li>\
         </ul>\
         <div class ='content2-body'>\
@@ -235,10 +247,15 @@ $("#plan-list").on('click', '.content1', function(){
       if(id==0){
         $("#stop-arrive-date-show").attr('disabled', false)
          $("#stop-arrive-time-show").attr('disabled', false)
+      }
+      if(view_mode!="leader"){
+        $(".content2 input").attr('disabled', true);
+        $(".content2 textarea").attr('disabled', true);
       }   
 
 });
 $("#plan").on('input','#stop-arrive-date-show, #stop-arrive-time-show, #stop-duration-show', function(){
+
   var arrive_date=$('#stop-arrive-date-show').val();
   var arive_time=$('#stop-arrive-time-show').val();
   var stop_duration=0
@@ -522,6 +539,7 @@ $("#plan-list").on('click', '#cancel-edit-stop', function(){
 });
 editTripDetail();
 approve_member();
+create_trip_history(tripdetail);
 //end document ready
 
 });
@@ -729,6 +747,7 @@ function editTripDetail(){
           auto_height_textarea("#"+id, 20)
       } );
 }
+var trip_days=0;//for history and schedule
         function send_route_map(stops) {
             //create routes include many stop
             if(stops.length==1) return
@@ -864,20 +883,20 @@ function editTripDetail(){
               items.push({time:stops[stops.length-1].arrive,description:stop_description});
               console.log("items=")
               console.log(items)
-              var days=cal_number_days(stops)
+              trip_days=cal_number_days(stops)
               var start_date=new Date(stops[0].departure)
               var date=start_date; // date of daynumber
               var height_item=32; // height of a item on plan list
               var padding=0
               var number_item_part=0
-              console.log("days="+days)
+              console.log("days="+trip_days)
               var number_item=0;
               var day_max=0;
               var start_item_number=0;
               var month;
               var day_number_items=[];
               var day_string=""
-             for(var i=1; i<days+1;i++){
+             for(var i=1; i<trip_days+1;i++){
               month=date.getMonth()+1
                $(".day-number").append("<li id='day"+i+"''>Day "+i+"<br>"+name_date(date.getDay())+"<br>"+date.getDate()+"/"+month+"</li>")
                var day_max=new Date(date.getFullYear(),date.getMonth(),date.getDate(),23,59,0,0).getTime();
@@ -904,7 +923,7 @@ function editTripDetail(){
                $("li#day"+i).css("height", padding+"px");
                date.setDate(date.getDate()+1);
              }
-             create_schedule(items,days,day_number_items)
+             create_schedule(items, trip_days,day_number_items)
 
             }  //end send data map plan
 function view_members(members){
@@ -927,7 +946,7 @@ function view_members(members){
           <div class='member-info'>\
             <div class='member-name'>"+members[i].full_name+"</div>\
             <div class='member-hometown'>"+members[i].hometown+"</div>\
-            <div class='member-joined-date'>joined <span>"+formatDatetoDate(members[i].joined_date)+"</span></div>\
+            <div class='member-joined-date'>yêu cầu tham gia<span>"+formatDatetoDate(members[i].joined_date)+"</span></div>\
           </div>\
           <div class='members-control'>\
           <button class='approve btn btn-primary'>Chấp nhận</button>\
@@ -943,14 +962,18 @@ function view_members(members){
           <div class='member-info'>\
             <div class='member-name'>"+members[i].full_name+"</div>\
             <div class='member-hometown'>"+members[i].hometown+"</div>\
-            <div class='member-joined-date'>requested <span>"+formatDatetoDate(members[i].joined_date)+"</span></div>\
+            <div class='member-joined-date'>đã tham gia <span>"+formatDatetoDate(members[i].joined_date)+"</span></div>\
           </div>\
         </li>");
       }
-    }
-   }
+    }//end else
+   }//end else
+  }//end for
+  if(view_mode!="leader"){
+    $(".approve").remove();
+    $(".ignore").remove();
   }
-}
+}//end function
 function approve_member(){
   $("#members-list").on('click', ".approve", function(e){
     e.stopPropagation()
@@ -988,16 +1011,26 @@ function approve_member(){
       $(this).parents(".members-control").hide();
   });//end on click
 }
-function MemberView(){
+function GetView(members){
+  for(var i in members){
+    console.log(user_id)
+    console.log(members[i].user_id)
+    if(user_id==members[i].user_id){
+      if(members[i].role=="leader"){
+        view_mode="leader";
+        return;
+      }
+      else{
+        view_mode="member";
 
-}
-function LeaderView(){
-
-}
-function UserView(){
-
-}
-function CheckPeopleView(){
+      }
+    }
+  }//end for
+  if(view_mode==undefined){
+    view_mode="user";
+  }
+  console.log(view_mode);
+  return;
 
 }
 function create_tripdetail(tripdetail){
@@ -1065,6 +1098,76 @@ $("#trip-detail").html(tripdetail_string);
   auto_height_textarea('#necessary-tool',20);
   auto_height_textarea('#note',20);
   auto_height_textarea('#trip-name',90);
+  if(view_mode!="user"){
+    $("#join-button").remove();
+  }
+  if(view_mode!="leader"){
+    $("#trip-detail-title").remove();
+  }
+}//end function create trip-detail
+function create_trip_history(trip_detail){
+  var start_date=new Date(tripdetail.start_date);
+  var trip_month_year=name_month(start_date.getMonth())+" "+start_date.getFullYear();
+  var sum_distance=0;
+  var images_lenght=0;
+  
+    $.ajax({
+      url: "/api/stops/"+tripid+"/images",
+      dataType: 'json',
+      async: false,
+      success: function(data){
+        if(!data.images) return;
+        var stop_images=[]
+        images_lenght=data.images.length;
+        var image={}
+        //console.log(data.images)
+
+        for(var s in stops){
+          sum_distance+=stops[s].route_distance;
+          stops[s].images=[];
+          for (var i in data.images){
+            if(data.images[i].stop_id==stops[s].id){
+              image={
+                url: data.images[i].url,
+                description: data.images[i].description,
+              };
+              stops[s].images.push(image);
+            }//end if
+          }//end for data.image
+         //console.log("images list-----");
+        //console.log(stops[s].images);
+        }//end for stops
+
+      } 
+    });//end ajax
+
+
+  $("#history-trip-name").html(trip_detail.name);
+  $("#trip_month_year").html(trip_month_year);
+  $("#trip-distance").html(formatDistance(sum_distance));
+  $("#trip-days").html(trip_days+"ngày");
+  $("#trip-photos").html(images_lenght +" hình ảnh");
+  $("#start-date-history").html(formatDatetoDate(stops[0].arrive));
+  $("#end-date-history").html(formatDatetoDate(stops[stops.length-1].arrive));
+
+  for(var s in stops){
+    $("#middle-item").append("<li class='add_stop_history'><button class='btn btn-circle btn-warning glyphicon glyphicon-plus'></button> Thêm điểm dừng</li>\
+      <li>\
+        <div class='stop-history' id='stop-history-"+stops[s].id+"'>\
+          <h3 class='stop-history-name'>"+stops[s].name+"</h3>\
+          <h4 class='stop-history-province'>"+stops[s].address+"</h4>\
+          <div class='stop-history-time-group'><span class='stop-history-day-number'>ngày 1</span><span class='stop-history-time'>"+formatDatetoDate(stops[s].arrive)+"</span></div>\
+          </div>\
+          </li>");
+      var images=stops[s].images
+      for(var i in images){
+          $("#stop-history-"+stops[s].id).append("<div class='stop-history-description'><p>"+images[i].description+"</p></div>\
+            <div class='stop-history-image'><img src='"+images[i].url+"'></div>");
+      }//end for images
+  }//end for stops
+  if(view_mode!="leader"){
+    $(".add_stop_history").remove();
+  }
 }
 function auto_height_textarea(textarea, one_line_height){
   var sum_line=0;
