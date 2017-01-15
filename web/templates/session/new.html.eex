@@ -1,5 +1,6 @@
 <div class="content" id="login-page">
-	<h2><b>Welcome!<b></h2>
+	<h2 class="title"><b>Chào mừng đến với mạng xã hội Phượt!</b></h2>
+	<div class="inner-page">
 		<%= form_for @conn, session_path(@conn, :create), [as: :user],  fn f -> %>
 		 <%= if f.errors != [] do %>
 		    <div class="alert alert-danger">
@@ -17,23 +18,19 @@
 		  </div>
 
 		  <div class="form-group">
-		    <label>Password</label>
+		    <label>Mật khẩu</label>
 		    <%= password_input f, :password, class: "form-control" %>
 		  </div>
 		  <p class="error" style="color: red"><%= get_flash(@conn, :error) %></p>
 		   <div class="form-group">
-		   <a href="#">Forgot password?</a>
+		   <a href="#">Quên mật khẩu</a>
 		   </div>
 		  <div class="form-group">
-		   <%= submit "Login", class: "btn btn-primary", id: "login-button" %>
-		   <%= link("Sign Up", to: registration_path(@conn, :new), class: "btn btn-success pull-right") %>
+		   <%= submit "Đăng nhập", class: "btn btn-primary", id: "login-button" %>
+		   <%= link("Đăng ký", to: registration_path(@conn, :new), class: "btn btn-success pull-right") %>
 		  </div>
 
 		</form>
 		<% end %>
+	</div>
 </div>
-<script type="text/javascript">
-	$(document).ready(function(){
-	$("#mainNav").hide();
-	});//end document ready
-</script>

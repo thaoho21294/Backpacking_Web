@@ -1,16 +1,11 @@
-#login-page{
+#registration-page{
 	background-image: url('/images/login-background.jpg');
 	background-repeat: no-repeat;
 	background-size: 100%;
-	padding-top: 250px;
-
+	padding-top: 100px;
+	padding-left: 1100px;
 	color: black;
 }
-
-.inner-page{
+.inner-registration-page{
 	width: 300px;
-	margin-left: 600px;
-}
-.title{
-	padding-left: 500px;
 }

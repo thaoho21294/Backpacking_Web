@@ -89,7 +89,7 @@ defmodule BsnWeb.Backend do
       OPTIONAL MATCH (l:Location)<-[:LOCATE]-(s:Stop)-[:THROUGH]->(r:Route)-[:MODE]->(v:Vehicle), (s:Stop)<-[:INCLUDE]-(t:Trip)
       WHERE id(t)=#{trip_id}
       return id(s) as id, s.name as name,s.description as description, l.lat as lat, l.long as lng, l.address as address, v.name as mode, s.order as order,
-      s.arrive as arrive, s.departure as departure, r.name as route_name, r.duration as route_duration, r.distance as route_distance, r.description as route_description 
+      s.arrive as arrive, s.departure as departure, r.name as route_name, r.duration as route_duration, r.distance as route_distance, r.description as route_description
       ORDER BY order
     """
 
@@ -342,8 +342,13 @@ defmodule BsnWeb.Backend do
       """
       Sips.query!(Sips.conn, cypher)
     end
-    def retrieve(%{type: "CreateUser", email: email, password: password, first_name: first_name, last_name: last_name }) do
-      cypher=""
+    def retrieve(%{type: "CreateUser", email: email, password: password, first_name: first_name, last_name: last_name, hometown: hometown, gender: gender}) do
+       created_date= DateTime.to_unix(DateTime.utc_now())*1000
+      cypher="""
+      CREATE (u:User{email: "#{email}", password: "#{password}", created_date: #{created_date}})
+      CREATE (p:Profile {first_name: "#{first_name}", last_name:"#{last_name}", hometown: "#{hometown}", gender:"#{gender}", avatar: "/images/avatar_white.png"})
+      CREATE (u)-[:HAVE]->(p)
+      """
        Sips.query!(Sips.conn, cypher)
     end
     def retrieve(%{type: "FindUser", email: email}) do
@@ -412,7 +417,7 @@ defmodule BsnWeb.Backend do
     cypher="""
     MATCH (p:Profile)<-[:HAVE]-(u:User)-[m:MEMBER]->(t:Trip) 
     where id(t)=#{trip_id} 
-    return id(m) as id, p.first_name +" "+ p.last_name as full_name, p.hometown as hometown, m.joined_date as joined_date, m.lat as lat, m.lng as lng, m.role as role, p.avatar as avatar, m.status as status 
+    return id(m) as id, id(u) as user_id, p.first_name +" "+ p.last_name as full_name, p.hometown as hometown, m.joined_date as joined_date, m.lat as lat, m.lng as lng, m.role as role, p.avatar as avatar, m.status as status 
     """
      Sips.query!(Sips.conn, cypher)
   end
@@ -448,6 +453,23 @@ defmodule BsnWeb.Backend do
     MATCH (u:User)-[:HAVE]->(p:Profile)
     WHERE id(u)=#{user_id} 
     RETURN p.first_name +" "+ p.last_name as full_name, p.avatar as avatar
+    """
+    Sips.query!(Sips.conn, cypher)
+  end
+  def retrieve(%{type: "StopImages", trip_id: trip_id}) do
+    cypher="""
+    MATCH (t:Trip)-[:INCLUDE]->(s:Stop)-[:HAVE]->(i:Image)
+    WHERE id(t)=#{trip_id}
+    RETURN id(s) as stop_id, i.url as url, i.description as description
+    ORDER BY s.order, id(i)
+    """
+    Sips.query!(Sips.conn, cypher)
+  end
+  def create(%{type: "StopImages"}, url: url, description: description, stop_id:  stop_id) do
+    cypher="""
+      MATCH (s:Stop)
+      WHERE id(s)=#{stop_id}
+      CREATE (i:Image{url: "#{url}", description: "#{description}"})
     """
     Sips.query!(Sips.conn, cypher)
   end
