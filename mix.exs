@@ -39,7 +39,8 @@ defmodule BsnWeb.Mixfile do
      {:httpoison, "~> 0.10"},
      {:graphql, "~> 0.3"},
      {:graphql_relay, "~> 0.5"},
-     {:plug_graphql, "~> 0.3"}
+     {:plug_graphql, "~> 0.3"},
+     {:joken, "~> 1.3"}
    ]
   end
 end

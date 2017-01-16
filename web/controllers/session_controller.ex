@@ -14,7 +14,7 @@ defmodule BsnWeb.SessionController do
     user = if is_nil(user_params["email"]) do
       nil 
     else 
-      Enum.at(Backend.retrieve(%{type: "FindUser", email: user_params["email"]}), 0)
+      Backend.retrieve(nil, %{type: "User", username: user_params["email"]}, nil)
     end 
 
     user |>

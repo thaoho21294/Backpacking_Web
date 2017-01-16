@@ -35,8 +35,13 @@ defmodule BsnWeb.Backend.Schema.Viewer do
         user: %{
           type: Schema.User,
           description: "The logged in user if any.",
-          resolve: fn(viewer, _args, _context) ->
-            viewer.user
+          resolve: fn
+            (viewer, args, %{root_value: %{user: user}} = context) ->
+              Backend.retrieve(viewer, %{type: "User", id: user["id"]}, context)
+            (%{token: nil}, _, %{root_value: %{user: nil}}) -> 
+              nil
+            (%{token: token} = viewer, _, context) ->
+              Backend.retrieve(viewer, %{type: "User"}, context)
           end
         }
       })

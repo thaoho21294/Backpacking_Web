@@ -1,6 +1,8 @@
 defmodule BsnWeb.Router do
   use BsnWeb.Web, :router
 
+  @jwt_secret Application.get_env(:bsn_web, :jwt_secret)
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -11,6 +13,9 @@ defmodule BsnWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug BsnWeb.Plug.Jwt,
+      secret: @jwt_secret,
+      assign: :user
     #plug :scrub
   end
 
@@ -55,8 +60,7 @@ defmodule BsnWeb.Router do
     get "/direction/:origin/:destination", MapController, :get_direction_by_placeid
     get "/direction-location/:origin/:destination/:mode", MapController, :get_direction_by_location
 
-
-  scope "/trips" do
+    scope "/trips" do
       get "/view/:user_id", TripController, :get_trips_near_user
       get "/leader-view/:user_id", TripController, :get_my_trips
       get "/:id", TripController, :show
@@ -73,16 +77,16 @@ defmodule BsnWeb.Router do
       post "/find", TripController, :find_trip
 
     end
-  scope "/users" do
+    scope "/users" do
       get "/:id/simple_info", UserController, :get_simple_info
     end
-  scope "/members" do
+    scope "/members" do
       post "/new", MemberController, :create
       post "/:id/update/:status", MemberController, :update
-  end
-  scope "/noti" do
-    get "/:receiver_id", NotiController, :retrieve
-  end
+    end
+    scope "/noti" do
+      get "/:receiver_id", NotiController, :retrieve
+    end
   end
 
   # Simple plug to scrub and escape string params.

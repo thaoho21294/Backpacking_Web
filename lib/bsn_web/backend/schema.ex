@@ -42,8 +42,11 @@ defmodule BsnWeb.Backend.Schema do
               description: "The optional token used to identify a user."
             }
           },
-          resolve: fn(_source, args, _context) ->
-            Viewer.new()
+          resolve: fn
+            (_source, %{token: token}, _context) ->
+              Viewer.new(token)
+            (_source, _args, _context) ->
+              Viewer.new()
           end
         },
         getTrip: Query.get_trip()
@@ -56,7 +59,8 @@ defmodule BsnWeb.Backend.Schema do
       name: "GenBackendMutationRoot",
       description: "Root object for performing data mutations",
       fields: %{
-        createTrip: Mutation.create_trip()
+        createTrip: Mutation.create_trip(),
+        createToken: Mutation.create_token()
       }
     }
   end
