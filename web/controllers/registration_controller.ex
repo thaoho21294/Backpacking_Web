@@ -16,7 +16,7 @@ defmodule BsnWeb.RegistrationController do
       |> put_flash(:error, "Nhập thiếu thông tin")
       |> redirect(to: registration_path(conn, :new)) 
     else 
-      email= Enum.at(Backend.retrieve(%{type: "FindUser", email: user_params["email"]}), 0)
+      email= Backend.retrieve(nil, %{type: "User", username: user_params["email"]}, nil)
       email |>
     	register(user_params, conn) 
     end
@@ -28,26 +28,24 @@ defmodule BsnWeb.RegistrationController do
       |> redirect(to: registration_path(conn, :new))
   end
   def register(email, user_params, conn) when is_nil(email) do
-  	password=user_params["password"]
-  	password_confirmation= user_params["password_confirmation"]
-    IO.inspect(password)
-    IO.inspect(password_confirmation)
-    IO.inspect(password === password_confirmation)
+  	password = user_params["password"]
+  	password_confirmation = user_params["password_confirmation"]
+
   	if password != password_confirmation do
   		conn
       |> put_flash(:error, "password nhập lại chưa đúng")
       |> redirect(to: registration_path(conn, :new))
   	else
-  		last_name=""
-  		email=user_params["email"]
-  		password= user_params["password"]
-  		first_name=user_params["first_name"]
-  		hometown=user_params["hometown"]
-  		gender=user_params["gender"]
-  		response=Backend.retrieve(%{type: "CreateUser", email: email, password: password, first_name: first_name, last_name: last_name, hometown: hometown, gender: gender})
+  		last_name = ""
+  		email = user_params["email"]
+  		password = user_params["password"]
+  		first_name = user_params["first_name"]
+  		hometown = user_params["hometown"]
+  		gender = user_params["gender"]
+  		response = Backend.create(%{type: "User", email: email, password: password, first_name: first_name, last_name: last_name, hometown: hometown, gender: gender}, nil)
   		conn
-          |> put_flash(:info, "Đăng ký thành công")
-          |> redirect(to: session_path(conn, :new))
+      |> put_flash(:info, "Đăng ký thành công")
+      |> redirect(to: session_path(conn, :new))
   	end
 
   end

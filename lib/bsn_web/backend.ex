@@ -19,6 +19,16 @@ defmodule BsnWeb.Backend do
   @doc """
   Callback for creating resource.
   """
+  def create(%{type: "User", email: email, password: password, first_name: first_name, last_name: last_name, hometown: hometown, gender: gender}, _context) do
+    created_date = DateTime.to_unix(DateTime.utc_now()) * 1000
+    cypher = """
+    CREATE (u:User{email: "#{email}", password: "#{password}", created_date: #{created_date}})
+    CREATE (p:Profile {first_name: "#{first_name}", last_name:"#{last_name}", hometown: "#{hometown}", gender:"#{gender}", avatar: "/images/avatar_white.png"})
+    CREATE (u)-[:HAVE]->(p)
+    """
+    Sips.query!(Sips.conn, cypher)
+  end
+  
   def create(input, _context) do
     # @TODO: Create trip with a user as owner.
     query = """
@@ -348,15 +358,6 @@ defmodule BsnWeb.Backend do
     """
     Sips.query!(Sips.conn, cypher)
   end
-  def retrieve(%{type: "CreateUser", email: email, password: password, first_name: first_name, last_name: last_name, hometown: hometown, gender: gender}) do
-       created_date= DateTime.to_unix(DateTime.utc_now())*1000
-      cypher="""
-      CREATE (u:User{email: "#{email}", password: "#{password}", created_date: #{created_date}})
-      CREATE (p:Profile {first_name: "#{first_name}", last_name:"#{last_name}", hometown: "#{hometown}", gender:"#{gender}", avatar: "/images/avatar_white.png"})
-      CREATE (u)-[:HAVE]->(p)
-      """
-       Sips.query!(Sips.conn, cypher)
-    end
   # Get a user with username and password, setting the token in it.
   def retrieve(_, %{type: "User", username: username, password: password}, _context) do
     # @TODO: Hash password.
