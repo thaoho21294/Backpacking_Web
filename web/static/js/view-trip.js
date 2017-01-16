@@ -33,7 +33,6 @@ var view_mode;
 //var tripid=$.urlParam('tripid');
 
 $(document).ready(function() {
-
  icons={
   blueflag: new google.maps.MarkerImage(
    // URL
@@ -540,6 +539,7 @@ $("#plan-list").on('click', '#cancel-edit-stop', function(){
 editTripDetail();
 approve_member();
 create_trip_history(tripdetail);
+if(view_mode!="leader") $("#edit-trip").hide()
 //end document ready
 
 });
@@ -1106,6 +1106,7 @@ $("#trip-detail").html(tripdetail_string);
   }
 }//end function create trip-detail
 function create_trip_history(trip_detail){
+  if(tripdetail==undefined)  return 
   var start_date=new Date(tripdetail.start_date);
   var trip_month_year=name_month(start_date.getMonth())+" "+start_date.getFullYear();
   var sum_distance=0;

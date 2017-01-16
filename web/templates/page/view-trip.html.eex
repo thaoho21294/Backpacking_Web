@@ -1,5 +1,5 @@
 <div class="content">
-  <input type="hidden" name="tripid" value="<%= @sum_info.trip_id %>">
+  <input type="hidden" name="tripid" id="tripid" value="<%= @sum_info.trip_id %>">
   <input type="hidden" name="user_id" id="user_id" value="<%= @sum_info.user_id %>">
   <input type="hidden" name="view_members" value="<%= @sum_info.view_members %>">
   <div id= map></div>
@@ -143,7 +143,7 @@
                     </div>
             </div>
   </div>
-  <div class="menu-bottom" id="menu-discussion">DISCUSSION</div>
+<%#   <div class="menu-bottom" id="menu-discussion">DISCUSSION</div> %>
 </div>
 
 

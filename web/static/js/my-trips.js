@@ -2,20 +2,25 @@
 $(document).ready(function(){
 var user_id= $("#user_id").val();
 var trip_list=document.getElementById("my-trips")
-if(trip_list!=undefined){
-	$.ajax({
-		url:"/api/trips/leader-view/"+user_id,
-		dataType: 'json',
-		success: function(data){
-			drawTripList('#my-trips .trip-item-list', data.trips)
-		},
-		error: function( jqXhr, textStatus, errorThrown ){
-        console.log(errorThrown );
+	if(trip_list!=undefined){
+		$.ajax({
+			url:"/api/trips/leader-view/"+user_id,
+			dataType: 'json',
+			success: function(data){
+				drawTripList('#my-trips .trip-item-list', data.trips)
+			},
+			error: function( jqXhr, textStatus, errorThrown ){
+	        console.log(errorThrown );
 
-    	}
-	});//enđ ajax
+	    	}
+		});//enđ ajax
+		$("#my-trips").on('click', '.trip-item', function(){
+		var url=$(this).children('a').attr('href')
+		window.open(url);
+		});
 }
-});
+
+});// end document ready
 function drawTripList(element, trips){
 	var now_day=new Date();
 	$(element).find('.trip-item').remove();
@@ -28,7 +33,7 @@ function drawTripList(element, trips){
 				<h4 class='trip-item-element'>"+trips[trip].name+"</h4>\
 				<p class='trip-item-element'>"+formatDatetoDate(trips[trip].start_date)+" - "+formatDatetoDate(trips[trip].end_date)+"</p>\
 				<p class='trip-item-element'><i class='fa fa-motorcycle' aria-hidden='true'></i> "+trips[trip].vehicle+"</p>\
-	      <hr class='trip-item-element'>\
+	      		<hr class='trip-item-element'>\
 				<p class='trip-item-element'>đã đăng "+formatTimePeriod(trips[trip].created_date, now_day.getTime())+" trước</p>\
 	      </div>");
 		}//end for

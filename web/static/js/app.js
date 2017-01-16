@@ -16,6 +16,7 @@ require('jquery');
 require('./view-trip.js');
 require('./trips-list.js');
 require('./my-trips.js');
+require('./registration.js');
 $(document).ready(function(){
 	$("#noti-list").hide();
 	var user_id= $("#user_id").val();
