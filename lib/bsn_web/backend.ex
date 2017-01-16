@@ -362,9 +362,11 @@ defmodule BsnWeb.Backend do
     |> case do
       nil -> nil
       %{"id" => id} = user ->
+        jwt_secret = Application.get_env(:bsn_web, :jwt_secret)
+
         token = user
         |> Joken.token
-        |> Joken.with_signer(Joken.hs256("#{@jwt_secret}"))
+        |> Joken.with_signer(Joken.hs256("#{jwt_secret}"))
         |> Joken.with_sub(id)
         |> Joken.sign
         |> Joken.get_compact
@@ -562,6 +564,7 @@ defmodule BsnWeb.Backend do
               |> Keyword.get(:http)
               |> Keyword.get(:port)
         Map.put(url, :port, port)
+        |> Map.put(:scheme, "http")
     end
 
     %{user: conn.assigns[:user], url: url}

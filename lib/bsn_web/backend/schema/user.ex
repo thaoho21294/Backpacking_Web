@@ -20,7 +20,7 @@ defmodule BsnWeb.Backend.Schema.User do
           resolve: fn(obj, _args, %{root_value: %{url: endpoint}}) ->
             case URI.parse(obj["avatar"]) do
               %{host: nil} = uri -> 
-                %{uri | scheme: "http", host: endpoint.host, port: endpoint.port}
+                %{uri | scheme: endpoint.scheme, host: endpoint.host, port: endpoint.port}
               uri ->
                 uri
             end

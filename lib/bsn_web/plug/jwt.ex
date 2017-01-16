@@ -18,7 +18,7 @@ defmodule BsnWeb.Plug.Jwt do
   defp parse_auth(conn, ["Bearer " <> incoming_token], opts) do
     verified_token = %Token{}
     |> with_json_module(Poison)
-    |> with_signer(hs256(Keyword.get(opts, :secret)))
+    |> with_signer(hs256(Application.get_env(:bsn_web, :jwt_secret)))
     |> with_compact_token(incoming_token)
     |> verify
 
