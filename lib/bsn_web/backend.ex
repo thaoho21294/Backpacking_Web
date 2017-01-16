@@ -1,22 +1,32 @@
 defmodule BsnWeb.Backend do
   @moduledoc """
   The backend interface for retrieving data.
-
   Provides the callbacks for basic CRUD oprations:
   - `create/2`
   - `retrieve/3`
   - `update/?`
   - `delete/?`
-
   This is where we make the calls to database. The internal details are
   abstracted and should not be of concern.
   """
   alias Neo4j.Sips
   alias __MODULE__
 
+  @jwt_secret Application.get_env(:bsn_web, :jwt_secret)
+
   @doc """
   Callback for creating resource.
   """
+  def create(%{type: "User", email: email, password: password, first_name: first_name, last_name: last_name, hometown: hometown, gender: gender}, _context) do
+    created_date = DateTime.to_unix(DateTime.utc_now()) * 1000
+    cypher = """
+    CREATE (u:User{email: "#{email}", password: "#{password}", created_date: #{created_date}})
+    CREATE (p:Profile {first_name: "#{first_name}", last_name:"#{last_name}", hometown: "#{hometown}", gender:"#{gender}", avatar: "/images/avatar_white.png"})
+    CREATE (u)-[:HAVE]->(p)
+    """
+    Sips.query!(Sips.conn, cypher)
+  end
+  
   def create(input, _context) do
     # @TODO: Create trip with a user as owner.
     query = """
@@ -30,26 +40,26 @@ defmodule BsnWeb.Backend do
 
   @doc """
   Callback for retrieving resource.
-
   The first argument is the parent of the resource in the query. For
   example, querying for all the trips is done on the `viewer` object,
   thus the first argument will be the viewer. This allows filtering
   which trips the viewer can retrieve.
-
   The second argument is a map of arguments for the query. It has a 
   `:type` key to indicate the resource type.
-
   The third argument is the GraphQL context in case we need to look at
   the schema and operations.
   """
 
   # Get the current trip of the authenticated viewer, if any.
-  def retrieve(_source, %{type: "Trip", id: "current"}, %{root_value: %{user: _user}}) do
+  def retrieve(_source, %{type: "Trip", id: "current"}, %{root_value: %{user: nil}}) do
+    nil
+  end
+  def retrieve(_source, %{type: "Trip", id: "current"}, %{root_value: %{user: user}}) do
     cypher = """
     MATCH (u:User)-[:MEMBER]->(t:Trip)-[:HAVE]->(s:Status)
-    WHERE s.name=\"happen\" and id(u)=_user.id
+    WHERE s.name=\"happen\" and id(u)=#{user["id"]}
     RETURN id(t) as id, t.name as name, t.off_time as off_time, t.note as note,
-     t.start_date as start_date, t.end_date as end_date, t.estimated  _number_of_members as estimated_number_of_members,
+     t.start_date as start_date, t.end_date as end_date, t.estimated_number_of_members as estimated_number_of_members,
      t.description as description, t.estimate_cost as estimate_cost, t.off_place as off_place, t.real_cost as real_cost, s.name as status
     """
     #t.start_date <= timestamp() and t.end_date > timestamp()
@@ -89,7 +99,7 @@ defmodule BsnWeb.Backend do
       OPTIONAL MATCH (l:Location)<-[:LOCATE]-(s:Stop)-[:THROUGH]->(r:Route)-[:MODE]->(v:Vehicle), (s:Stop)<-[:INCLUDE]-(t:Trip)
       WHERE id(t)=#{trip_id}
       return id(s) as id, s.name as name,s.description as description, l.lat as lat, l.long as lng, l.address as address, v.name as mode, s.order as order,
-      s.arrive as arrive, s.departure as departure, r.name as route_name, r.duration as route_duration, r.distance as route_distance, r.description as route_description 
+      s.arrive as arrive, s.departure as departure, r.name as route_name, r.duration as route_duration, r.distance as route_distance, r.description as route_description
       ORDER BY order
     """
 
@@ -108,15 +118,7 @@ defmodule BsnWeb.Backend do
     Sips.query!(Sips.conn, cypher)
   end
 
-  #get trip's member
-  def retrieve(%{"id" => trip_id}, %{type: "Member"}, _context) do
-    cypher="""
-    MATCH (p:Profile)<-[:HAVE]-(u:User)-[m:MEMBER]->(t:Trip) 
-    where id(t)=#{trip_id} 
-    return id(m) as id, p.first_name +" "+ p.last_name as full_name, p.hometown as hometown, m.joined_date as joined_date, m.lat as lat, m.lng as lng, m.role as role, p.avatar as avatar 
-    """
-     Sips.query!(Sips.conn, cypher)
-  end
+
   #update members Location
   def retrieve(%{type: "MemberLocation", member_id: member_id, lat: lat, lng: lng}, _context) do
     cypher="""
@@ -132,7 +134,7 @@ defmodule BsnWeb.Backend do
       retrieve(%{type: "create_location", address: address, lat: lat, lng: lng})
     end
     cypher="
-          MATCH (t:Trip), (l:Location{address:\"#{address}\"}), (m:Vehicle{name:\"xe máy\"})
+          MATCH (t:Trip), (l:Location{address:\"#{address}\"}), (m:Vehicle{name:\"#{route_mode}\"})
           WHERE id(t)=#{trip_id}
           CREATE (s:Stop{name:\"#{name}\", arrive:#{arrive}, departure:#{departure}, description: \"#{description}\", order: #{order}})
           CREATE (t)-[:INCLUDE]->(s)-[:LOCATE]->(l)
@@ -184,7 +186,7 @@ defmodule BsnWeb.Backend do
       end_arrive=start_departure+route_duration*60000
       end_departure=end_arrive+3600000
       off_time=start_date
-      created_date= DateTime.to_unix(DateTime.utc_now())
+      created_date= DateTime.to_unix(DateTime.utc_now())*1000
       IO.inspect(created_date)
       background="/images/trip_backgrounds/trip196.jpg"
 
@@ -211,6 +213,17 @@ defmodule BsnWeb.Backend do
     Sips.query!(Sips.conn, cypher)
   end
   def retrieve(%{id: trip_id}, %{type: "UpdateTripDetail", trip_name: trip_name, start_date: start_date, end_date: end_date, description: description, estimated_cost: estimated_cost, estimated_members: estimated_members, cost_detail: cost_detail, off_time: off_time, off_place: off_place, necessary_tool: necessary_tool, note: note}, _context) do
+    description=String.replace(description, "\\", "\\\\")
+    description=String.replace(description, "\"", "\\\"")
+    cost_detail=String.replace(cost_detail, "\\", "\\\\")
+    cost_detail=String.replace(cost_detail, "\"", "\\\"")
+    necessary_tool=String.replace(necessary_tool, "\\", "\\\\")
+    necessary_tool=String.replace(necessary_tool, "\"", "\\\"")
+    note=String.replace(note, "\\", "\\\\")
+    note=String.replace(note, "\"", "\\\"")
+    off_place=String.replace(off_place, "\\", "\\\\")
+    IO.inspect("--------------------------------------------------------------");
+    IO.inspect(description);
     cypher="""
     MATCH (t:Trip)
     WHERE id(t)=#{trip_id}
@@ -293,7 +306,7 @@ defmodule BsnWeb.Backend do
     cypher="CREATE (l:Location{address: \"#{address}\", lat: #{lat}, long: #{lng}})"
     Sips.query!(Sips.conn, cypher)
   end
-#-----------------------------------------
+
   def retrieve(%{id: stop_id},%{ type: "UpdateArriveDepartureStop", arrive: arrive, departure: departure}, _context) do
     cypher= """
     MATCH (s:Stop)
@@ -306,44 +319,113 @@ defmodule BsnWeb.Backend do
     cypher= "MATCH (t:Trip) WHERE id(t)=#{trip_id} SET t.start_date=#{start_date}"
     Sips.query!(Sips.conn, cypher)
   end
-    def retrieve(%{id: trip_id}, %{type: "UpdateTripEndDate", end_date: end_date}) do
-    cypher= "MATCH (t:Trip) WHERE id(t)=#{trip_id} SET t.end_date=#{end_date}"
+
+  def retrieve(%{id: trip_id}, %{type: "UpdateTripEndDate", end_date: end_date}) do
+  cypher= "MATCH (t:Trip) WHERE id(t)=#{trip_id} SET t.end_date=#{end_date}"
+  Sips.query!(Sips.conn, cypher)
+  end
+  def retrieve(%{id: user_id}, %{type: "ViewTripsList"})do
+    cypher="""
+    MATCH (p:Profile)<-[:HAVE]-(u:User)-[:MEMBER{role: \"leader\"}]->(t:Trip)-[:HAVE]->(s:Status) 
+    WHERE s.name=\"open\" and id(u) <> #{user_id} 
+    RETURN id(t) as id, t.name as name, t.start_date as start_date, t.end_date as end_date, t.background as background, t.created_date as created_date,
+    t.vehicle as vehicle, p.first_name+" "+p.last_name as leader_name, s.name as status
+    ORDER BY t.created_date DESC
+    """
     Sips.query!(Sips.conn, cypher)
+  end
+  def retrieve(%{id: user_id}, %{type: "ViewMyTrips"})do
+    cypher="""
+    MATCH (p:Profile)<-[:HAVE]-(u:User)-[:MEMBER{role: \"leader\"}]->(t:Trip)-[:HAVE]->(s:Status) 
+    WHERE   id(u) = #{user_id} 
+    RETURN id(t) as id, t.name as name, t.start_date as start_date, t.end_date as end_date, t.background as background, t.created_date as created_date,
+    t.vehicle as vehicle, s.name as status
+    ORDER BY t.created_date DESC
+    """
+    Sips.query!(Sips.conn, cypher)
+  end
+  def retrieve(%{type: "FindTrip", location: location, start_date: start_date, end_date: end_date}) do
+    cypher="""
+    MATCH (t:Trip)-[:INCLUDE]->(s:Stop)-[:LOCATE]->(l:Location)
+    WHERE t.start_date>=#{start_date} and t.end_date<=#{end_date} and l.address=~'.*#{location}.*'
+    RETURN DISTINCT id(t) as id, t.name as name, t.start_date as start_date, t.end_date as end_date, t.background as background, t.created_date as created_date 
+    ORDER BY t.created_date DESC
+    """
+    Sips.query!(Sips.conn, cypher)
+  end
+  # Get a user with username and password, setting the token in it.
+  def retrieve(_, %{type: "User", username: username, password: password}, _context) do
+    # @TODO: Hash password.
+    cypher="MATCH (u:User) WHERE u.email=\"#{username}\" and u.pass=\"#{password}\" return id(u) as id, u.email"
+    Sips.query!(Sips.conn, cypher)
+    |> Enum.at(0)
+    |> case do
+      nil -> nil
+      %{"id" => id} = user ->
+        token = user
+        # |> Map.delete("id")
+        |> Joken.token
+        |> Joken.with_signer(Joken.hs256(@jwt_secret))
+        |> Joken.with_sub(id)
+        |> Joken.sign
+        |> Joken.get_compact
+
+        Map.put(user, "token", token)
     end
-    def retrieve(%{id: user_id}, %{type: "ViewTripsList"})do
-      cypher="""
-      MATCH (t:Trip)-[:HAVE]->(s:Status) 
-      WHERE s.name=\"open\" 
-      RETURN id(t) as id, t.name as name, t.start_date as start_date, t.end_date as end_date, t.background as background, t.created_date as created_date 
-      ORDER BY t.created_date DESC
-      """
-      Sips.query!(Sips.conn, cypher)
-    end
-    def retrieve(%{type: "FindTrip", location: location, start_date: start_date, end_date: end_date}) do
-      cypher="""
-      MATCH (t:Trip)-[:INCLUDE]->(s:Stop)-[:LOCATE]->(l:Location)
-      WHERE t.start_date>=#{start_date} and t.end_date<=#{end_date} and l.address=~'.*#{location}.*'
-      RETURN DISTINCT id(t) as id, t.name as name, t.start_date as start_date, t.end_date as end_date, t.background as background, t.created_date as created_date 
-      ORDER BY t.created_date DESC
-      """
-      Sips.query!(Sips.conn, cypher)
-    end
-    def retrieve(%{type: "CreateUser", email: email, password: password, first_name: first_name, last_name: last_name }) do
-      cypher=""
-       Sips.query!(Sips.conn, cypher)
-    end
-    def retrieve(%{type: "FindUser", email: email}) do
-      IO.inspect(email)
-      cypher="MATCH (u:User) WHERE u.email=\"#{email}\" return id(u) as id, u.pass as password"
-      Sips.query!(Sips.conn, cypher)
-    end
-    def retrieve(%{type: "CheckUser", email: email, password: password}) do
-      cypher="MATCH (u:User) WHERE u.email=\"#{email}\" and u.pass=\"#{password}\" return id(u) as id"
-      Sips.query!(Sips.conn, cypher)
-    end
+  end
+  def retrieve(_, %{type: "User", username: username}, _context) do
+    cypher="MATCH (u:User) WHERE u.email=\"#{username}\" return id(u) as id, u.pass as password"
+    Sips.query!(Sips.conn, cypher)
+    |> Enum.at(0)
+  end
+
+  # Retrieve the logged in user. This is different than the normal query for any user, since it
+  # can return private info.
+  def retrieve(_source, %{type: "User", id: id}, %{root_value: %{user: %{"id" => id}}}) do
+    cypher = """
+    MATCH (u:User)-[:HAVE]->(p:Profile)
+    WHERE id(u)=#{id} 
+    RETURN p.first_name +" "+ p.last_name as full_name, p.avatar as avatar
+    """
+
+    Sips.query!(Sips.conn, cypher)
+    |> Enum.at(0)
+  end
+
+  def retrieve(_source, %{type: "User", id: id}, _context) do
+    cypher = """
+    MATCH (u:User)-[:HAVE]->(p:Profile)
+    WHERE id(u)=#{id} 
+    RETURN p.first_name +" "+ p.last_name as full_name, p.avatar as avatar
+    """
+
+    Sips.query!(Sips.conn, cypher)
+    |> Enum.at(0)
+  end
 
   ## UPDATES ##
+  def update(%{type: "Mode", stop_id: stop_id, route_mode: route_mode, route_distance: route_distance, route_duration: route_duration, stop_arrive: stop_arrive, stop_departure: stop_departure}) do
+    cypher= """
+    MATCH (s:Stop)-[:THROUGH]->(r:Route)-[m:MODE]->(v:Vehicle), (v2: Vehicle{name:\"#{route_mode}\"})
+    WHERE id(s)=#{stop_id}
+    DELETE m
+    CREATE (r)-[:MODE]->(v2)
+    SET r.distance=#{route_distance}, r.duration=#{route_duration}, s.arrive=#{stop_arrive}, s.departure=#{stop_departure}
+    """
+    Sips.query!(Sips.conn, cypher)
+  end
   def update(_, %{type: "Trip", id: trip_id, trip_name: trip_name, start_date: start_date, end_date: end_date, description: description, estimated_cost: estimated_cost, estimated_members: estimated_members, cost_detail: cost_detail, off_time: off_time, off_place: off_place, necessary_tool: necessary_tool, note: note}, _context) do
+    description=String.replace(description, "\\", "\\\\")
+    description=String.replace(description, "\"", "\\\"")
+    cost_detail=String.replace(cost_detail, "\\", "\\\\")
+    cost_detail=String.replace(cost_detail, "\"", "\\\"")
+    necessary_tool=String.replace(necessary_tool, "\\", "\\\\")
+    necessary_tool=String.replace(necessary_tool, "\"", "\\\"")
+    note=String.replace(note, "\\", "\\\\")
+    note=String.replace(note, "\"", "\\\"")
+    off_place=String.replace(off_place, "\\", "\\\\")
+    # IO.inspect("--------------------------------------------------------------");
+    # IO.inspect(description);
     cypher="""
     MATCH (t:Trip)
     WHERE id(t)=#{trip_id}
@@ -355,7 +437,84 @@ defmodule BsnWeb.Backend do
     Sips.query!(Sips.conn, cypher)
 
   end
+  def create(%{type: "Member", trip_id: trip_id, user_id: user_id, phone_number: phone_number, slot: slot, driver: driver}) do
+    created_date= DateTime.to_unix(DateTime.utc_now())*1000
+    cypher="""
+    MATCH (l:User)-[:MEMBER{role:"leader"}]->(t:Trip), (u:User)
+    WHERE id(u)=#{user_id} and id(t)=#{trip_id}
+    CREATE (u)-[:MEMBER{role: \"member\", joined_date: #{created_date}, phone_number: \"#{phone_number}\", slot: #{slot}, driver: \"#{driver}\", status: "waiting"}]->(t)
+    RETURN id(l) as leader_id
+    """
+    Sips.query!(Sips.conn, cypher)
+  end
+  def update(%{type: "Member", member_id: member_id, status: status}) do
+    cypher="""
+    MATCH (u:User)-[m:MEMBER]->(t:Trip)
+    WHERE id(m)=#{member_id}
+    SET m.status="#{status}"
+    """
+    Sips.query!(Sips.conn, cypher)
+  end
+  def retrieve(%{"id" => trip_id}, %{type: "Member"}, _context) do
+    cypher="""
+    MATCH (p:Profile)<-[:HAVE]-(u:User)-[m:MEMBER]->(t:Trip) 
+    where id(t)=#{trip_id} 
+    return id(m) as id, id(u) as user_id, p.first_name +" "+ p.last_name as full_name, p.hometown as hometown, m.joined_date as joined_date, m.lat as lat, m.lng as lng, m.role as role, p.avatar as avatar, m.status as status 
+    """
+     Sips.query!(Sips.conn, cypher)
+  end
+  def create(%{type: "Noti", receiver_id: receiver_id, sender_id: sender_id, content_id: trip_id, content: content}) do
+    created_date= DateTime.to_unix(DateTime.utc_now())*1000
+    cypher="""
+    MATCH (u1:User), (u2:User)
+    WHERE id(u1)=#{sender_id} and id(u2)=#{receiver_id}
+    CREATE (n:Notification{content: \"#{content}\", created_date: #{created_date}, content_id: "#{trip_id}", status: "unread"})
+    CREATE (u1)-[:SEND]->(n)<-[:RECEIVE]-(u2)
+    """
+    Sips.query!(Sips.conn, cypher)
+  end
+  def retrieve(%{type: "Noti", receiver_id: receiver_id}) do
+    cypher="""
+    MATCH (u:User)-[:RECEIVE]-(n:Notification)<-[:SEND]-(u2:User)-[:HAVE]->(p:Profile)
+    WHERE n.status="unread" and id(u)=#{receiver_id}
+    RETURN n.content as content, n.content_id as content_id, p.avatar as avatar, id(n) as id
+    """
+    Sips.query!(Sips.conn, cypher)
+  end
+  def update(%{type: "Noti", noti_id: noti_id}) do
+    cypher= """
+    MATCH (n:Notification)
+    WHERE id(n)=#{noti_id}
+    SET n.status="read" 
+    """
+    Sips.query!(Sips.conn, cypher)
+  end
 
+  def retrieve(%{type: "UserSimpleInfo", user_id: user_id}) do
+  cypher= """
+    MATCH (u:User)-[:HAVE]->(p:Profile)
+    WHERE id(u)=#{user_id} 
+    RETURN p.first_name +" "+ p.last_name as full_name, p.avatar as avatar
+    """
+    Sips.query!(Sips.conn, cypher)
+  end
+  def retrieve(%{type: "StopImages", trip_id: trip_id}) do
+    cypher="""
+    MATCH (t:Trip)-[:INCLUDE]->(s:Stop)-[:HAVE]->(i:Image)
+    WHERE id(t)=#{trip_id}
+    RETURN id(s) as stop_id, i.url as url, i.description as description
+    ORDER BY s.order, id(i)
+    """
+    Sips.query!(Sips.conn, cypher)
+  end
+  def create(%{type: "StopImages"}, url: url, description: description, stop_id:  stop_id) do
+    cypher="""
+      MATCH (s:Stop)
+      WHERE id(s)=#{stop_id}
+      CREATE (i:Image{url: "#{url}", description: "#{description}"})
+    """
+    Sips.query!(Sips.conn, cypher)
+  end
   # Callbacks for being a Plug used in Router.
   @behaviour Plug
   def init(opts) do

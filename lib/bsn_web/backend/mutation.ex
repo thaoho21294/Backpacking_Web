@@ -42,4 +42,26 @@ defmodule BsnWeb.Backend.Mutation do
       end
     } |> Mutation.new
   end
+
+  def create_token() do
+    %{
+      name: "CreateToken",
+      input_fields: %{
+        username: %{type: %Type.NonNull{ofType: %Type.String{}}},
+        password: %{type: %Type.NonNull{ofType: %Type.String{}}}
+      },
+      output_fields: %{
+        token: %{
+          type: %Type.String{},
+          resolve: fn(user, _args, _context) ->
+            user["token"]
+          end
+        }
+      },
+      mutate_and_get_payload: fn(input, context) ->
+        Backend.retrieve(nil, Map.put(input, :type, "User"), context)
+        || %{}
+      end
+    } |> Mutation.new
+  end
 end

@@ -15,6 +15,8 @@ config :bsn_web, BsnWeb.Endpoint,
   pubsub: [name: BsnWeb.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
+config :bsn_web, :jwt_secret, "DkVQeZLlv3p1gLKUSJLKzXDEGg2LCCtD4sCM+l7oeiWAM7aA24QZsIWMw0Z+o6HQ"
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

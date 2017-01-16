@@ -18,6 +18,8 @@ config :bsn_web, BsnWeb.Endpoint,
   secret_key_base: System.get_env("SECRET_KEY_BASE"),
   cache_static_manifest: "priv/static/manifest.json"
 
+config :bsn_web, :jwt_secret, System.get_env("SECRET_KEY_BASE")
+
 # Do not print debug messages in production
 config :logger, level: :info
 
