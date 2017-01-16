@@ -26,7 +26,7 @@ defmodule BsnWeb.Backend do
     """
     Sips.query!(Sips.conn, cypher)
   end
-  
+
   def create(input, _context) do
     # @TODO: Create trip with a user as owner.
     query = """
@@ -356,16 +356,15 @@ defmodule BsnWeb.Backend do
   # Get a user with username and password, setting the token in it.
   def retrieve(_, %{type: "User", username: username, password: password}, _context) do
     # @TODO: Hash password.
-    cypher="MATCH (u:User) WHERE u.email=\"#{username}\" and u.pass=\"#{password}\" return id(u) as id, u.email"
+    cypher="MATCH (u:User) WHERE u.email=\"#{username}\" and u.pass=\"#{password}\" return id(u) as id, u.email as email, u.last_logout as last_logout"
     Sips.query!(Sips.conn, cypher)
     |> Enum.at(0)
     |> case do
       nil -> nil
       %{"id" => id} = user ->
         token = user
-        # |> Map.delete("id")
         |> Joken.token
-        |> Joken.with_signer(Joken.hs256(@jwt_secret))
+        |> Joken.with_signer(Joken.hs256("#{@jwt_secret}"))
         |> Joken.with_sub(id)
         |> Joken.sign
         |> Joken.get_compact
@@ -392,11 +391,11 @@ defmodule BsnWeb.Backend do
     |> Enum.at(0)
   end
 
-  def retrieve(_source, %{type: "User", id: id}, _context) do
+  def retrieve(_source, %{type: "User", id: id}, _context) when is_nil(id) == false do
     cypher = """
     MATCH (u:User)-[:HAVE]->(p:Profile)
     WHERE id(u)=#{id} 
-    RETURN p.first_name +" "+ p.last_name as full_name, p.avatar as avatar
+    RETURN u.last_logout as last_logout, p.first_name +" "+ p.last_name as full_name, p.avatar as avatar
     """
 
     Sips.query!(Sips.conn, cypher)
@@ -437,6 +436,26 @@ defmodule BsnWeb.Backend do
     Sips.query!(Sips.conn, cypher)
 
   end
+
+  # Update a user.
+  def update(_, %{type: "User", id: id} = args, _context) do
+    updates = args
+    |> Map.delete(:type)
+    |> Map.delete(:id)
+    |> Enum.map_join(", ", fn({key, value}) -> 
+      "user.#{key} = #{value}"
+    end)
+
+    cypher = """
+    MATCH (user:User)
+    WHERE id(user)=#{id}
+    SET #{updates}
+    """
+
+    Sips.query!(Sips.conn, cypher)
+  end
+
+
   def create(%{type: "Member", trip_id: trip_id, user_id: user_id, phone_number: phone_number, slot: slot, driver: driver}) do
     created_date= DateTime.to_unix(DateTime.utc_now())*1000
     cypher="""
@@ -515,6 +534,7 @@ defmodule BsnWeb.Backend do
     """
     Sips.query!(Sips.conn, cypher)
   end
+
   # Callbacks for being a Plug used in Router.
   @behaviour Plug
   def init(opts) do

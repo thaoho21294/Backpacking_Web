@@ -6,7 +6,7 @@ defmodule BsnWeb.Backend.Mutation do
   alias Relay.{Connection, Mutation}
 
   alias BsnWeb.Backend
-  alias Backend.Schema.{Trip}
+  alias Backend.Schema.{Trip, Viewer}
   
   @doc """
   A mutation to create a trip.
@@ -61,6 +61,30 @@ defmodule BsnWeb.Backend.Mutation do
       mutate_and_get_payload: fn(input, context) ->
         Backend.retrieve(nil, Map.put(input, :type, "User"), context)
         || %{}
+      end
+    } |> Mutation.new
+  end
+
+  def delete_token() do
+    %{
+      name: "DeleteToken",
+      input_fields: %{
+        timestamp: %{type: %Type.Float{}}
+      },
+      output_fields: %{
+        viewer: %{
+          type: Viewer.type,
+          resolve: fn(_user, _args, _context) ->
+            Viewer.new()
+          end
+        }
+      },
+      mutate_and_get_payload: fn(_input, %{root_value: %{user: user}} = context) ->
+        # @FIXME: Update so that the token becomes invalid.
+        # timestamp = DateTime.to_unix(DateTime.utc_now())*1000
+        # args = %{type: "User", id: user["id"], last_logout: timestamp}
+        # Backend.update(nil, args, context)
+        %{}
       end
     } |> Mutation.new
   end

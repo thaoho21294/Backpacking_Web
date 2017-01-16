@@ -60,7 +60,8 @@ defmodule BsnWeb.Backend.Schema do
       description: "Root object for performing data mutations",
       fields: %{
         createTrip: Mutation.create_trip(),
-        createToken: Mutation.create_token()
+        createToken: Mutation.create_token(),
+        deleteToken: Mutation.delete_token()
       }
     }
   end

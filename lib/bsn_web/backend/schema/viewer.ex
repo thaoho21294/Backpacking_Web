@@ -36,10 +36,10 @@ defmodule BsnWeb.Backend.Schema.Viewer do
           type: Schema.User,
           description: "The logged in user if any.",
           resolve: fn
+            (%{token: _token}, _, %{root_value: %{user: nil}}) -> 
+              nil
             (viewer, args, %{root_value: %{user: user}} = context) ->
               Backend.retrieve(viewer, %{type: "User", id: user["id"]}, context)
-            (%{token: nil}, _, %{root_value: %{user: nil}}) -> 
-              nil
             (%{token: token} = viewer, _, context) ->
               Backend.retrieve(viewer, %{type: "User"}, context)
           end
@@ -52,11 +52,6 @@ defmodule BsnWeb.Backend.Schema.Viewer do
   Generates a new viewer struct and authenticate if token provided.
   """
   def new(token \\ nil) do
-    %__MODULE__{token: token, user: %{
-      "name" => "Son Tran-Nguyen",
-      "picture" => "http://apriliauae.com/wp-content/uploads/2014/04/vespa-girl.jpg",
-      "level" => 13,
-      "progress" => 0.75
-    }}
+    %__MODULE__{token: token}
   end
 end
