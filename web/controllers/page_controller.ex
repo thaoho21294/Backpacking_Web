@@ -13,6 +13,7 @@ defmodule BsnWeb.PageController do
   end
   def view_trip(conn, %{"id"=>trip_id}) do
     user_id= get_session(conn, :current_user)
+    title="Xem chuyến phượt"
     sum_info=%{user_id: user_id, trip_id: trip_id,  view_members: false}
   	render(conn, "view-trip.html", sum_info: sum_info)
 

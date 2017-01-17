@@ -42,8 +42,8 @@ defmodule BsnWeb.TripController do
     trip_id=Map.get(Enum.at(response,0), "trip_id")
     redirect conn, to: "/trips/#{trip_id}"
   end
-  def edit_trip_detail(conn, %{"trip_id"=>trip_id, "trip_name"=>trip_name, "start_date"=>start_date, "end_date"=>end_date, "description"=>description, "estimated_cost"=>estimated_cost, "estimated_members"=>estimated_members, "cost_detail"=>cost_detail, "off_time"=>off_time, "off_place"=>off_place, "necessary_tool"=>necessary_tool, "note"=>note}) do
-    response=Backend.update(nil, %{type: "Trip", id: trip_id, trip_name: trip_name, start_date: start_date, end_date: end_date, description: description, estimated_cost: estimated_cost, estimated_members: estimated_members, cost_detail: cost_detail, off_time: off_time, off_place: off_place, necessary_tool: necessary_tool, note: note}, nil)
+  def edit_trip_detail(conn, %{"trip_id"=>trip_id, "trip_name"=>trip_name, "start_date"=>start_date, "end_date"=>end_date, "description"=>description, "estimated_cost"=>estimated_cost, "estimated_members"=>estimated_members, "cost_detail"=>cost_detail, "off_time"=>off_time, "off_place"=>off_place, "necessary_tool"=>necessary_tool, "note"=>note, "status"=>status}) do
+    response=Backend.update(nil, %{type: "Trip", id: trip_id, trip_name: trip_name, start_date: start_date, end_date: end_date, description: description, estimated_cost: estimated_cost, estimated_members: estimated_members, cost_detail: cost_detail, off_time: off_time, off_place: off_place, necessary_tool: necessary_tool, note: note, status: status}, nil)
     json conn, response
   end
   def edit_route(conn, %{"stop_id"=>stop_id, "route_duration"=>route_duration, "route_description"=>route_description}) do
@@ -78,12 +78,20 @@ defmodule BsnWeb.TripController do
     trips=Backend.retrieve(%{id: user_id}, %{type: "ViewTripsListFinish"})
     render(conn, "get_trips_finish.json", trips: trips)
   end
+    def get_trips_new(conn, %{"user_id"=>user_id}) do
+    trips=Backend.retrieve(%{id: user_id}, %{type: "ViewTripsListNew"})
+    render(conn, "get_trips_new.json", trips: trips)
+  end
+    def get_trips_finish(conn, %{"user_id"=>user_id}) do
+    trips=Backend.retrieve(%{id: user_id}, %{type: "ViewTripsListFinish"})
+    render(conn, "get_trips_finish.json", trips: trips)
+  end
   def get_my_trips(conn, %{"user_id"=>user_id}) do
      trips=Backend.retrieve(%{id: user_id}, %{type: "ViewMyTrips"})
     render(conn, "get_my_trips.json", trips: trips)
   end
-  def find_trip(conn, %{"location"=>location, "start_date"=>start_date, "end_date"=>end_date}) do
-    trips=Backend.retrieve(%{type: "FindTrip", location: location, start_date: start_date, end_date: end_date})
+  def find_trip(conn, %{"user_id"=>user_id, "location"=>location, "start_date"=>start_date, "end_date"=>end_date}) do
+    trips=Backend.retrieve(%{type: "FindTrip", user_id: user_id, location: location, start_date: start_date, end_date: end_date})
     render(conn, "find_trip.json", trips: trips)
   end
   def edit_route_mode(conn, %{"id"=>stop_id, "mode"=>route_mode, "distance"=>route_distance, "duration"=>route_duration, "arrive"=>stop_arrive, "departure"=>stop_departure}) do
@@ -93,5 +101,9 @@ defmodule BsnWeb.TripController do
   def get_stop_images(conn, %{"id"=>trip_id}) do
     images=Backend.retrieve(%{type: "StopImages", trip_id: trip_id})
     render(conn, "get_stop_images.json", images: images)
+  end
+  def delete_stop(conn, %{"trip_id"=>trip_id, "stop_id"=>stop_id}) do
+    response= Backend.delete(%{type: "Stop", trip_id: trip_id, stop_id: stop_id})
+    json conn, response
   end
 end

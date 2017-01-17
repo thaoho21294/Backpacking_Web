@@ -50,12 +50,12 @@
 </div>
 <div id='members' class="trip-content-right">
 <div id='leaders-part'> 
-<div class='members-title'>Leaders</div>
+<div class='members-title'>Trưởng nhóm</div>
   <ul id="leaders-list">
   </ul>
   </div>
 <div id='members-part'> 
-<div class='members-title'>Members</div>
+<div class='members-title'>Thành viên</div>
   <ul id="members-list">
   </ul>
   </div>

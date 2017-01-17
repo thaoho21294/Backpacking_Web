@@ -31,6 +31,7 @@ $(document).ready(function(){
 		var start_date=DateToMs($("#find-trip-start-date").val());
 		var end_date=DateToMs($("#find-trip-end-date").val());
 		var input={
+      user_id: user_id,
 			location: location,
 			start_date: start_date,
 			end_date: end_date,
@@ -43,6 +44,7 @@ $(document).ready(function(){
 			contentType: 'application/json',
 			data: JSON.stringify(input),
 			success: function( data, textStatus, jQxhr ){
+          near_trips=data.trips
         		drawTripList('#find-trip-list .trip-item-list', data.trips)
         	},
     		error: function( jqXhr, textStatus, errorThrown ){
@@ -53,19 +55,58 @@ $(document).ready(function(){
 	//Load list trips from database
   var trip_list=document.getElementById("trip-near-you")
 if(trip_list!=undefined){
+  var near_trips=[];
 	$.ajax({
 		url:"/api/trips/view/"+user_id,
+    async: false,
 		dataType: 'json',
 		success: function(data){
-			drawTripList('#trip-near-you .trip-item-list', data.trips)
+      near_trips=data.trips
+			drawTripList('#trip-near-you .trip-item-list', near_trips)
 		},
 		error: function( jqXhr, textStatus, errorThrown ){
         console.log(errorThrown );
 
     	}
 	});//enđ ajax
+  $.ajax({
+    url:"/api/trips/view-new-trips/"+user_id,
+    dataType: 'json',
+    success: function(data){
+      console.log(data.trips)
+      var new_trips=[]
+      var  trips=data.trips;
+      for (var i in trips){
+        for(var j in near_trips){
+          if(trips[i].id==near_trips[j].id)
+            break;
+        }
+        console.log(j)
+        if(parseInt(j)==near_trips.length-1 || j==undefined) {
+          new_trips.push(trips[i])
+        }
+      }
+      console.log(new_trips)
+      drawTripList('#trip-new .trip-item-list', new_trips)
+    },
+    error: function( jqXhr, textStatus, errorThrown ){
+        console.log(errorThrown );
+
+      }
+  });//enđ ajax
+  $.ajax({
+    url:"/api/trips/view-old-trips/"+user_id,
+    dataType: 'json',
+    success: function(data){
+      drawTripList('#trip-finish .trip-item-list', data.trips)
+    },
+    error: function( jqXhr, textStatus, errorThrown ){
+        console.log(errorThrown );
+
+      }
+  });//enđ ajax
 }
-	$("#trip-near-you").on('click', '.trip-item', function(){
+	$("#trip-near-you, #trip-new, #trip-finish").on('click', '.trip-item', function(){
 		var url=$(this).children('a').attr('href')
 		window.open(url);
 	});
@@ -283,6 +324,7 @@ function findDateInput(start_date_id, end_date_id){
 
 }
 function drawTripList(element, trips){
+  $(element).html("");
 	$(element).find('.trip-item').remove();
 	if(trips.length==0) $(element).html("Không tìm thấy chuyến phượt nào!");
 	for(var trip in trips){
@@ -301,6 +343,8 @@ function drawTripList(element, trips){
 }
 function DateToMs(date){
 	var ms_date=0;
+  console.log(date)
+  if(date=="") return 0;
 	var right_date=new Date(date+" 00:00");
 	ms_date=right_date.getTime();
 	return ms_date;

@@ -23,13 +23,13 @@ defmodule BsnWeb.SessionController do
 
   def delete(conn, _) do
     delete_session(conn, :current_user)
-      |> put_flash(:info, "You have been logged out")
+      |> put_flash(:info, "Đăng xuất thành công")
       |> redirect(to: session_path(conn, :new))
   end
 
   defp sign_in(user, password, conn) when is_nil(user) do
     conn
-      |> put_flash(:error, "Could not find a user with that username.")
+      |> put_flash(:error, "Không tim thấy email người dùng")
       |> redirect(to: session_path(conn, :new))
   end
 
@@ -41,11 +41,11 @@ defmodule BsnWeb.SessionController do
     if password==user_password do
         conn
           |> put_session(:current_user, user_id)
-          |> put_flash(:info, "You are now signed in.")
+          |> put_flash(:info, "Đăng nhập thành công")
           |> redirect(to: page_path(conn, :index))
      else
         conn
-          |> put_flash(:error, "Username or password are incorrect.")
+          |> put_flash(:error, "Email hoặc mật khẩu chưa đúng")
           |> redirect(to: session_path(conn, :new))
     end
   end

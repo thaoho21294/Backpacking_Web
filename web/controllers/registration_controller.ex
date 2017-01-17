@@ -42,10 +42,14 @@ defmodule BsnWeb.RegistrationController do
       first_name = user_params["first_name"]
       hometown = user_params["hometown"]
       gender = user_params["gender"]
-      response = Backend.create(%{type: "User", email: email, password: password, first_name: first_name, last_name: last_name, hometown: hometown, gender: gender}, nil)
+      living_address=user_params["living_address"]
+      living_lat=user_params["living_lat"]
+      living_lng=user_params["living_lng"]
+      user_id = Backend.create(%{type: "User", email: email, password: password, first_name: first_name, last_name: last_name, hometown: hometown, living_address: living_address, living_lat: living_lat, living_lng: living_lng, gender: gender}, nil)
       conn
+      |> put_session(:current_user, user_id)
       |> put_flash(:info, "Đăng ký thành công")
-      |> redirect(to: session_path(conn, :new))
+      |> redirect(to: page_path(conn, :index))
     end
 
   end

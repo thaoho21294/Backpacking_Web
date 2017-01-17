@@ -62,6 +62,8 @@ defmodule BsnWeb.Router do
 
     scope "/trips" do
       get "/view/:user_id", TripController, :get_trips_near_user
+      get "/view-new-trips/:user_id", TripController, :get_trips_new
+      get "/view-old-trips/:user_id", TripController, :get_trips_finish
       get "/leader-view/:user_id", TripController, :get_my_trips
       get "/:id", TripController, :show
       get "/:id/stops", TripController, :get_all_stops
@@ -75,6 +77,7 @@ defmodule BsnWeb.Router do
       post "/:id/edit-start-date/:start_date", TripController, :edit_trip_start_date
       post "/:id/edit-end-date/:end_date", TripController, :edit_trip_end_date
       post "/find", TripController, :find_trip
+      post "/:trip_id/delete_stop/:stop_id", TripController, :delete_stop
 
     end
     scope "/users" do

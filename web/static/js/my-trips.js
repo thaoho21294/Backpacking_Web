@@ -24,7 +24,8 @@ var trip_list=document.getElementById("my-trips")
 function drawTripList(element, trips){
 	var now_day=new Date();
 	$(element).find('.trip-item').remove();
-	if(trips.length==0) $(element).html("Không tìm thấy chuyến phượt nào! <a href='#'> Tạo ngay chuyến phượt của bạn!</a>");
+	//<button type="button" data-toggle="modal" data-target="#myModal" id="create-trip-button"> Tạo chuyến phượt</button>
+	if(trips.length==0) $(element).html("Không tìm thấy chuyến phượt nào! <a href='#' role='button' data-toggle='modal' data-target='#myModal' id='create-trip-button'> Tạo ngay chuyến phượt của bạn!</a>");
 	for(var trip in trips){
 		$(element).append("<div class='trip-item'>\
 				<a class='trip-link' href='/trips/"+trips[trip].id+"'></a>\

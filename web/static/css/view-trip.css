@@ -33,7 +33,8 @@
 }
 #plan-menu{
     top: 250px;
-    right: -103px;
+    right: -76px;
+    /*right: -103px;*/
     padding: 10px 20px 10px 20px;
 }
 .menu-right:hover{
@@ -224,13 +225,15 @@ button.function-button:hover {
 }
 #schedule-menu{
   top: 340px;
-  right:-117px;
+  right: -89px;
+  /*right:-117px;*/
   padding: 10px;
 }
 /*trip detail css*/
 #trip-menu{
   top: 160px;
-  right:-108px;
+  right: -80px;
+  /*right:-108px;*/
   padding: 10px 25px 10px 25px;
 }
 #trip-detail{
@@ -332,7 +335,8 @@ button.function-button:hover {
 }
 #members-menu{
   top: 440px;
-  right:-104px;
+  right: -76px;
+  /*right:-104px;*/
   padding: 10px;
 }
 ul.members-list{
@@ -388,7 +392,8 @@ div.members-title{
 }
 #history-menu{
   top: 530px;
-  right:-104px;
+  right: -76px;
+  /*right:-104px;*/
   padding: 10px;
 }
 #history-header{
@@ -486,4 +491,7 @@ div.members-title{
 .stop-history-image img{
   border-radius: 4px;
   width: 100%;
+}
+input[name='phone-number']{
+  margin-left: 33px;
 }

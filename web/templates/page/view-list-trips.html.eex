@@ -38,8 +38,13 @@
 	<div class='container trips-list' id='trip-new'>
 		<h2>Chuyến phượt mới</h2>
 		<hr>
-		<%# <input class="flatpickr" type="text" placeholder="Select Date.."> %>
+        <div class='trip-item-list'></div>
 	</div>
+    <div class='container trips-list' id='trip-finish'>
+        <h2>Chuyến phượt đã kết thúc</h2>
+        <hr>
+        <div class='trip-item-list'></div>
+    </div>
 	    <div id="myModal" class="modal fade" role="dialog">
             <div class="modal-dialog">
 

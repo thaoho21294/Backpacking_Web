@@ -70,7 +70,7 @@ $(document).ready(function() {
     var view_members_trip=$("input[name='view_members']").val();
     
     if(tripid!=undefined){
-      // initMap();
+       initMap();
      if(view_members_trip=="true"){
       keep_position("#members")
      }
@@ -97,15 +97,15 @@ $(document).ready(function() {
         }
 
         if(stops.length>1){
-           // send_route_map(stops)
+           send_route_map(stops)
           create_stops_distinct()
           send_data_plan(stops)
-          // generateRequests(routeArray);
+          generateRequests(routeArray);
         }
         var center_stop= stops[Math.floor(stops.length/2)]
         var center_latLng= {lat:center_stop.lat, lng:center_stop.lng}
         //---------------------cafully
-       //map.setCenter(center_latLng)
+       map.setCenter(center_latLng)
             }//end furnction(data)
       });//end ajax
         $.ajax(
@@ -253,6 +253,24 @@ $("#plan-list").on('click', '.content1', function(){
       }   
 
 });
+  $("#plan").on('click', '#delete-stop', function(){
+  var stop_id= $(this).parents(".list-item").attr('id');
+  var array=stop_id.split("_");
+  var id= parseInt(array[1])
+  stop_id=stops[id].id;
+  $.ajax({
+      url: "/api/trips/"+tripid+"/delete_stop/"+stop_id,
+      type: 'POST',
+      dataType: 'json',
+      success: function( data, textStatus, jQxhr ){
+          console.log("done");
+          },
+      error: function( jqXhr, textStatus, errorThrown ){
+          console.log(errorThrown );
+
+      }
+    });//END AJAX
+  });
 $("#plan").on('input','#stop-arrive-date-show, #stop-arrive-time-show, #stop-duration-show', function(){
 
   var arrive_date=$('#stop-arrive-date-show').val();
@@ -474,36 +492,36 @@ $("#plan-list").on('click', '.route-mode', function(){
 //menu action
 //-----------------------------------
 //hover event on menu
-$("#trip-menu").mouseover(function(){
-  $(this).css("right", "-80px");
-});
-$("#trip-menu").mouseleave(function(){
-  $(this).css("right", "-108px");
-});
-$("#plan-menu").mouseover(function(){
-  $(this).css("right", "-80px");
-});
-$("#plan-menu").mouseleave(function(){
-  $(this).css("right", "-103px");
-});
-$("#schedule-menu").mouseover(function(){
-  $(this).css("right", "-89px");
-});
-$("#schedule-menu").mouseleave(function(){
-  $(this).css("right", "-117px");
-});
-$("#members-menu").mouseover(function(){
-  $(this).css("right", "-76px");
-});
-$("#members-menu").mouseleave(function(){
-  $(this).css("right", "-104px");
-});
-$("#history-menu").mouseover(function(){
-  $(this).css("right", "-76px");
-});
-$("#history-menu").mouseleave(function(){
-  $(this).css("right", "-104px");
-});
+// $("#trip-menu").mouseover(function(){
+//   $(this).css("right", "-80px");
+// });
+// $("#trip-menu").mouseleave(function(){
+//   $(this).css("right", "-108px");
+// });
+// $("#plan-menu").mouseover(function(){
+//   $(this).css("right", "-80px");
+// });
+// $("#plan-menu").mouseleave(function(){
+//   $(this).css("right", "-103px");
+// });
+// $("#schedule-menu").mouseover(function(){
+//   $(this).css("right", "-89px");
+// });
+// $("#schedule-menu").mouseleave(function(){
+//   $(this).css("right", "-117px");
+// });
+// $("#members-menu").mouseover(function(){
+//   $(this).css("right", "-76px");
+// });
+// $("#members-menu").mouseleave(function(){
+//   $(this).css("right", "-104px");
+// });
+// $("#history-menu").mouseover(function(){
+//   $(this).css("right", "-76px");
+// });
+// $("#history-menu").mouseleave(function(){
+//   $(this).css("right", "-104px");
+// });
 $("#trip-menu").click(function(){
   change_position("#trip-detail", "-500px");
 });
@@ -704,7 +722,8 @@ function editTripDetail(){
         off_time: UnFormatOffTime($("#off-time").val()),
         off_place: $("#off-place").val(),
         necessary_tool: $("#necessary-tool").val(),
-        note: $("#note").val()
+        note: $("#note").val(),
+        status: $("#trip-status").val()
       }
       $.ajax({
         type: 'POST',
@@ -935,7 +954,7 @@ function view_members(members){
         <div class='member-info'>\
           <div class='member-name'>"+members[i].full_name+"</div>\
           <div class='member-hometown'>"+members[i].hometown+"</div>\
-          <div class='member-joined-date'>joined <span>"+formatDatetoDate(members[i].joined_date)+"</span></div>\
+          <div class='member-joined-date'>Tham gia <span>"+formatDatetoDate(members[i].joined_date)+"</span></div>\
         </div>\
       </li>");
     }
@@ -1038,58 +1057,63 @@ function create_tripdetail(tripdetail){
   var start_date=new Date(tripdetail.start_date);
   var trip_month_year=name_month(start_date.getMonth())+" "+start_date.getFullYear();
   var neading_member= tripdetail.estimated_members-members.length;
-  if(tripdetail.description=="null") tripdetail.description="";
-  if(tripdetail.cost_detail=="null") tripdetail.cost_detail=""
-  if(tripdetail.off_time=='null') tripdetail.off_time="";
-  if(tripdetail.off_place=='null') tripdetail.off_place="";
-  if(tripdetail.necessary_tool=="null") tripdetail.necessary_tool="";
-  if(tripdetail.note=='null') tripdetail.note="";
+  if(tripdetail.description==null) tripdetail.description="";
+  if(tripdetail.cost_detail==null) tripdetail.cost_detail=""
+  if(tripdetail.off_time==null) tripdetail.off_time="";
+  if(tripdetail.off_place==null) tripdetail.off_place="";
+  if(tripdetail.necessary_tool==null) tripdetail.necessary_tool="";
+  if(tripdetail.note==null) tripdetail.note="";
 
   var tripdetail_string="<ul class='content2-header' id='trip-detail-title'>\
   <li class='content2-header-item'><button class='function-button' id='enable-edit-trip'><span class='glyphicon glyphicon-pencil'></span>EDIT </button></li>\
-  <li class='content2-header-item'><button class='function-button' id='reset-edit-trip'><span class='glyphicon glyphicon-remove'></span>EXPORT </button></li>\
   <li class='li-close-button'><button class='close-button' id='close-button-edit-trip'><span class='glyphicon glyphicon-remove'></button></li>\
    </ul>\
   <div class='trip-detail-header' style=\"background-image: url('"+tripdetail.background+"')\">\
 <div class='trip-detail-header-background'>\
   <textarea class='trip-name' disabled='true' id='trip-name' name='trip-name'>"+tripdetail.name+"</textarea>\
   <h3 class='trip-month'>"+trip_month_year+"</h3>\
-  <p class='needing-member'>Needing "+neading_member+" members</p>\
+  <p class='needing-member'>Cần thêm "+neading_member+" thành viên</p>\
   <button type='button' data-toggle='modal' data-target='#joinModal' id='join-button' class='join-button'>Tham gia</button>\
   </div>\
 </div>\
 <div class='trip-detail-content'>\
   <div class='item-content2'>\
-      <label class='trip-detail-item'>Status: </label><span>"+tripdetail.status+"</span>\
+      <label class='trip-detail-item'>Trạng thái: </label>\
+      <select id='trip-status' disabled='true'>\
+      <option id='open'>open</option>\
+      <option id='happen'>happen</option>\
+      <option id='cancel'>cancel</option>\
+      <option id='finish'>finish</option>\
+      </select>\
     </div>\
   <div class='item-content2'>\
-    <label class='trip-detail-item'>Time: </label><input type='text' class='trip-detail-time' id='start-date' name='start-date' disabled='true' value='"+formatDatetoDate(tripdetail.start_date)+"'> - \
+    <label class='trip-detail-item'>Thời gian: </label><input type='text' class='trip-detail-time' id='start-date' name='start-date' disabled='true' value='"+formatDatetoDate(tripdetail.start_date)+"'> - \
    <input type='text' class='trip-detail-time' id='end-date' name='end-date' disabled='true' value='"+formatDatetoDate(tripdetail.end_date)+"'>\
     </div>\
      <div class='item-content2'>\
-      <label class='trip-detail-item'>Description</label><textarea name='trip-description' id='trip-description' disabled='true'>"+tripdetail.description+"</textarea>\
+      <label class='trip-detail-item'>Mô tả</label><textarea name='trip-description' id='trip-description' disabled='true'>"+tripdetail.description+"</textarea>\
     </div>\
     <div class='item-content2'>\
-      <label class='trip-detail-item'>Estimated Cost: </label><input type='text' id='estimated-cost' name='estimated-cost' disabled='true' value='"+formatMoney(tripdetail.estimated_cost)+"'><span>/1person</span>\
+      <label class='trip-detail-item'>Chi phí dự tính </label><input type='text' id='estimated-cost' name='estimated-cost' disabled='true' value='"+formatMoney(tripdetail.estimated_cost)+"'><span>/1 người</span>\
       </div>\
     <div class='item-content2'>\
-      <label class='trip-detail-item'>Estimated Members: </label><input type='text' name='estimated_members' id='estimated-members' disabled='true' value='"+tripdetail.estimated_members+"'><span> persons</span>\
+      <label class='trip-detail-item'>Số thành viên dự tính: </label><input type='text' name='estimated_members' id='estimated-members' disabled='true' value='"+tripdetail.estimated_members+"'><span> thành viên</span>\
     </div>\
     <div class='item-content2'>\
-      <label class='trip-detail-item'>Cost Detail:</label>\
+      <label class='trip-detail-item'>Chi tiết chi phí</label>\
       <textarea id='cost-detail' name='cost-detail' disabled='true'>"+tripdetail.cost_detail+"</textarea>\
     </div>\
     <div class='item-content2'>\
-      <label class='trip-detail-item'>Off Time: </label><input type='text' name='off-time' id='off-time' disabled='true' value='"+formatDatetoTime(tripdetail.off_time)+" "+formatDatetoDate(tripdetail.off_time)+"'>\
+      <label class='trip-detail-item'>Thời gian off </label><input type='text' name='off-time' id='off-time' disabled='true' value='"+formatDatetoTime(tripdetail.off_time)+" "+formatDatetoDate(tripdetail.off_time)+"'>\
     </div>\
     <div class='item-content2'>\
-      <label class='trip-detail-item'>Off Place: </label><input type='text' name='off-place' id='off-place' disabled='true' value=\""+tripdetail.off_place+"\">\
+      <label class='trip-detail-item'>Vị trí off: </label><input type='text' name='off-place' id='off-place' disabled='true' value=\""+tripdetail.off_place+"\">\
     </div>\
          <div class='item-content2'>\
-      <label class='trip-detail-item'>Necessary Tool: </label><textarea  name='necessary-tool' id='necessary-tool' disabled='true'>"+tripdetail.necessary_tool+"</textarea>\
+      <label class='trip-detail-item'>Dụng cụ cần thiết </label><textarea  name='necessary-tool' id='necessary-tool' disabled='true'>"+tripdetail.necessary_tool+"</textarea>\
     </div>\
          <div class='item-content2'>\
-      <label class='trip-detail-item'>Note: </label><textarea id='note' name='note' disabled='true'>"+tripdetail.note+"</textarea>\
+      <label class='trip-detail-item'>Ghi chú: </label><textarea id='note' name='note' disabled='true'>"+tripdetail.note+"</textarea>\
     </div>\
 </div>";
 $("#trip-detail").html(tripdetail_string);
@@ -1098,6 +1122,7 @@ $("#trip-detail").html(tripdetail_string);
   auto_height_textarea('#necessary-tool',20);
   auto_height_textarea('#note',20);
   auto_height_textarea('#trip-name',90);
+  $("#trip-status").val(tripdetail.status);
   if(view_mode!="user"){
     $("#join-button").remove();
   }
@@ -1150,6 +1175,7 @@ function create_trip_history(trip_detail){
   $("#trip-photos").html(images_lenght +" hình ảnh");
   $("#start-date-history").html(formatDatetoDate(stops[0].arrive));
   $("#end-date-history").html(formatDatetoDate(stops[stops.length-1].arrive));
+  $("#history-header").css('background-image', "url('"+trip_detail.background+"')")
 
   for(var s in stops){
     $("#middle-item").append("<li class='add_stop_history'><button class='btn btn-circle btn-warning glyphicon glyphicon-plus'></button> Thêm điểm dừng</li>\
@@ -1242,6 +1268,8 @@ function UnFormatMoney(money){
 }
 function UnFormatOffTime(datetime){
   ///hope it dispear
+  console.log(datetime)
+  if(datetime=="") return 0
   var time= datetime.split("m ")[0];
   var date=datetime.split("m ")[1];
   var ms_date=0;
@@ -1282,8 +1310,11 @@ function name_date(day){
   return weekday[day];
 }
 function name_month(month){
-  var monthNames = ["January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December"
+  // var monthNames = ["January", "February", "March", "April", "May", "June",
+  // "July", "August", "September", "October", "November", "December"
+  // ];
+   var monthNames = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+   "Tháng 7", "Tháng 8", "Tháng 9","Tháng 10", "Tháng 11", "Tháng 12"
   ];
   return monthNames[month];
 }
@@ -1330,6 +1361,7 @@ function cal_number_days(stops){
 }
 
 function formatDatetoDate(date_ms) {
+  if(date_ms==0) return ""
   var date=new Date(date_ms)
   var hours = date.getHours();
   var minutes = date.getMinutes();
@@ -1342,6 +1374,7 @@ function formatDatetoDate(date_ms) {
   //return strTime
 }
 function formatDatetoTime(date_ms) {
+  if(date_ms==0) return ""
   var date=new Date(date_ms);
   var hours = date.getHours();
   var minutes = date.getMinutes();
