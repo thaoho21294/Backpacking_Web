@@ -62,6 +62,7 @@ defmodule BsnWeb.Router do
 
     scope "/trips" do
       get "/view/:user_id", TripController, :get_trips_near_user
+      get "/view_province/:province", TripController, :get_trips_near_province
       get "/view-new-trips/:user_id", TripController, :get_trips_new
       get "/view-old-trips/:user_id", TripController, :get_trips_finish
       get "/leader-view/:user_id", TripController, :get_my_trips

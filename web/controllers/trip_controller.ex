@@ -78,14 +78,14 @@ defmodule BsnWeb.TripController do
     trips=Backend.retrieve(%{id: user_id}, %{type: "ViewTripsListFinish"})
     render(conn, "get_trips_finish.json", trips: trips)
   end
-    def get_trips_new(conn, %{"user_id"=>user_id}) do
-    trips=Backend.retrieve(%{id: user_id}, %{type: "ViewTripsListNew"})
-    render(conn, "get_trips_new.json", trips: trips)
+    def get_trips_near_province(conn, %{"province"=>province}) do
+    trips=Backend.retrieve(%{province: province}, %{type: "ViewTripsListProvince"})
+    render(conn, "get_trips_near_province.json", trips: trips)
   end
-    def get_trips_finish(conn, %{"user_id"=>user_id}) do
-    trips=Backend.retrieve(%{id: user_id}, %{type: "ViewTripsListFinish"})
-    render(conn, "get_trips_finish.json", trips: trips)
-  end
+  #   def get_trips_finish(conn, %{"user_id"=>user_id}) do
+  #   trips=Backend.retrieve(%{id: user_id}, %{type: "ViewTripsListFinish"})
+  #   render(conn, "get_trips_finish.json", trips: trips)
+  # end
   def get_my_trips(conn, %{"user_id"=>user_id}) do
      trips=Backend.retrieve(%{id: user_id}, %{type: "ViewMyTrips"})
     render(conn, "get_my_trips.json", trips: trips)

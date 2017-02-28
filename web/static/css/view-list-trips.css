@@ -183,3 +183,7 @@ form.new-trip-form{
  padding-right:5px; 
  color:#c0c0c0;
 }
+#province-select{
+  padding: 5px;
+  margin-bottom: 20px;
+}

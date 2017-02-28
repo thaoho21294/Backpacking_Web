@@ -6,10 +6,12 @@ defmodule BsnWeb.PageController do
     user_id = get_session(conn, :current_user)
     #text conn, message
      if user_id==nil do
-       redirect(conn, to: session_path(conn, :new))
-    else
+      user_id=0
+     end
+     #  redirect(conn, to: session_path(conn, :new))
+    #else
       render conn, "view-list-trips.html", user_id: user_id
-    end
+    #end
   end
   def view_trip(conn, %{"id"=>trip_id}) do
     user_id= get_session(conn, :current_user)

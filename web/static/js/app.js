@@ -21,7 +21,7 @@ $(document).ready(function(){
 	$("#noti-list").hide();
 	var user_id= $("#user_id").val();
 	var trip_id= $("#tripid").val();
-	if(user_id){
+	if(user_id!=0){
 	$.ajax({
 		url: "/api/users/"+user_id+"/simple_info",
 		dataType: 'json',

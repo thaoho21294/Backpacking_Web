@@ -1,6 +1,11 @@
 var user_id= $("#user_id").val();
 var now_day=new Date();
-
+  if(user_id!=0) {
+    $("#province-select, #login-group, #registration-group").hide();
+  }
+  else{
+    $("#menu-my-trip, #user-group, #message-icon, #noti-icon").hide();
+  }
 $(document).ready(function(){
 	$("#find-trip-list").hide();
 	$("#find-trip-location").keyup(function(event){
@@ -54,58 +59,84 @@ $(document).ready(function(){
 	});
 	//Load list trips from database
   var trip_list=document.getElementById("trip-near-you")
-if(trip_list!=undefined){
-  var near_trips=[];
-	$.ajax({
-		url:"/api/trips/view/"+user_id,
-    async: false,
-		dataType: 'json',
-		success: function(data){
-      near_trips=data.trips
-			drawTripList('#trip-near-you .trip-item-list', near_trips)
-		},
-		error: function( jqXhr, textStatus, errorThrown ){
-        console.log(errorThrown );
+  if(trip_list!=undefined){
+    var near_trips=[];
+    var view_trip_list_url;
+    if (user_id==0){
+      var province=$("#province-select").val();
+    	view_trip_list_url="/api/trips/view_province/"+province
+        $("#province-select").change(function(){
+          province=$("#province-select").val();
+          console.log(province);
+          view_trip_list_url="/api/trips/view_province/"+province
+          $.ajax({
+            url: view_trip_list_url,
+            async: false,
+            dataType: 'json',
+            success: function(data){
+              near_trips=data.trips
+              drawTripList('#trip-near-you .trip-item-list', near_trips)
+            },
+            error: function( jqXhr, textStatus, errorThrown ){
+                console.log(errorThrown );
 
-    	}
-	});//enđ ajax
-  $.ajax({
-    url:"/api/trips/view-new-trips/"+user_id,
-    dataType: 'json',
-    success: function(data){
-      console.log(data.trips)
-      var new_trips=[]
-      var  trips=data.trips;
-      for (var i in trips){
-        for(var j in near_trips){
-          if(trips[i].id==near_trips[j].id)
-            break;
+              }
+          });//end ajax
+        });//end change event
+    }
+    else {
+      view_trip_list_url="/api/trips/view/"+user_id
+    }
+    $.ajax({
+        url: view_trip_list_url,
+        async: false,
+        dataType: 'json',
+        success: function(data){
+          near_trips=data.trips
+          drawTripList('#trip-near-you .trip-item-list', near_trips)
+        },
+        error: function( jqXhr, textStatus, errorThrown ){
+            console.log(errorThrown );
+
+          }
+      });//enđ ajax
+    $.ajax({
+      url:"/api/trips/view-new-trips/"+user_id,
+      dataType: 'json',
+      success: function(data){
+        console.log(data.trips)
+        // var new_trips=[]
+        // var  trips=data.trips;
+        // for (var i in trips){
+        //   for(var j in near_trips){
+        //     if(trips[i].id==near_trips[j].id)
+        //       break;
+        //   }
+        //   console.log(j)
+        //   if(parseInt(j)==near_trips.length-1 || j==undefined) {
+        //     new_trips.push(trips[i])
+        //   }
+        // }
+        // console.log(new_trips)
+        drawTripList('#trip-new .trip-item-list', data.trips)//new_trips)
+      },
+      error: function( jqXhr, textStatus, errorThrown ){
+          console.log(errorThrown );
+
         }
-        console.log(j)
-        if(parseInt(j)==near_trips.length-1 || j==undefined) {
-          new_trips.push(trips[i])
+    });//enđ ajax
+    $.ajax({
+      url:"/api/trips/view-old-trips/"+user_id,
+      dataType: 'json',
+      success: function(data){
+        drawTripList('#trip-finish .trip-item-list', data.trips)
+      },
+      error: function( jqXhr, textStatus, errorThrown ){
+          console.log(errorThrown );
+
         }
-      }
-      console.log(new_trips)
-      drawTripList('#trip-new .trip-item-list', new_trips)
-    },
-    error: function( jqXhr, textStatus, errorThrown ){
-        console.log(errorThrown );
-
-      }
-  });//enđ ajax
-  $.ajax({
-    url:"/api/trips/view-old-trips/"+user_id,
-    dataType: 'json',
-    success: function(data){
-      drawTripList('#trip-finish .trip-item-list', data.trips)
-    },
-    error: function( jqXhr, textStatus, errorThrown ){
-        console.log(errorThrown );
-
-      }
-  });//enđ ajax
-}
+    });//enđ ajax
+  }
 	$("#trip-near-you, #trip-new, #trip-finish").on('click', '.trip-item', function(){
 		var url=$(this).children('a').attr('href')
 		window.open(url);

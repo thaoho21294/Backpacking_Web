@@ -333,7 +333,20 @@ defmodule BsnWeb.Backend do
   cypher= "MATCH (t:Trip) WHERE id(t)=#{trip_id} SET t.end_date=#{end_date}"
   Sips.query!(Sips.conn, cypher)
   end
+  def retrieve(%{province: province}, %{type: "ViewTripsListProvince"}) do
+    cypher="""
+    MATCH (p:Profile)<-[:HAVE]-(u:User)-[:MEMBER{role: \"leader\"}]->(t:Trip)-[:HAVE]->(s:Status), (t:Trip)-[:INCLUDE]->(st:Stop)-[:LOCATE]->(sl:Location)
+    WHERE s.name=\"open\" and st.order=1 and trim(split(sl.address, ',')[length(split(sl.address, ','))-2])=\"#{province}\"
+    RETURN id(t) as id, t.name as name, t.start_date as start_date, t.end_date as end_date, t.background as background, t.created_date as created_date,
+    t.vehicle as vehicle, p.first_name+" "+p.last_name as leader_name, s.name as status
+    ORDER BY t.created_date DESC
+    LIMIT 10
+    """
+    Sips.query!(Sips.conn, cypher)
+  end
   def retrieve(%{id: user_id}, %{type: "ViewTripsList"})do
+    # 2 dịa chỉ có cùng tỉnh thành
+    #trim(split(sl.address, ',')[length(split(sl.address, ','))-2])=trim(split(l.address, ',')[length(split(l.address, ','))-2])
     cypher="""
     MATCH (p:Profile)<-[:HAVE]-(u:User)-[:MEMBER{role: \"leader\"}]->(t:Trip)-[:HAVE]->(s:Status), (t:Trip)-[:INCLUDE]->(st:Stop)-[:LOCATE]->(sl:Location), (uu:User)-[:HAVE]->(pp:Profile)-[:LIVE]->(l:Location)
     WHERE s.name=\"open\" and id(u) <> #{user_id} and id(uu)=#{user_id} and st.order=1 and trim(split(sl.address, ',')[length(split(sl.address, ','))-2])=trim(split(l.address, ',')[length(split(l.address, ','))-2])

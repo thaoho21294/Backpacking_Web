@@ -38,13 +38,13 @@
                             <li><a id="add-middle-stop" href="#">Add middle stop</a></li>
                         </ul>
                     </li>
-                    <li class="page-scroll">
+                    <li class="page-scroll" id="message-icon">
                         <a href="#portfolio"><span class="glyphicon glyphicon-comment" style="font-size:14pt"></a>
                     </li>
-                    <li class="page-scroll">
+                    <li class="page-scroll" id="noti-icon">
                         <a href="#"><span class="glyphicon glyphicon-bell" id='noti-icon' role="button" style="font-size:14pt"></span> </a><div class='noti'></div>                     
                     </li>
-                    <li class="dropdown">
+                    <li class="dropdown" id="user-group">
                         <a href="#" id='avatar-group' class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><img id="main-avatar" src='/images/avatar_white.jpg'><span id="user-name-nav" >Tên người dùng</span> <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="/mytrips">My trips</a></li>
@@ -55,6 +55,12 @@
                             <li role="separator" class="divider"></li>
                             <li><a href="/logout">Logout</a></li>
                         </ul>
+                    </li>
+                    <li class="page-scroll" id="login-group">
+                        <a href="/new"><span class="glyphicon glyphicon-user" style="font-size:12pt"></span> Đăng nhập</a>                     
+                    </li>
+                    <li class="page-scroll" id="registration-group">
+                        <a href="/registration"><span class="glyphicon glyphicon-pencil" style="font-size:12pt"></span> Đăng ký</a>                     
                     </li>
                 </ul>
                  <ul class="noti-list" id='noti-list'>
